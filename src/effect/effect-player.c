@@ -141,11 +141,11 @@ concptr blind_spell_effect_messages[MAX_GF] = {
     "", // GF_WOUNDS = 116, /*!< 魔法効果: 創傷*/
 };
 
-typedef enum effect_player_check_result {
+enum ep_check_result {
     EP_CHECK_FALSE = 0,
     EP_CHECK_TRUE = 1,
     EP_CHECK_CONTINUE = 2,
-} ep_check_result;
+};
 
 /*!
  * @brief effect_player_type構造体を初期化する
