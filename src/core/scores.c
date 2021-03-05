@@ -733,7 +733,7 @@ void show_highclass(player_type *current_player_ptr)
  */
 void race_score(player_type *current_player_ptr, int race_num)
 {
-	register int i = 0, j, m = 0;
+	int i = 0, j, m = 0;
 	int pr, clev, lastlev;
 	high_score the_score;
 	char buf[1024], out_val[256], tmp_str[80];

@@ -1225,7 +1225,7 @@ static bool init_graphics(void)
     }
 
     current_graphics_mode = arg_graphics;
-    return (current_graphics_mode);
+    return current_graphics_mode != 0;
 }
 
 /*
@@ -1428,13 +1428,13 @@ static errr term_xtra_win_react(player_type *player_ptr)
             select_floor_music(player_ptr);
     }
 
-    if (use_graphics != arg_graphics) {
+    if (use_graphics != (arg_graphics > 0)) {
         if (arg_graphics && !init_graphics()) {
             plog(_("グラフィックスを初期化できません!", "Cannot initialize graphics!"));
             arg_graphics = GRAPHICS_NONE;
         }
 
-        use_graphics = arg_graphics;
+        use_graphics = (arg_graphics > 0);
         reset_visuals(player_ptr, process_autopick_file_command);
     }
 

@@ -63,7 +63,7 @@
 int staff_effect(player_type *creature_ptr, OBJECT_SUBTYPE_VALUE sval, bool *use_charge, bool powerful, bool magic, bool known)
 {
     int k;
-    int ident = FALSE;
+    bool ident = FALSE;
     PLAYER_LEVEL lev = powerful ? creature_ptr->lev * 2 : creature_ptr->lev;
     POSITION detect_rad = powerful ? DETECT_RAD_DEFAULT * 3 / 2 : DETECT_RAD_DEFAULT;
 
@@ -121,7 +121,7 @@ int staff_effect(player_type *creature_ptr, OBJECT_SUBTYPE_VALUE sval, bool *use
     }
 
     case SV_STAFF_REMOVE_CURSE: {
-        bool result = powerful ? remove_all_curse(creature_ptr) : remove_curse(creature_ptr);
+        bool result = (powerful ? remove_all_curse(creature_ptr) : remove_curse(creature_ptr)) != 0;
         if (result) {
             ident = TRUE;
         }

@@ -107,7 +107,7 @@ static char inkey_from_menu(player_type *player_ptr)
         }
 
         max_num = i;
-        kisuu = max_num % 2;
+        kisuu = (max_num % 2) == 1;
         put_str(_("》", "> "), basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
 
         move_cursor_relative(player_ptr->y, player_ptr->x);

@@ -126,7 +126,8 @@ bool psychometry(player_type *caster_ptr)
  */
 bool cast_mindcrafter_spell(player_type *caster_ptr, mind_mindcrafter_type spell)
 {
-    int b = 0;
+    bool b = FALSE;
+    int dam = 0;
     DIRECTION dir;
     TIME_EFFECT t;
     PLAYER_LEVEL plev = caster_ptr->lev;
@@ -237,8 +238,8 @@ bool cast_mindcrafter_spell(player_type *caster_ptr, mind_mindcrafter_type spell
         if (!get_aim_dir(caster_ptr, &dir))
             return FALSE;
 
-        b = damroll(plev / 2, 6);
-        if (fire_ball(caster_ptr, GF_PSI_DRAIN, dir, b, 0))
+        dam = damroll(plev / 2, 6);
+        if (fire_ball(caster_ptr, GF_PSI_DRAIN, dir, dam, 0))
             caster_ptr->energy_need += randint1(150);
 
         break;
