@@ -8,6 +8,7 @@
 #include "util/probability-table.h"
 #include "view/display-messages.h"
 #include "world/world.h"
+#include <iterator>
 
 /*!
  * @brief グローバルオブジェクト配列から空きを取得する /
