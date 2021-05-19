@@ -11,7 +11,10 @@
 #include "system/player-type-definition.h"
 #include "target/grid-selector.h"
 #include "util/bit-flags-calculator.h"
+#include "util/point-2d.h"
 #include "view/display-messages.h"
+
+#include <queue>
 
 #define TRAVEL_UNABLE 9999
 
@@ -64,24 +67,25 @@ static int travel_flow_cost(player_type *creature_ptr, POSITION y, POSITION x)
  * @param x 目標地点のX座標
  * @param n 現在のコスト
  * @param wall プレイヤーが壁の中にいるならばTRUE
+ * @return 目標地点のコストを更新した場合はtrue、そうでなければfalse
  */
-static void travel_flow_aux(player_type *creature_ptr, POSITION y, POSITION x, int n, bool wall)
+static bool travel_flow_aux(player_type *creature_ptr, POSITION y, POSITION x, int n, bool wall)
 {
     floor_type *floor_ptr = creature_ptr->current_floor_ptr;
     grid_type *g_ptr = &floor_ptr->grid_array[y][x];
     feature_type *f_ptr = &f_info[g_ptr->feat];
     if (!in_bounds(floor_ptr, y, x))
-        return;
+        return false;
 
     if (floor_ptr->dun_level > 0 && !(g_ptr->info & CAVE_KNOWN))
-        return;
+        return false;
 
     int add_cost = 1;
     int from_wall = (n / TRAVEL_UNABLE);
     if (has_flag(f_ptr->flags, FF_WALL) || has_flag(f_ptr->flags, FF_CAN_DIG) || (has_flag(f_ptr->flags, FF_DOOR) && floor_ptr->grid_array[y][x].mimic)
         || (!has_flag(f_ptr->flags, FF_MOVE) && has_flag(f_ptr->flags, FF_CAN_FLY) && !creature_ptr->levitation)) {
         if (!wall || !from_wall)
-            return;
+            return false;
 
         add_cost += TRAVEL_UNABLE;
     } else
@@ -90,17 +94,10 @@ static void travel_flow_aux(player_type *creature_ptr, POSITION y, POSITION x, i
     int base_cost = (n % TRAVEL_UNABLE);
     int cost = base_cost + add_cost;
     if (travel.cost[y][x] <= cost)
-        return;
+        return false;
 
     travel.cost[y][x] = cost;
-    int old_head = flow_head;
-    temp2_y[flow_head] = y;
-    temp2_x[flow_head] = x;
-    if (++flow_head == MAX_SHORT)
-        flow_head = 0;
-
-    if (flow_head == flow_tail)
-        flow_head = old_head;
+    return true;
 }
 
 /*!
@@ -111,25 +108,29 @@ static void travel_flow_aux(player_type *creature_ptr, POSITION y, POSITION x, i
  */
 static void travel_flow(player_type *creature_ptr, POSITION ty, POSITION tx)
 {
-    flow_head = flow_tail = 0;
     bool wall = FALSE;
     feature_type *f_ptr = &f_info[creature_ptr->current_floor_ptr->grid_array[creature_ptr->y][creature_ptr->x].feat];
     if (!has_flag(f_ptr->flags, FF_MOVE))
         wall = TRUE;
 
     travel_flow_aux(creature_ptr, ty, tx, 0, wall);
-    POSITION x, y;
-    while (flow_head != flow_tail) {
-        y = temp2_y[flow_tail];
-        x = temp2_x[flow_tail];
-        if (++flow_tail == MAX_SHORT)
-            flow_tail = 0;
+    using Flow = std::tuple<int, Pos2D>;
+    auto cost_cmp = [](const Flow &a, const Flow &b) { return std::get<0>(a) > std::get<0>(b); };
+    std::priority_queue<Flow, std::vector<Flow>, decltype(cost_cmp)> que(cost_cmp);
+    que.emplace(travel.cost[ty][tx], Pos2D{ty, tx});
+    while (!que.empty()) {
+        const auto [cost, pos] = que.top();
+        que.pop();
 
-        for (DIRECTION d = 0; d < 8; d++)
-            travel_flow_aux(creature_ptr, y + ddy_ddd[d], x + ddx_ddd[d], travel.cost[y][x], wall);
+        if (travel.cost[pos.y][pos.x] < cost)
+            continue;
+
+        for (DIRECTION d = 0; d < 8; d++) {
+            Pos2D npos(pos.y + ddy_ddd[d], pos.x + ddx_ddd[d]);
+            if (travel_flow_aux(creature_ptr, npos.y, npos.x, cost, wall))
+                que.emplace(travel.cost[npos.y][npos.x], std::move(npos));
+        }
     }
-
-    flow_head = flow_tail = 0;
 }
 
 /*!
