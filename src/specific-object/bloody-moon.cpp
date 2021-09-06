@@ -10,6 +10,59 @@
 #include "util/bit-flags-calculator.h"
 #include "view/display-messages.h"
 
+namespace {
+/**
+ * @brief 固定アーティファクト『ブラッディムーン』の発動で付く可能性のある攻撃系特性フラグのリスト。確率は等確率。
+ * KILL_EVILは強力すぎるため除外されていると思われる。
+ * @todo 後に善良スレイが追加されているが、加える必要は無いか？
+ */
+constexpr std::array<tr_type, 26> bloody_moon_slaying_list = {
+    TR_SLAY_ANIMAL,
+    TR_SLAY_EVIL,
+    TR_SLAY_UNDEAD,
+    TR_SLAY_DEMON,
+    TR_SLAY_ORC,
+    TR_SLAY_TROLL,
+    TR_SLAY_GIANT,
+    TR_SLAY_DRAGON,
+    TR_SLAY_HUMAN,
+    TR_KILL_ANIMAL,
+    TR_KILL_UNDEAD,
+    TR_KILL_DEMON,
+    TR_KILL_ORC,
+    TR_KILL_TROLL,
+    TR_KILL_GIANT,
+    TR_KILL_DRAGON,
+    TR_KILL_HUMAN,
+    TR_CHAOTIC,
+    TR_VAMPIRIC,
+    TR_VORPAL,
+    TR_EARTHQUAKE,
+    TR_BRAND_POIS,
+    TR_BRAND_ACID,
+    TR_BRAND_ELEC,
+    TR_BRAND_FIRE,
+    TR_BRAND_COLD,
+};
+
+/**
+ * @brief 固定アーティファクト『ブラッディムーン』の発動で付く可能性のあるpval能力系特性フラグのリスト。確率は等確率。
+ */
+constexpr std::array<tr_type, 11> bloody_moon_pval_list = {
+    TR_STR,
+    TR_INT,
+    TR_WIS,
+    TR_DEX,
+    TR_CON,
+    TR_CHR,
+    TR_STEALTH,
+    TR_SEARCH,
+    TR_INFRA,
+    TR_TUNNEL,
+    TR_SPEED,
+};
+}
+
 /*!
  * @brief 固定アーティファクト『ブラッディムーン』の特性を変更する。
  * @details スレイ2d2種、及びone_resistance()による耐性1d2種、pval2種を得る。
@@ -19,29 +72,18 @@ void get_bloody_moon_flags(object_type *o_ptr)
 {
     o_ptr->art_flags = a_info[ART_BLOOD].flags;
 
-    int dummy = randint1(2) + randint1(2);
-    for (int i = 0; i < dummy; i++) {
-        int flag = randint0(26);
-        if (flag >= 20)
-            o_ptr->art_flags.set(i2enum<tr_type>(TR_KILL_UNDEAD + flag - 20));
-        else if (flag == 19)
-            o_ptr->art_flags.set(TR_KILL_ANIMAL);
-        else if (flag == 18)
-            o_ptr->art_flags.set(TR_SLAY_HUMAN);
-        else
-            o_ptr->art_flags.set(i2enum<tr_type>(TR_CHAOTIC + flag));
+    for (auto count = damroll(2, 2); count > 0; count--) {
+        auto flag = rand_choice(bloody_moon_slaying_list);
+        o_ptr->art_flags.set(flag);
     }
 
-    dummy = randint1(2);
-    for (int i = 0; i < dummy; i++)
+    for (auto count = randint1(2); count > 0; count--) {
         one_resistance(o_ptr);
+    }
 
-    for (int i = 0; i < 2; i++) {
-        int tmp = randint0(11);
-        if (tmp < A_MAX)
-            o_ptr->art_flags.set(i2enum<tr_type>(TR_STR + tmp));
-        else
-            o_ptr->art_flags.set(i2enum<tr_type>(TR_STEALTH + tmp - 6));
+    for (auto i = 0; i < 2; i++) {
+        auto flag = rand_choice(bloody_moon_pval_list);
+        o_ptr->art_flags.set(flag);
     }
 }
 
