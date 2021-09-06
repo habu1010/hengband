@@ -98,26 +98,8 @@ int m_bonus(int max, DEPTH level)
  */
 void one_sustain(object_type *o_ptr)
 {
-    switch (randint0(A_MAX)) {
-    case 0:
-        o_ptr->art_flags.set(TR_SUST_STR);
-        break;
-    case 1:
-        o_ptr->art_flags.set(TR_SUST_INT);
-        break;
-    case 2:
-        o_ptr->art_flags.set(TR_SUST_WIS);
-        break;
-    case 3:
-        o_ptr->art_flags.set(TR_SUST_DEX);
-        break;
-    case 4:
-        o_ptr->art_flags.set(TR_SUST_CON);
-        break;
-    case 5:
-        o_ptr->art_flags.set(TR_SUST_CHR);
-        break;
-    }
+    auto flag = rand_choice(TR_SUST_STATUS_LIST);
+    o_ptr->art_flags.set(flag);
 }
 
 /*!

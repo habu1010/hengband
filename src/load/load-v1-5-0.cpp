@@ -162,26 +162,7 @@ void rd_item_old(object_type *o_ptr)
 
     if (h_older_than(1, 0, 10)) {
         if (o_ptr->xtra1 == EGO_XTRA_SUSTAIN) {
-            switch (o_ptr->xtra2 % 6) {
-            case 0:
-                o_ptr->art_flags.set(TR_SUST_STR);
-                break;
-            case 1:
-                o_ptr->art_flags.set(TR_SUST_INT);
-                break;
-            case 2:
-                o_ptr->art_flags.set(TR_SUST_WIS);
-                break;
-            case 3:
-                o_ptr->art_flags.set(TR_SUST_DEX);
-                break;
-            case 4:
-                o_ptr->art_flags.set(TR_SUST_CON);
-                break;
-            case 5:
-                o_ptr->art_flags.set(TR_SUST_CHR);
-                break;
-            }
+            o_ptr->art_flags.set(TR_SUST_STATUS_LIST[o_ptr->xtra2 % 6]);
             o_ptr->xtra2 = 0;
         } else if (o_ptr->xtra1 == EGO_XTRA_POWER) {
             switch (o_ptr->xtra2 % 11) {

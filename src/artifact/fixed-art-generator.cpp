@@ -70,12 +70,7 @@ static void milim_swimsuit(player_type *player_ptr, object_type *o_ptr)
         return;
 
     o_ptr->pval = 3;
-    o_ptr->art_flags.set(TR_STR);
-    o_ptr->art_flags.set(TR_INT);
-    o_ptr->art_flags.set(TR_WIS);
-    o_ptr->art_flags.set(TR_DEX);
-    o_ptr->art_flags.set(TR_CON);
-    o_ptr->art_flags.set(TR_CHR);
+    o_ptr->art_flags.set(TR_STATUS_FLAG_MASK);
 }
 
 /*!

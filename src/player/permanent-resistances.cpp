@@ -257,12 +257,7 @@ static void add_kata_flags(player_type *player_ptr, TrFlags &flags)
     flags.set(TR_TELEPATHY);
     flags.set(TR_SLOW_DIGEST);
     flags.set(TR_REGEN);
-    flags.set(TR_SUST_STR);
-    flags.set(TR_SUST_INT);
-    flags.set(TR_SUST_WIS);
-    flags.set(TR_SUST_DEX);
-    flags.set(TR_SUST_CON);
-    flags.set(TR_SUST_CHR);
+    flags.set(TR_SUST_STATUS_FLAG_MASK);
 }
 
 /*!
