@@ -193,3 +193,31 @@ inline constexpr std::array<tr_type, 6> TR_SUST_STATUS_LIST = {
     TR_SUST_CON,
     TR_SUST_CHR,
 };
+
+/** SLAYフラグのリスト(動物、邪悪、アンデッド、デーモン、オーク、トロル、ジャイアント、ドラゴン、人間、善良の10種) */
+inline constexpr std::array<tr_type, 10> TR_SLAY_LIST = {
+    TR_SLAY_ANIMAL,
+    TR_SLAY_EVIL,
+    TR_SLAY_UNDEAD,
+    TR_SLAY_DEMON,
+    TR_SLAY_ORC,
+    TR_SLAY_TROLL,
+    TR_SLAY_GIANT,
+    TR_SLAY_DRAGON,
+    TR_SLAY_HUMAN,
+    TR_SLAY_GOOD,
+};
+
+/** KILLフラグのリスト(動物、邪悪、アンデッド、デーモン、オーク、トロル、ジャイアント、ドラゴン、人間、善良の10種) */
+inline constexpr std::array<tr_type, 10> TR_KILL_LIST = {
+    TR_KILL_ANIMAL,
+    TR_KILL_EVIL,
+    TR_KILL_UNDEAD,
+    TR_KILL_DEMON,
+    TR_KILL_ORC,
+    TR_KILL_TROLL,
+    TR_KILL_GIANT,
+    TR_KILL_DRAGON,
+    TR_KILL_HUMAN,
+    TR_KILL_GOOD,
+};

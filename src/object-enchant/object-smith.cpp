@@ -310,26 +310,11 @@ Smith::DrainEssenceResult Smith::drain_essence(object_type *o_ptr)
 {
     // 抽出量を揃えるためKILLフラグのみ付いている場合はSLAYフラグも付ける
     auto old_flgs = object_flags(o_ptr);
-    if (old_flgs.has(TR_KILL_DRAGON))
-        old_flgs.set(TR_SLAY_DRAGON);
-    if (old_flgs.has(TR_KILL_ANIMAL))
-        old_flgs.set(TR_SLAY_ANIMAL);
-    if (old_flgs.has(TR_KILL_EVIL))
-        old_flgs.set(TR_SLAY_EVIL);
-    if (old_flgs.has(TR_KILL_UNDEAD))
-        old_flgs.set(TR_SLAY_UNDEAD);
-    if (old_flgs.has(TR_KILL_DEMON))
-        old_flgs.set(TR_SLAY_DEMON);
-    if (old_flgs.has(TR_KILL_ORC))
-        old_flgs.set(TR_SLAY_ORC);
-    if (old_flgs.has(TR_KILL_TROLL))
-        old_flgs.set(TR_SLAY_TROLL);
-    if (old_flgs.has(TR_KILL_GIANT))
-        old_flgs.set(TR_SLAY_GIANT);
-    if (old_flgs.has(TR_KILL_HUMAN))
-        old_flgs.set(TR_SLAY_HUMAN);
-    if (old_flgs.has(TR_KILL_GOOD))
-        old_flgs.set(TR_SLAY_GOOD);
+    for (auto i = 0U; i < TR_KILL_LIST.size(); i++) {
+        if (old_flgs.has(TR_KILL_LIST[i])) {
+            old_flgs.set(TR_SLAY_LIST[i]);
+        }
+    }
 
     // マイナス効果のあるアイテムから抽出する時のペナルティを計算
     int dec = 4;
