@@ -220,10 +220,7 @@ static void add_kata_flags(player_type *player_ptr, TrFlags &flags)
     if (player_ptr->special_defense & KAMAE_SUZAKU)
         flags.set(TR_LEVITATION);
     if (player_ptr->special_defense & KAMAE_SEIRYU) {
-        flags.set(TR_RES_FIRE);
-        flags.set(TR_RES_COLD);
-        flags.set(TR_RES_ACID);
-        flags.set(TR_RES_ELEC);
+        flags.set(TR_RES_ELEMENT_FLAG_MASK);
         flags.set(TR_RES_POIS);
         flags.set(TR_LEVITATION);
         flags.set(TR_SH_FIRE);

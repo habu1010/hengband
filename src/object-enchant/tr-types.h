@@ -221,3 +221,35 @@ inline constexpr std::array<tr_type, 10> TR_KILL_LIST = {
     TR_KILL_HUMAN,
     TR_KILL_GOOD,
 };
+
+/** 基本属性(酸、電撃、火炎、冷気)の耐性フラグのリスト */
+inline constexpr std::array<tr_type, 4> TR_RES_ELEMENT_LIST = {
+    TR_RES_ACID,
+    TR_RES_ELEC,
+    TR_RES_FIRE,
+    TR_RES_COLD,
+};
+
+/** 基本属性(酸、電撃、火炎、冷気)の免疫フラグのリスト */
+inline constexpr std::array<tr_type, 4> TR_IM_ELEMENT_LIST = {
+    TR_IM_ACID,
+    TR_IM_ELEC,
+    TR_IM_FIRE,
+    TR_IM_COLD,
+};
+
+/** 基本属性(酸、電撃、火炎、冷気)の弱点フラグのリスト */
+inline constexpr std::array<tr_type, 4> TR_VUL_ELEMENT_LIST = {
+    TR_VUL_ACID,
+    TR_VUL_ELEC,
+    TR_VUL_FIRE,
+    TR_VUL_COLD,
+};
+
+/** 基本属性(酸、電撃、火炎、冷気)で破壊されない特性フラグのリスト */
+inline constexpr std::array<tr_type, 4> TR_IGNORE_ELEMENT_LIST = {
+    TR_IGNORE_ACID,
+    TR_IGNORE_ELEC,
+    TR_IGNORE_FIRE,
+    TR_IGNORE_COLD,
+};

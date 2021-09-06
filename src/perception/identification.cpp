@@ -715,7 +715,7 @@ bool screen_object(player_type *player_ptr, object_type *o_ptr, BIT_FLAGS mode)
         }
     }
 
-    if (flgs.has(TR_IGNORE_ACID) && flgs.has(TR_IGNORE_ELEC) && flgs.has(TR_IGNORE_FIRE) && flgs.has(TR_IGNORE_COLD)) {
+    if (flgs.has_all_of(TR_IGNORE_ELEMENT_FLAG_MASK)) {
         info[i++] = _("それは酸・電撃・火炎・冷気では傷つかない。", "It cannot be harmed by the elements.");
     } else {
         if (flgs.has(TR_IGNORE_ACID)) {

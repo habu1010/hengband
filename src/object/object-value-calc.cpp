@@ -216,41 +216,21 @@ PRICE flag_cost(const object_type *o_ptr, int plusses)
 
     tmp_cost = 0;
     count = 0;
-    if (flgs.has(TR_IM_ACID)) {
-        tmp_cost += 15000;
-        count += 2;
-    }
-    if (flgs.has(TR_IM_ELEC)) {
-        tmp_cost += 15000;
-        count += 2;
-    }
-    if (flgs.has(TR_IM_FIRE)) {
-        tmp_cost += 15000;
-        count += 2;
-    }
-    if (flgs.has(TR_IM_COLD)) {
-        tmp_cost += 15000;
-        count += 2;
+    for (auto im_flag : TR_IM_ELEMENT_LIST) {
+        if (flgs.has(im_flag)) {
+            tmp_cost += 15000;
+            count += 2;
+        }
     }
     if (flgs.has(TR_REFLECT)) {
         tmp_cost += 5000;
         count += 2;
     }
-    if (flgs.has(TR_RES_ACID)) {
-        tmp_cost += 500;
-        count++;
-    }
-    if (flgs.has(TR_RES_ELEC)) {
-        tmp_cost += 500;
-        count++;
-    }
-    if (flgs.has(TR_RES_FIRE)) {
-        tmp_cost += 500;
-        count++;
-    }
-    if (flgs.has(TR_RES_COLD)) {
-        tmp_cost += 500;
-        count++;
+    for (auto res_flag : TR_RES_ELEMENT_LIST) {
+        if (flgs.has(res_flag)) {
+            tmp_cost += 500;
+            count++;
+        }
     }
     if (flgs.has(TR_RES_POIS)) {
         tmp_cost += 1000;
@@ -382,14 +362,10 @@ PRICE flag_cost(const object_type *o_ptr, int plusses)
         total += 2250;
     if (flgs.has(TR_XTRA_SHOTS))
         total += 10000;
-    if (flgs.has(TR_IGNORE_ACID))
-        total += 100;
-    if (flgs.has(TR_IGNORE_ELEC))
-        total += 100;
-    if (flgs.has(TR_IGNORE_FIRE))
-        total += 100;
-    if (flgs.has(TR_IGNORE_COLD))
-        total += 100;
+    for (auto ignore_flag : TR_IGNORE_ELEMENT_LIST) {
+        if (flgs.has(ignore_flag))
+            total += 100;
+    }
     if (flgs.has(TR_ACTIVATE))
         total += 100;
     if (flgs.has(TR_DRAIN_EXP))

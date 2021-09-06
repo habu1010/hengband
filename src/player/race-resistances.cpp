@@ -22,14 +22,10 @@ void player_immunity(player_type *player_ptr, TrFlags &flags)
 {
     flags.clear();
 
-    if (player_race_has_flag(player_ptr, TR_IM_ACID))
-        flags.set(TR_RES_ACID);
-    if (player_race_has_flag(player_ptr, TR_IM_COLD))
-        flags.set(TR_RES_COLD);
-    if (player_race_has_flag(player_ptr, TR_IM_ELEC))
-        flags.set(TR_RES_ELEC);
-    if (player_race_has_flag(player_ptr, TR_IM_FIRE))
-        flags.set(TR_RES_FIRE);
+    for (auto i = 0U; i < TR_RES_ELEMENT_LIST.size(); i++) {
+        if (player_race_has_flag(player_ptr, TR_IM_ELEMENT_LIST[i]))
+            flags.set(TR_RES_ELEMENT_LIST[i]);
+    }
 
     if (PlayerRace(player_ptr).equals(player_race_type::SPECTRE))
         flags.set(TR_RES_NETHER);
@@ -89,14 +85,10 @@ void known_obj_immunity(player_type *player_ptr, TrFlags &flags)
             continue;
 
         auto o_flags = object_flags_known(o_ptr);
-        if (o_flags.has(TR_IM_ACID))
-            flags.set(TR_RES_ACID);
-        if (o_flags.has(TR_IM_ELEC))
-            flags.set(TR_RES_ELEC);
-        if (o_flags.has(TR_IM_FIRE))
-            flags.set(TR_RES_FIRE);
-        if (o_flags.has(TR_IM_COLD))
-            flags.set(TR_RES_COLD);
+        for (auto i = 0U; i < TR_RES_ELEMENT_LIST.size(); i++) {
+            if (o_flags.has(TR_IM_ELEMENT_LIST[i]))
+                flags.set(TR_RES_ELEMENT_LIST[i]);
+        }
     }
 }
 
@@ -112,20 +104,14 @@ void player_vulnerability_flags(player_type *player_ptr, TrFlags &flags)
     flags.clear();
 
     if (player_ptr->muta.has(MUTA::VULN_ELEM) || (player_ptr->special_defense & KATA_KOUKIJIN)) {
-        flags.set(TR_RES_ACID);
-        flags.set(TR_RES_ELEC);
-        flags.set(TR_RES_FIRE);
-        flags.set(TR_RES_COLD);
+        flags.set(TR_RES_ELEMENT_FLAG_MASK);
     }
 
-    if (player_race_has_flag(player_ptr, TR_VUL_ACID))
-        flags.set(TR_RES_ACID);
-    if (player_race_has_flag(player_ptr, TR_VUL_COLD))
-        flags.set(TR_RES_COLD);
-    if (player_race_has_flag(player_ptr, TR_VUL_ELEC))
-        flags.set(TR_RES_ELEC);
-    if (player_race_has_flag(player_ptr, TR_VUL_FIRE))
-        flags.set(TR_RES_FIRE);
+    for (auto i = 0U; i < TR_RES_ELEMENT_LIST.size(); i++) {
+        if (player_race_has_flag(player_ptr, TR_VUL_ELEMENT_LIST[i]))
+            flags.set(TR_RES_ELEMENT_LIST[i]);
+    }
+
     if (player_race_has_flag(player_ptr, TR_VUL_LITE))
         flags.set(TR_RES_LITE);
 }

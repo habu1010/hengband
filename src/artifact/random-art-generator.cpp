@@ -414,10 +414,7 @@ bool become_random_artifact(player_type *player_ptr, object_type *o_ptr, bool a_
         strengthen_pval(o_ptr);
 
     invest_positive_modified_value(o_ptr);
-    o_ptr->art_flags.set(TR_IGNORE_ACID);
-    o_ptr->art_flags.set(TR_IGNORE_ELEC);
-    o_ptr->art_flags.set(TR_IGNORE_FIRE);
-    o_ptr->art_flags.set(TR_IGNORE_COLD);
+    o_ptr->art_flags.set(TR_IGNORE_ELEMENT_FLAG_MASK);
 
     int32_t total_flags = flag_cost(o_ptr, o_ptr->pval);
     if (a_cursed)

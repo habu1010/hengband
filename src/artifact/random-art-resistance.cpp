@@ -38,10 +38,7 @@ static bool random_art_immunity(object_type *o_ptr, tr_type tr_im_flag)
         return false;
 
     if (!one_in_(IM_LUCK)) {
-        o_ptr->art_flags.reset(TR_IM_ACID);
-        o_ptr->art_flags.reset(TR_IM_ELEC);
-        o_ptr->art_flags.reset(TR_IM_FIRE);
-        o_ptr->art_flags.reset(TR_IM_COLD);
+        o_ptr->art_flags.reset(TR_IM_ELEMENT_FLAG_MASK);
     }
 
     o_ptr->art_flags.set(tr_im_flag);

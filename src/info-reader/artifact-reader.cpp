@@ -53,10 +53,7 @@ errr parse_a_info(std::string_view buf, angband_header *head)
 
         error_idx = i;
         a_ptr = &a_info[i];
-        a_ptr->flags.set(TR_IGNORE_ACID);
-        a_ptr->flags.set(TR_IGNORE_ELEC);
-        a_ptr->flags.set(TR_IGNORE_FIRE);
-        a_ptr->flags.set(TR_IGNORE_COLD);
+        a_ptr->flags.set(TR_IGNORE_ELEMENT_FLAG_MASK);
 
 #ifdef JP
         a_ptr->name = tokens[2];

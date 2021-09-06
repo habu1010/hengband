@@ -103,10 +103,9 @@ static void display_identified_resistances_flag(object_type *o_ptr, FILE *fff)
 {
     auto flags = object_flags_known(o_ptr);
 
-    print_im_or_res_flag(TR_IM_ACID, TR_RES_ACID, flags, fff);
-    print_im_or_res_flag(TR_IM_ELEC, TR_RES_ELEC, flags, fff);
-    print_im_or_res_flag(TR_IM_FIRE, TR_RES_FIRE, flags, fff);
-    print_im_or_res_flag(TR_IM_COLD, TR_RES_COLD, flags, fff);
+    for (auto i = 0U; i < TR_RES_ELEMENT_LIST.size(); i++){
+        print_im_or_res_flag(TR_IM_ELEMENT_LIST[i], TR_RES_ELEMENT_LIST[i], flags, fff);
+    }
     print_flag(TR_RES_POIS, flags, fff);
     print_flag(TR_RES_LITE, flags, fff);
     print_flag(TR_RES_DARK, flags, fff);

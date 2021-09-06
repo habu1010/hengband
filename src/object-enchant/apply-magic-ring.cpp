@@ -318,7 +318,7 @@ void RingEnchanter::give_ego_index()
                 break;
             }
 
-            if (k_ptr->flags.has_not(TR_RES_FIRE) && (k_ptr->flags.has(TR_RES_COLD) || k_ptr->flags.has(TR_RES_ELEC) || k_ptr->flags.has(TR_RES_ACID))) {
+            if (k_ptr->flags.has_not(TR_RES_FIRE) && k_ptr->flags.has_any_of({ TR_RES_COLD, TR_RES_ELEC, TR_RES_ACID })) {
                 break;
             }
 
@@ -339,7 +339,7 @@ void RingEnchanter::give_ego_index()
                 break;
             }
 
-            if (k_ptr->flags.has_not(TR_RES_COLD) && (k_ptr->flags.has(TR_RES_FIRE) || k_ptr->flags.has(TR_RES_ELEC) || k_ptr->flags.has(TR_RES_ACID))) {
+            if (k_ptr->flags.has_not(TR_RES_COLD) && k_ptr->flags.has_any_of({ TR_RES_FIRE, TR_RES_ELEC, TR_RES_ACID })) {
                 break;
             }
 
@@ -360,7 +360,7 @@ void RingEnchanter::give_ego_index()
                 break;
             }
 
-            if (k_ptr->flags.has_not(TR_RES_ELEC) && (k_ptr->flags.has(TR_RES_COLD) || k_ptr->flags.has(TR_RES_FIRE) || k_ptr->flags.has(TR_RES_ACID))) {
+            if (k_ptr->flags.has_not(TR_RES_ELEC) && k_ptr->flags.has_any_of({ TR_RES_COLD, TR_RES_FIRE, TR_RES_ACID })) {
                 break;
             }
 
@@ -376,7 +376,7 @@ void RingEnchanter::give_ego_index()
                 break;
             }
 
-            if (k_ptr->flags.has_not(TR_RES_ACID) && (k_ptr->flags.has(TR_RES_COLD) || k_ptr->flags.has(TR_RES_ELEC) || k_ptr->flags.has(TR_RES_FIRE))) {
+            if (k_ptr->flags.has_not(TR_RES_ACID) && k_ptr->flags.has_any_of({ TR_RES_COLD, TR_RES_ELEC, TR_RES_FIRE })) {
                 break;
             }
 

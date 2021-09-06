@@ -158,10 +158,7 @@ SustainSmithInfo::SustainSmithInfo(SmithEffect effect, concptr name, SmithCatego
 
 bool SustainSmithInfo::add_essence(player_type *, object_type *o_ptr, int) const
 {
-    o_ptr->art_flags.set(TR_IGNORE_ACID);
-    o_ptr->art_flags.set(TR_IGNORE_ELEC);
-    o_ptr->art_flags.set(TR_IGNORE_FIRE);
-    o_ptr->art_flags.set(TR_IGNORE_COLD);
+    o_ptr->art_flags.set(TR_IGNORE_ELEMENT_FLAG_MASK);
 
     return true;
 }

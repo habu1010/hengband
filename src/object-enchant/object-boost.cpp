@@ -197,20 +197,8 @@ void add_low_telepathy(object_type *o_ptr)
  */
 void one_ele_resistance(object_type *o_ptr)
 {
-    switch (randint0(4)) {
-    case 0:
-        o_ptr->art_flags.set(TR_RES_ACID);
-        break;
-    case 1:
-        o_ptr->art_flags.set(TR_RES_ELEC);
-        break;
-    case 2:
-        o_ptr->art_flags.set(TR_RES_COLD);
-        break;
-    case 3:
-        o_ptr->art_flags.set(TR_RES_FIRE);
-        break;
-    }
+    auto flag = rand_choice(TR_RES_ELEMENT_LIST);
+    o_ptr->art_flags.set(flag);
 }
 
 /*!
