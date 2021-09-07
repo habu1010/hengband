@@ -253,3 +253,22 @@ inline constexpr std::array<tr_type, 4> TR_IGNORE_ELEMENT_LIST = {
     TR_IGNORE_FIRE,
     TR_IGNORE_COLD,
 };
+
+/** 上位属性(毒・恐怖・閃光・暗黒・盲目・混乱・轟音・破片・地獄・因果混乱・カオス・劣化・時間逆転・水流・呪力)の耐性フラグのリスト */
+inline constexpr std::array<tr_type, 15> TR_RES_HIGH_LIST = {
+    TR_RES_POIS,
+    TR_RES_FEAR,
+    TR_RES_LITE,
+    TR_RES_DARK,
+    TR_RES_BLIND,
+    TR_RES_CONF,
+    TR_RES_SOUND,
+    TR_RES_SHARDS,
+    TR_RES_NETHER,
+    TR_RES_NEXUS,
+    TR_RES_CHAOS,
+    TR_RES_DISEN,
+    TR_RES_TIME,
+    TR_RES_WATER,
+    TR_RES_CURSE,
+};

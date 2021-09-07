@@ -97,7 +97,7 @@ static void ego_invest_extra_abilities(object_type *o_ptr, EnumClassFlagGroup<TR
     if (gen_flags.has(TRG::XTRA_D_RES))
         one_dragon_ele_resistance(o_ptr);
     if (gen_flags.has(TRG::XTRA_L_RES))
-        one_lordly_high_resistance(o_ptr);
+        one_high_resistance_except_base_item(o_ptr);
     if (gen_flags.has(TRG::XTRA_RES))
         one_resistance(o_ptr);
     if (gen_flags.has(TRG::LIGHT_WEIGHT))

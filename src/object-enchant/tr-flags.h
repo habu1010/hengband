@@ -33,6 +33,12 @@ inline const TrFlags TR_IGNORE_ELEMENT_FLAG_MASK{
     TR_IGNORE_ELEMENT_LIST.begin(), TR_IGNORE_ELEMENT_LIST.end()
 };
 
+/** 上位属性(毒・恐怖・閃光・暗黒・盲目・混乱・轟音・破片・地獄・因果混乱・カオス・劣化・時間逆転・水流・呪力)の
+ * 耐性フラグがONになっているTrFlags定数オブジェクト */
+inline const TrFlags TR_RES_HIGH_FLAG_MASK{
+    TR_RES_HIGH_LIST.begin(), TR_RES_HIGH_LIST.end()
+};
+
 /*! pvalを増減させる特性フラグがONになっているFlagGroup定数オブジェクト */
 inline const TrFlags TR_PVAL_FLAG_MASK =
     TrFlags(TR_STATUS_FLAG_MASK).set({

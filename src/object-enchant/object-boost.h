@@ -17,7 +17,7 @@ void one_resistance(object_type *o_ptr);
 void one_low_esp(object_type *o_ptr);
 void one_ability(object_type *o_ptr);
 void one_activation(object_type *o_ptr);
-void one_lordly_high_resistance(object_type *o_ptr);
+void one_high_resistance_except_base_item(object_type *o_ptr);
 void make_weight_ligten(object_type *o_ptr);
 void make_weight_heavy(object_type *o_ptr);
 void add_xtra_ac(object_type *o_ptr);

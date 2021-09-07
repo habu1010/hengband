@@ -114,7 +114,7 @@ void RingEnchanter::enchant()
         break;
     case SV_RING_LORDLY:
         do {
-            one_lordly_high_resistance(this->o_ptr);
+            one_high_resistance_except_base_item(this->o_ptr);
         } while (one_in_(4));
 
         this->o_ptr->to_a = 10 + randint1(5) + (ARMOUR_CLASS)m_bonus(10, this->level);
@@ -453,8 +453,8 @@ void RingEnchanter::give_high_ego_index()
             break;
         }
 
-        one_lordly_high_resistance(this->o_ptr);
-        one_lordly_high_resistance(this->o_ptr);
+        one_high_resistance_except_base_item(this->o_ptr);
+        one_high_resistance_except_base_item(this->o_ptr);
         this->o_ptr->name2 = EGO_RING_TRUE;
         break;
     case SV_RING_FLAMES:

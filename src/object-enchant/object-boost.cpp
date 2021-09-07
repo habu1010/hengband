@@ -222,53 +222,8 @@ void one_dragon_ele_resistance(object_type *o_ptr)
  */
 void one_high_resistance(object_type *o_ptr)
 {
-    switch (randint0(15)) {
-    case 0:
-        o_ptr->art_flags.set(TR_RES_POIS);
-        break;
-    case 1:
-        o_ptr->art_flags.set(TR_RES_LITE);
-        break;
-    case 2:
-        o_ptr->art_flags.set(TR_RES_DARK);
-        break;
-    case 3:
-        o_ptr->art_flags.set(TR_RES_SHARDS);
-        break;
-    case 4:
-        o_ptr->art_flags.set(TR_RES_BLIND);
-        break;
-    case 5:
-        o_ptr->art_flags.set(TR_RES_CONF);
-        break;
-    case 6:
-        o_ptr->art_flags.set(TR_RES_SOUND);
-        break;
-    case 7:
-        o_ptr->art_flags.set(TR_RES_NETHER);
-        break;
-    case 8:
-        o_ptr->art_flags.set(TR_RES_NEXUS);
-        break;
-    case 9:
-        o_ptr->art_flags.set(TR_RES_CHAOS);
-        break;
-    case 10:
-        o_ptr->art_flags.set(TR_RES_DISEN);
-        break;
-    case 11:
-        o_ptr->art_flags.set(TR_RES_FEAR);
-        break;
-    case 12:
-        o_ptr->art_flags.set(TR_RES_TIME);
-        break;
-    case 13:
-        o_ptr->art_flags.set(TR_RES_WATER);
-        break;
-    case 14:
-        o_ptr->art_flags.set(TR_RES_CURSE);
-        break;
-    }
+    auto flag = rand_choice(TR_RES_HIGH_LIST);
+    o_ptr->art_flags.set(flag);
 }
 
 /*!
@@ -501,55 +456,24 @@ void one_activation(object_type *o_ptr)
 }
 
 /*!
- * @brief 対象のオブジェクトに王者の指輪向けの上位耐性を一つ付加する。/ Choose one random high resistance
- * @details 候補は閃光、暗黒、破片、盲目、混乱、地獄、因果混乱、カオス、恐怖、時間逆転、水、呪力であり
- * 王者の指輪にあらかじめついている耐性をone_high_resistance()から除外したものである。
+ * @brief 対象のオブジェクトにベースアイテムに元々付与されているものを除いた上位耐性を一つ付加する。/ Choose one random high resistance
+ * @details 現在王者の加護の指輪にのみ使用され、その場合上位耐性15種から毒と劣化を除いた13種が候補となる。
  * ランダム付加そのものに重複の抑止はない。
  * @param o_ptr 対象のオブジェクト構造体ポインタ
  */
-void one_lordly_high_resistance(object_type *o_ptr)
+void one_high_resistance_except_base_item(object_type *o_ptr)
 {
-    switch (randint0(13)) {
-    case 0:
-        o_ptr->art_flags.set(TR_RES_LITE);
-        break;
-    case 1:
-        o_ptr->art_flags.set(TR_RES_DARK);
-        break;
-    case 2:
-        o_ptr->art_flags.set(TR_RES_SHARDS);
-        break;
-    case 3:
-        o_ptr->art_flags.set(TR_RES_BLIND);
-        break;
-    case 4:
-        o_ptr->art_flags.set(TR_RES_CONF);
-        break;
-    case 5:
-        o_ptr->art_flags.set(TR_RES_SOUND);
-        break;
-    case 6:
-        o_ptr->art_flags.set(TR_RES_NETHER);
-        break;
-    case 7:
-        o_ptr->art_flags.set(TR_RES_NEXUS);
-        break;
-    case 8:
-        o_ptr->art_flags.set(TR_RES_CHAOS);
-        break;
-    case 9:
-        o_ptr->art_flags.set(TR_RES_FEAR);
-        break;
-    case 10:
-        o_ptr->art_flags.set(TR_RES_TIME);
-        break;
-    case 11:
-        o_ptr->art_flags.set(TR_RES_WATER);
-        break;
-    case 12:
-        o_ptr->art_flags.set(TR_RES_CURSE);
-        break;
+    std::vector<tr_type> candidates;
+    candidates.reserve(TR_RES_HIGH_LIST.size());
+    std::copy_if(TR_RES_HIGH_LIST.begin(), TR_RES_HIGH_LIST.end(), std::back_inserter(candidates),
+        [base_item_flags = k_info[o_ptr->k_idx].flags](tr_type flag) { return base_item_flags.has_not(flag); });
+
+    if (candidates.empty()) {
+        return;
     }
+
+    auto flag = rand_choice(candidates);
+    o_ptr->art_flags.set(flag);
 }
 
 /*!

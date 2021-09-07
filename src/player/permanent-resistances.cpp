@@ -231,17 +231,10 @@ static void add_kata_flags(player_type *player_ptr, TrFlags &flags)
     if ((player_ptr->special_defense & KATA_MUSOU) == 0)
         return;
 
-    flags.set(TR_RES_FEAR);
-    flags.set(TR_RES_LITE);
-    flags.set(TR_RES_DARK);
-    flags.set(TR_RES_BLIND);
-    flags.set(TR_RES_CONF);
-    flags.set(TR_RES_SOUND);
-    flags.set(TR_RES_SHARDS);
-    flags.set(TR_RES_NETHER);
-    flags.set(TR_RES_NEXUS);
-    flags.set(TR_RES_CHAOS);
-    flags.set(TR_RES_DISEN);
+    // 毒耐性を除いた上位耐性(毒耐性は一時耐性のみが得られる)
+    auto high_res_flags_except_poison = TrFlags(TR_RES_HIGH_FLAG_MASK).reset(TR_RES_POIS);
+    flags.set(high_res_flags_except_poison);
+
     flags.set(TR_REFLECT);
     flags.set(TR_HOLD_EXP);
     flags.set(TR_FREE_ACT);
