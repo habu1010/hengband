@@ -77,4 +77,32 @@ int32_t div_round(int32_t n, int32_t d);
 int32_t Rand_external(int32_t m);
 bool next_bool();
 
+/*!
+ * @brief 引数に渡されたシーケンスコンテナオブジェクトの要素から等確率でランダムに1つ選択する
+ *
+ * @tparam T シーケンスコンテナの型
+ * @param candidates 要素を選択するシーケンスコンテナオブジェクト
+ * @return 選択した要素の参照を返す。右辺値を引数に渡した場合、戻り値をコピーせず参照で受けると破棄された領域を参照する事になるので注意。
+ */
+template <typename T>
+decltype(auto) rand_choice(T&& candidates)
+{
+    auto choice = randint0(candidates.size());
+    return *std::next(candidates.begin(), choice);
+}
+
+/**
+ * @brief 引数に渡された initializer_list から等確率でランダムに1つ選択する
+ *
+ * @tparam T initializer_listの要素の型
+ * @param candidates 要素を選択するinitializer_listオブジェクト
+ * @return 選択した要素のコピーを返す。
+ */
+template <typename T>
+T rand_choice(std::initializer_list<T> candidates)
+{
+    auto choice = randint0(candidates.size());
+    return *std::next(candidates.begin(), choice);
+}
+
 #endif
