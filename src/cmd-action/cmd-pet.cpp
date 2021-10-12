@@ -39,6 +39,7 @@
 #include "player-base/player-class.h"
 #include "player-info/class-info.h"
 #include "player-info/equipment-info.h"
+#include "player-info/monk-data-type.h"
 #include "player-info/samurai-data-type.h"
 #include "player-status/player-energy.h"
 #include "player-status/player-hand-types.h"
@@ -277,8 +278,8 @@ bool do_cmd_riding(player_type *player_ptr, bool force)
             msg_format(_("%sを起こした。", "You have woken %s up."), m_name);
         }
 
-        if (player_ptr->action == ACTION_MONK_STANCE)
-            set_action(player_ptr, ACTION_NONE);
+        if (PlayerClass(player_ptr).monk_stance_is(MonkStance::NONE))
+            player_ptr->action_p.reset();
 
         player_ptr->riding = g_ptr->m_idx;
 

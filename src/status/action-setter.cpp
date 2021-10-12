@@ -55,11 +55,13 @@ void set_action(player_type *player_ptr, uint8_t typ)
         bluemage_data->new_magic_learned = false;
         break;
     }
+#if 0
     case ACTION_MONK_STANCE: {
         msg_print(_("構えをといた。", "You stop assuming the special stance."));
         PlayerClass(player_ptr).set_monk_stance(MonkStance::NONE);
         break;
     }
+#endif
     case ACTION_SAMURAI_STANCE: {
         msg_print(_("型を崩した。", "You stop assuming the special stance."));
         PlayerClass(player_ptr).set_samurai_stance(SamuraiStance::NONE);

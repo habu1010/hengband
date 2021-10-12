@@ -189,29 +189,6 @@ void print_state(player_type *player_ptr)
         strcpy(text, _("釣り", "fish"));
         break;
     }
-    case ACTION_MONK_STANCE: {
-        if (auto stance = PlayerClass(player_ptr).get_monk_stance();
-            stance != MonkStance::NONE) {
-            switch (stance) {
-            case MonkStance::GENBU:
-                attr = TERM_GREEN;
-                break;
-            case MonkStance::BYAKKO:
-                attr = TERM_WHITE;
-                break;
-            case MonkStance::SEIRYU:
-                attr = TERM_L_BLUE;
-                break;
-            case MonkStance::SUZAKU:
-                attr = TERM_L_RED;
-                break;
-            default:
-                break;
-            }
-            strcpy(text, monk_stances[enum2i(stance) - 1].desc);
-        }
-        break;
-    }
     case ACTION_SAMURAI_STANCE: {
         if (auto stance = PlayerClass(player_ptr).get_samurai_stance();
             stance != SamuraiStance::NONE) {
@@ -238,6 +215,8 @@ void print_state(player_type *player_ptr)
     }
 
     c_put_str(attr, format("%5.5s", text), ROW_STATE, COL_STATE);
+
+    player_ptr->action_p.print_state();
 }
 
 /*!
@@ -413,8 +392,7 @@ static void add_hex_status_flags(player_type *player_ptr, BIT_FLAGS *bar_flags)
         ADD_BAR_FLAG(BAR_ANTIMAGIC);
     }
 
-    if (spell_hex.is_spelling_specific(HEX_CURE_LIGHT) || spell_hex.is_spelling_specific(HEX_CURE_SERIOUS)
-        || spell_hex.is_spelling_specific(HEX_CURE_CRITICAL)) {
+    if (spell_hex.is_spelling_specific(HEX_CURE_LIGHT) || spell_hex.is_spelling_specific(HEX_CURE_SERIOUS) || spell_hex.is_spelling_specific(HEX_CURE_CRITICAL)) {
         ADD_BAR_FLAG(BAR_CURE);
     }
 

@@ -625,6 +625,7 @@ hengband_SOURCES = \
 	player/attack-defense-types.h \
 	player/eldritch-horror.cpp player/eldritch-horror.h \
 	player/patron.cpp player/patron.h \
+	player/player-action.cpp player/player-action.h \
 	player/process-death.cpp player/process-death.h \
 	player/process-name.cpp player/process-name.h \
 	player/race-info-table.cpp player/race-info-table.h\

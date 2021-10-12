@@ -118,12 +118,16 @@ bool BadStatusSetter::confusion(const TIME_EFFECT tmp_v)
                 this->player_ptr->redraw |= PR_STATE;
                 this->player_ptr->action = ACTION_NONE;
             }
-            if (this->player_ptr->action == ACTION_MONK_STANCE) {
+            if (!PlayerClass(player_ptr).monk_stance_is(MonkStance::NONE)) {
+                this->player_ptr->action_p.reset();
+#if 0
                 msg_print(_("構えがとけた。", "You lose your stance."));
+                this->player_ptr->action_p.set(player_ptr, PlayerActionType::NONE);
                 PlayerClass(player_ptr).set_monk_stance(MonkStance::NONE);
                 this->player_ptr->update |= PU_BONUS;
                 this->player_ptr->redraw |= PR_STATE;
                 this->player_ptr->action = ACTION_NONE;
+#endif
             } else if (this->player_ptr->action == ACTION_SAMURAI_STANCE) {
                 msg_print(_("型が崩れた。", "You lose your stance."));
                 PlayerClass(player_ptr).lose_balance();

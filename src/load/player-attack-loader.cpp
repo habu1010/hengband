@@ -23,7 +23,7 @@ void rd_special_attack(player_type *player_ptr)
 void rd_special_action(player_type *player_ptr)
 {
     if (!PlayerClass(player_ptr).monk_stance_is(MonkStance::NONE)) {
-        player_ptr->action = ACTION_MONK_STANCE;
+        // player_ptr->action = ACTION_MONK_STANCE;
         return;
     }
 
