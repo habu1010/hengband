@@ -6,6 +6,8 @@
 #include "dungeon/quest.h"
 #include "effect/effect-characteristics.h"
 #include "effect/effect-processor.h"
+#include "flavor/flavor-describer.h"
+#include "flavor/object-flavor-types.h"
 #include "floor/cave.h"
 #include "floor/floor-mode-changer.h"
 #include "game-option/birth-options.h"
@@ -13,6 +15,7 @@
 #include "grid/feature.h"
 #include "grid/grid.h"
 #include "info-reader/feature-reader.h"
+#include "inventory/inventory-object.h"
 #include "io/files-util.h"
 #include "io/write-diary.h"
 #include "main/sound-definitions-table.h"
@@ -21,6 +24,7 @@
 #include "monster-floor/monster-summon.h"
 #include "monster-floor/place-monster-types.h"
 #include "monster/monster-util.h"
+#include "object/object-broken.h"
 #include "player-info/class-info.h"
 #include "player/eldritch-horror.h"
 #include "player/player-damage.h"
@@ -39,6 +43,7 @@
 #include "system/floor-type-definition.h"
 #include "system/grid-type-definition.h"
 #include "system/monster-type-definition.h"
+#include "system/object-type-definition.h"
 #include "system/player-type-definition.h"
 #include "target/projection-path-calculator.h"
 #include "timed-effect/player-cut.h"
@@ -150,6 +155,7 @@ void init_normal_traps(void)
     normal_traps.push_back(f_tag_to_index_in_init("TRAP_SLEEP"));
     normal_traps.push_back(f_tag_to_index_in_init("TRAP_TRAPS"));
     normal_traps.push_back(f_tag_to_index_in_init("TRAP_ALARM"));
+    normal_traps.push_back(f_tag_to_index_in_init("TRAP_SNARE"));
 }
 
 /*!
@@ -379,6 +385,70 @@ static void hit_trap_slow(PlayerType *player_ptr)
     }
 }
 
+static void hit_trap_snare(PlayerType *player_ptr)
+{
+    msg_print(_("罠に足を取られて転んだ！", "You get your foot caught in a trap and fall over!"));
+    take_hit(player_ptr, DAMAGE_NOESCAPE, randint1(player_ptr->wt / 6), _("転倒", "tripping"));
+
+    auto drop_equipment_in_hand = [player_ptr](inventory_slot_type slot, int percent) {
+        auto o_ptr = &player_ptr->inventory_list[slot];
+        if (o_ptr->k_idx != 0 && !o_ptr->is_cursed() && (randint0(100) < percent)) {
+            drop_from_inventory(player_ptr, slot, 1);
+        }
+    };
+    drop_equipment_in_hand(INVEN_MAIN_HAND, 10);
+    drop_equipment_in_hand(INVEN_SUB_HAND, 10);
+
+    std::vector<KIND_OBJECT_IDX> crashed_potions;
+    for (auto i = 0; i < INVEN_PACK;) {
+        auto o_ptr = &player_ptr->inventory_list[i];
+        if (o_ptr->k_idx == 0) {
+            break;
+        }
+        auto drop_num = 0;
+        for (auto j = 0; j < o_ptr->number; ++j) {
+            if (randint0(100) < 100) {
+                drop_num++;
+            }
+        }
+        const auto drop_all = o_ptr->number == drop_num;
+        if (o_ptr->is_potion()) {
+            auto crashed_amount = 0;
+            for (auto j = 0; j < drop_num; ++j) {
+                if (one_in_(3)) {
+                    crashed_potions.push_back(o_ptr->k_idx);
+                    crashed_amount++;
+                    drop_num--;
+                }
+            }
+            inven_item_increase(player_ptr, i, -crashed_amount);
+            inven_item_optimize(player_ptr, i);
+            printf("%d, %d, %d\n", o_ptr->k_idx, crashed_amount, drop_num);
+        }
+
+        drop_from_inventory(player_ptr, i, drop_num);
+
+        // スロットのアイテムを全て落とした場合はスロットリストが前詰めされるのでスロットのインデックスは進めない
+        if (!drop_all) {
+            i++;
+        }
+
+        if (drop_all) {
+            msg_format("全部おとした %d ", drop_num);
+        }
+    }
+
+    for (auto k_idx : crashed_potions) {
+        GAME_TEXT o_name[MAX_NLEN];
+        object_type obj;
+        obj.prep(k_idx);
+        describe_flavor(player_ptr, o_name, &obj, OD_NAME_ONLY);
+
+        msg_format(_("落とした%sが割れてしまった！", "%s hek!"), o_name);
+        potion_smash_effect(player_ptr, 0, player_ptr->y, player_ptr->x, k_idx);
+    }
+}
+
 /*!
  * @brief プレイヤーへのトラップ作動処理メインルーチン /
  * Handle player hitting a real trap
@@ -547,6 +617,11 @@ void hit_trap(PlayerType *player_ptr, bool break_trap)
 
         aggravate_monsters(player_ptr, 0);
 
+        break;
+    }
+
+    case TrapType::SNARE: {
+        hit_trap_snare(player_ptr);
         break;
     }
 

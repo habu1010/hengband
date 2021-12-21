@@ -46,6 +46,7 @@ enum class TrapType {
     SLEEP = 15,
     TRAPS = 16,
     ALARM = 17,
+    SNARE = 21,
 
     /* Types of special traps */
     OPEN = 18,
