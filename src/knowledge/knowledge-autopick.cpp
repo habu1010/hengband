@@ -11,9 +11,8 @@
 #include "autopick/autopick-util.h"
 #include "core/asking-player.h"
 #include "core/show-file.h"
-#include "io-dump/dump-util.h"
 #include "system/player-type-definition.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 
 /*!
  * @brief 自動拾い設定ファイルをロードするコマンドのメインルーチン /
@@ -33,11 +32,11 @@ void do_cmd_reload_autopick(PlayerType *player_ptr)
  */
 void do_cmd_knowledge_autopick(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
+    auto *fff = tempfile.fp();
 
     if (autopick_list.empty()) {
         fprintf(fff, _("自動破壊/拾いには何も登録されていません。", "No preference for auto picker/destroyer."));
@@ -71,8 +70,6 @@ void do_cmd_knowledge_autopick(PlayerType *player_ptr)
         fprintf(fff, "\n");
     }
 
-    angband_fclose(fff);
-
-    (void)show_file(player_ptr, true, file_name, _("自動拾い/破壊 設定リスト", "Auto-picker/Destroyer"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("自動拾い/破壊 設定リスト", "Auto-picker/Destroyer"), 0, 0);
 }

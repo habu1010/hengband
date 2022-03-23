@@ -6,24 +6,21 @@
 
 #include "knowledge/knowledge-mutations.h"
 #include "core/show-file.h"
-#include "io-dump/dump-util.h"
 #include "io/mutations-dump.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 
 /*!
  * @brief 突然変異表示コマンドの実装 / List mutations we have...
  */
 void do_cmd_knowledge_mutations(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
-    dump_mutations(player_ptr, fff);
-    angband_fclose(fff);
+    dump_mutations(player_ptr, tempfile.fp());
+    tempfile.close();
 
-    show_file(player_ptr, true, file_name, _("突然変異", "Mutations"), 0, 0);
-    fd_kill(file_name);
+    show_file(player_ptr, true, tempfile.name(), _("突然変異", "Mutations"), 0, 0);
 }

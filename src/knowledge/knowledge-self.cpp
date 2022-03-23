@@ -11,7 +11,6 @@
 #include "flavor/flavor-describer.h"
 #include "floor/floor-town.h"
 #include "info-reader/fixed-map-parser.h"
-#include "io-dump/dump-util.h"
 #include "player-info/alignment.h"
 #include "player-info/class-info.h"
 #include "player/player-personality.h"
@@ -21,7 +20,7 @@
 #include "store/store-util.h"
 #include "system/object-type-definition.h"
 #include "system/player-type-definition.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/buffer-shaper.h"
 #include "util/enum-converter.h"
 #include "util/int-char-converter.h"
@@ -34,18 +33,16 @@
  */
 void do_cmd_knowledge_virtues(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
     std::string alg = PlayerAlignment(player_ptr).get_alignment_description();
-    fprintf(fff, _("現在の属性 : %s\n\n", "Your alignment : %s\n\n"), alg.c_str());
-    dump_virtues(player_ptr, fff);
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("八つの徳", "Virtues"), 0, 0);
-    fd_kill(file_name);
+    fprintf(tempfile.fp(), _("現在の属性 : %s\n\n", "Your alignment : %s\n\n"), alg.c_str());
+    dump_virtues(player_ptr, tempfile.fp());
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("八つの徳", "Virtues"), 0, 0);
 }
 
 /*!
@@ -182,15 +179,15 @@ static void dump_winner_classes(FILE *fff)
  */
 void do_cmd_knowledge_stat(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
     update_playtime();
     uint32_t play_time = w_ptr->play_time;
     uint32_t all_time = w_ptr->sf_play_time + play_time;
+    auto *fff = tempfile.fp();
     fprintf(fff, _("現在のプレイ時間 : %d:%02d:%02d\n", "Current Play Time is %d:%02d:%02d\n"), play_time / (60 * 60), (play_time / 60) % 60, play_time % 60);
     fprintf(fff, _("合計のプレイ時間 : %d:%02d:%02d\n", "  Total play Time is %d:%02d:%02d\n"), all_time / (60 * 60), (all_time / 60) % 60, all_time % 60);
     fputs("\n", fff);
@@ -214,10 +211,9 @@ void do_cmd_knowledge_stat(PlayerType *player_ptr)
 
     dump_yourself(player_ptr, fff);
     dump_winner_classes(fff);
-    angband_fclose(fff);
 
-    (void)show_file(player_ptr, true, file_name, _("自分に関する情報", "HP-rate & Max stat"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("自分に関する情報", "HP-rate & Max stat"), 0, 0);
 }
 
 /*
@@ -228,9 +224,8 @@ void do_cmd_knowledge_home(PlayerType *player_ptr)
 {
     parse_fixed_map(player_ptr, "w_info.txt", 0, 0, w_ptr->max_wild_y, w_ptr->max_wild_x);
 
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -241,6 +236,7 @@ void do_cmd_knowledge_home(PlayerType *player_ptr)
 #ifdef JP
         TERM_LEN x = 1;
 #endif
+        auto *fff = tempfile.fp();
         fprintf(fff, _("  [ 我が家のアイテム ]\n", "  [Home Inventory]\n"));
         concptr paren = ")";
         GAME_TEXT o_name[MAX_NLEN];
@@ -277,7 +273,6 @@ void do_cmd_knowledge_home(PlayerType *player_ptr)
         fprintf(fff, "\n\n");
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("我が家のアイテム", "Home Inventory"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("我が家のアイテム", "Home Inventory"), 0, 0);
 }

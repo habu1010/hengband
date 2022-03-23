@@ -942,6 +942,7 @@ hengband_SOURCES = \
 	timed-effect/timed-effects.cpp timed-effect/timed-effects.h \
 	\
 	util/angband-files.cpp util/angband-files.h \
+	util/angband-tempfile.cpp util/angband-tempfile.h \
 	util/buffer-shaper.cpp util/buffer-shaper.h \
 	util/bit-flags-calculator.h \
 	util/enum-converter.h \

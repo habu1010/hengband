@@ -224,27 +224,6 @@ errr angband_fclose(FILE *fff)
     return 0;
 }
 
-#ifdef HAVE_MKSTEMP
-FILE *angband_fopen_temp(char *buf, int max)
-{
-    strncpy(buf, "/tmp/anXXXXXX", max);
-    int fd = mkstemp(buf);
-    if (fd < 0) {
-        return nullptr;
-    }
-
-    return fdopen(fd, "w");
-}
-#else /* HAVE_MKSTEMP */
-FILE *angband_fopen_temp(char *buf, int max)
-{
-    if (path_temp(buf, max)) {
-        return nullptr;
-    }
-    return angband_fopen(buf, "w");
-}
-#endif /* HAVE_MKSTEMP */
-
 /*
  * Hack -- replacement for "fgets()"
  *

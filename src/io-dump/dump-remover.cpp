@@ -1,7 +1,7 @@
 ﻿#include "io-dump/dump-remover.h"
-#include "io-dump/dump-util.h"
 #include "io/read-pref-file.h"
 #include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 
 /*!
  * @brief prefファイルを選択して処理する /
@@ -30,9 +30,8 @@ void remove_auto_dump(concptr orig_file, concptr auto_dump_mark)
         return;
     }
 
-    FILE *tmp_fff = nullptr;
-    char tmp_file[FILE_NAME_SIZE];
-    if (!open_temporary_file(&tmp_fff, tmp_file)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -54,7 +53,7 @@ void remove_auto_dump(concptr orig_file, concptr auto_dump_mark)
                 between_mark = true;
                 changed = true;
             } else {
-                fprintf(tmp_fff, "%s\n", buf);
+                fprintf(tempfile.fp(), "%s\n", buf);
             }
 
             continue;
@@ -74,10 +73,10 @@ void remove_auto_dump(concptr orig_file, concptr auto_dump_mark)
     }
 
     angband_fclose(orig_fff);
-    angband_fclose(tmp_fff);
+    tempfile.close();
 
     if (changed) {
-        tmp_fff = angband_fopen(tmp_file, "r");
+        auto tmp_fff = angband_fopen(tempfile.name(), "r");
         orig_fff = angband_fopen(orig_file, "w");
         while (!angband_fgets(tmp_fff, buf, sizeof(buf))) {
             fprintf(orig_fff, "%s\n", buf);
@@ -86,6 +85,4 @@ void remove_auto_dump(concptr orig_file, concptr auto_dump_mark)
         angband_fclose(orig_fff);
         angband_fclose(tmp_fff);
     }
-
-    fd_kill(tmp_file);
 }

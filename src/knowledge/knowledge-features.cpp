@@ -16,7 +16,7 @@
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
 #include "term/term-color-types.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/int-char-converter.h"
 #include "world/world.h"
 
@@ -360,9 +360,8 @@ void do_cmd_knowledge_features(bool *need_redraw, bool visual_only, IDX direct_f
  */
 void do_cmd_knowledge_dungeon(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -383,10 +382,9 @@ void do_cmd_knowledge_dungeon(PlayerType *player_ptr)
             seiha = true;
         }
 
-        fprintf(fff, _("%c%-12s :  %3d 階\n", "%c%-16s :  level %3d\n"), seiha ? '!' : ' ', d_ref.name.c_str(), (int)max_dlv[d_ref.idx]);
+        fprintf(tempfile.fp(), _("%c%-12s :  %3d 階\n", "%c%-16s :  level %3d\n"), seiha ? '!' : ' ', d_ref.name.c_str(), (int)max_dlv[d_ref.idx]);
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("今までに入ったダンジョン", "Dungeon"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("今までに入ったダンジョン", "Dungeon"), 0, 0);
 }

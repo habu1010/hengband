@@ -36,7 +36,6 @@ extern int usleep(ulong usecs);
 errr path_parse(char *buf, int max, concptr file);
 errr path_build(char *buf, int max, concptr path, concptr file);
 FILE *angband_fopen(concptr file, concptr mode);
-FILE *angband_fopen_temp(char *buf, int max);
 errr angband_fgets(FILE *fff, char *buf, ulong n);
 errr angband_fputs(FILE *fff, concptr buf, ulong n);
 errr angband_fclose(FILE *fff);

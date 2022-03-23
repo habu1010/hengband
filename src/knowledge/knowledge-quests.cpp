@@ -11,7 +11,6 @@
 #include "flavor/flavor-describer.h"
 #include "flavor/object-flavor-types.h"
 #include "info-reader/fixed-map-parser.h"
-#include "io-dump/dump-util.h"
 #include "locale/english.h"
 #include "monster-race/monster-race.h"
 #include "object-enchant/special-object-flags.h"
@@ -21,7 +20,7 @@
 #include "system/monster-race-definition.h"
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/sort.h"
 #include "world/world.h"
 
@@ -300,9 +299,8 @@ static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
  */
 void do_cmd_knowledge_quests(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -313,6 +311,7 @@ void do_cmd_knowledge_quests(PlayerType *player_ptr)
     int dummy;
     ang_sort(player_ptr, quest_numbers.data(), &dummy, quest_numbers.size(), ang_sort_comp_quest_num, ang_sort_swap_quest_num);
 
+    auto *fff = tempfile.fp();
     do_cmd_knowledge_quests_current(player_ptr, fff);
     fputc('\n', fff);
     do_cmd_knowledge_quests_completed(player_ptr, fff, quest_numbers);
@@ -323,7 +322,6 @@ void do_cmd_knowledge_quests(PlayerType *player_ptr)
         do_cmd_knowledge_quests_wiz_random(fff);
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("クエスト達成状況", "Quest status"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("クエスト達成状況", "Quest status"), 0, 0);
 }

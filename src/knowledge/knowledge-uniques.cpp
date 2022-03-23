@@ -7,12 +7,11 @@
 #include "knowledge/knowledge-uniques.h"
 #include "core/show-file.h"
 #include "game-option/cheat-options.h"
-#include "io-dump/dump-util.h"
 #include "monster-race/monster-race.h"
 #include "monster-race/race-flags1.h"
 #include "system/monster-race-definition.h"
 #include "system/player-type-definition.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/sort.h"
 
 struct unique_list_type {
@@ -139,9 +138,8 @@ void do_cmd_knowledge_uniques(PlayerType *player_ptr, bool is_alive)
 {
     unique_list_type tmp_list;
     unique_list_type *unique_list_ptr = initialize_unique_lsit_type(&tmp_list, is_alive);
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -171,9 +169,8 @@ void do_cmd_knowledge_uniques(PlayerType *player_ptr, bool is_alive)
     }
 
     ang_sort(player_ptr, unique_list_ptr->who.data(), &unique_list_ptr->why, unique_list_ptr->who.size(), ang_sort_comp_hook, ang_sort_swap_hook);
-    display_uniques(unique_list_ptr, fff);
-    angband_fclose(fff);
+    display_uniques(unique_list_ptr, tempfile.fp());
+    tempfile.close();
     concptr title_desc = unique_list_ptr->is_alive ? _("まだ生きているユニーク・モンスター", "Alive Uniques") : _("もう撃破したユニーク・モンスター", "Dead Uniques");
-    (void)show_file(player_ptr, true, file_name, title_desc, 0, 0);
-    fd_kill(file_name);
+    (void)show_file(player_ptr, true, tempfile.name(), title_desc, 0, 0);
 }

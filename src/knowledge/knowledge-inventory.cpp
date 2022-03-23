@@ -10,7 +10,6 @@
 #include "flavor/object-flavor-types.h"
 #include "floor/floor-town.h"
 #include "inventory/inventory-slot-types.h"
-#include "io-dump/dump-util.h"
 #include "object-enchant/special-object-flags.h"
 #include "object-enchant/tr-types.h"
 #include "object-hook/hook-weapon.h"
@@ -23,7 +22,7 @@
 #include "sv-definition/sv-ring-types.h"
 #include "system/object-type-definition.h"
 #include "system/player-type-definition.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/bit-flags-calculator.h"
 
 static concptr inven_res_label = _(
@@ -281,12 +280,12 @@ static void show_home_equipment_resistances(PlayerType *player_ptr, ItemKindType
  */
 void do_cmd_knowledge_inventory(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     fprintf(fff, "%s\n", inven_res_label);
     int label_number = 0;
     for (auto tval = enum2i(TV_WEARABLE_BEGIN); tval <= enum2i(TV_WEARABLE_END); tval++) {
@@ -296,7 +295,6 @@ void do_cmd_knowledge_inventory(PlayerType *player_ptr)
         show_home_equipment_resistances(player_ptr, i2enum<ItemKindType>(tval), &label_number, fff);
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("*鑑定*済み武器/防具の耐性リスト", "Resistances of *identified* equipment"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("*鑑定*済み武器/防具の耐性リスト", "Resistances of *identified* equipment"), 0, 0);
 }

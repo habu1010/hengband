@@ -26,7 +26,7 @@
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
 #include "term/term-color-types.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/int-char-converter.h"
 #include "util/sort.h"
 #include "view/display-messages.h"
@@ -41,9 +41,8 @@
  */
 void do_cmd_knowledge_artifacts(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -119,12 +118,11 @@ void do_cmd_knowledge_artifacts(PlayerType *player_ptr)
             describe_flavor(player_ptr, base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
         }
 
-        fprintf(fff, _("     %s\n", "     The %s\n"), base_name);
+        fprintf(tempfile.fp(), _("     %s\n", "     The %s\n"), base_name);
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("既知の伝説のアイテム", "Artifacts Seen"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("既知の伝説のアイテム", "Artifacts Seen"), 0, 0);
 }
 
 /*

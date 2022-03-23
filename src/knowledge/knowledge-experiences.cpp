@@ -9,7 +9,6 @@
 #include "flavor/object-flavor.h"
 #include "game-option/cheat-options.h"
 #include "game-option/text-display-options.h"
-#include "io-dump/dump-util.h"
 #include "object/object-kind.h"
 #include "player-info/class-info.h"
 #include "player/player-skill.h"
@@ -19,19 +18,19 @@
 #include "spell/technic-info-table.h"
 #include "sv-definition/sv-bow-types.h"
 #include "system/player-type-definition.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 
 /*
  * Display weapon-exp
  */
 void do_cmd_knowledge_weapon_exp(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     for (auto tval : { ItemKindType::SWORD, ItemKindType::POLEARM, ItemKindType::HAFTED, ItemKindType::DIGGING, ItemKindType::BOW }) {
         for (int num = 0; num < 64; num++) {
             char tmp[30];
@@ -66,9 +65,8 @@ void do_cmd_knowledge_weapon_exp(PlayerType *player_ptr)
         }
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("武器の経験値", "Weapon Proficiency"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("武器の経験値", "Weapon Proficiency"), 0, 0);
 }
 
 /*!
@@ -77,12 +75,12 @@ void do_cmd_knowledge_weapon_exp(PlayerType *player_ptr)
  */
 void do_cmd_knowledge_spell_exp(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     if (player_ptr->realm1 != REALM_NONE) {
         fprintf(fff, _("%sの魔法書\n", "%s Spellbook\n"), realm_names[player_ptr->realm1]);
         for (SPELL_IDX i = 0; i < 32; i++) {
@@ -156,9 +154,8 @@ void do_cmd_knowledge_spell_exp(PlayerType *player_ptr)
         }
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("魔法の経験値", "Spell Proficiency"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("魔法の経験値", "Spell Proficiency"), 0, 0);
 }
 
 /*!
@@ -167,12 +164,12 @@ void do_cmd_knowledge_spell_exp(PlayerType *player_ptr)
  */
 void do_cmd_knowledge_skill_exp(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    char file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     for (auto i : PLAYER_SKILL_KIND_TYPE_RANGE) {
         SUB_EXP skill_exp = player_ptr->skill_exp[i];
         SUB_EXP skill_max = s_info[enum2i(player_ptr->pclass)].s_max[i];
@@ -193,7 +190,6 @@ void do_cmd_knowledge_skill_exp(PlayerType *player_ptr)
         fprintf(fff, "\n");
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("技能の経験値", "Miscellaneous Proficiency"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("技能の経験値", "Miscellaneous Proficiency"), 0, 0);
 }

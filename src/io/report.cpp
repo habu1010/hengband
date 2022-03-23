@@ -30,6 +30,7 @@
 #include "term/gameterm.h"
 #include "term/screen-processor.h"
 #include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "view/display-messages.h"
 #include "world/world.h"
 
@@ -242,33 +243,30 @@ static bool http_post(concptr url, BUF *buf)
 static errr make_dump(PlayerType *player_ptr, BUF *dumpbuf)
 {
     char buf[1024];
-    FILE *fff;
-    GAME_TEXT file_name[1024];
 
-    /* Open a new file */
-    fff = angband_fopen_temp(file_name, 1024);
-    if (!fff) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
 #ifdef JP
-        msg_format("一時ファイル %s を作成できませんでした。", file_name);
+        msg_format("一時ファイル %s を作成できませんでした。", tempfile.name());
 #else
-        msg_format("Failed to create temporary file %s.", file_name);
+        msg_format("Failed to create temporary file %s.", tempfile.name());
 #endif
         msg_print(nullptr);
         return 1;
     }
 
+    auto *tmp_fff = tempfile.fp();
     /* 一旦一時ファイルを作る。通常のダンプ出力と共通化するため。 */
-    make_character_dump(player_ptr, fff);
-    angband_fclose(fff);
+    make_character_dump(player_ptr, tmp_fff);
+    tempfile.close();
 
     /* Open for read */
-    fff = angband_fopen(file_name, "r");
+    auto *fff = angband_fopen(tempfile.name(), "r");
 
     while (fgets(buf, 1024, fff)) {
         (void)buf_sprintf(dumpbuf, "%s", buf);
     }
     angband_fclose(fff);
-    fd_kill(file_name);
 
     /* Success */
     return 0;

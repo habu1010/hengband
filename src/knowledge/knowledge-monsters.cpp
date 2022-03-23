@@ -32,7 +32,7 @@
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
 #include "term/term-color-types.h"
-#include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "util/bit-flags-calculator.h"
 #include "util/int-char-converter.h"
 #include "util/sort.h"
@@ -111,12 +111,12 @@ static std::vector<MonsterRaceId> collect_monsters(PlayerType *player_ptr, IDX g
  */
 void do_cmd_knowledge_pets(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     monster_type *m_ptr;
     GAME_TEXT pet_name[MAX_NLEN];
     int t_friends = 0;
@@ -141,9 +141,8 @@ void do_cmd_knowledge_pets(PlayerType *player_ptr)
 #endif
     fprintf(fff, _(" 維持コスト: %d%% MP\n", "   Upkeep: %d%% mana.\n"), show_upkeep);
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("現在のペット", "Current Pets"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("現在のペット", "Current Pets"), 0, 0);
 }
 
 /*!
@@ -154,9 +153,8 @@ void do_cmd_knowledge_pets(PlayerType *player_ptr)
  */
 void do_cmd_knowledge_kill_count(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
@@ -175,6 +173,7 @@ void do_cmd_knowledge_kill_count(PlayerType *player_ptr)
         }
     }
 
+    auto *fff = tempfile.fp();
     if (total < 1) {
         fprintf(fff, _("あなたはまだ敵を倒していない。\n\n", "You have defeated no enemies yet.\n\n"));
     } else
@@ -246,9 +245,8 @@ void do_cmd_knowledge_kill_count(PlayerType *player_ptr)
     fprintf(fff, "   Total: %lu creature%s killed.\n", (ulong)total, (total == 1 ? "" : "s"));
 #endif
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("倒した敵の数", "Kill Count"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("倒した敵の数", "Kill Count"), 0, 0);
 }
 
 /*
@@ -477,12 +475,12 @@ void do_cmd_knowledge_monsters(PlayerType *player_ptr, bool *need_redraw, bool v
  */
 void do_cmd_knowledge_bounty(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         return;
     }
 
+    auto *fff = tempfile.fp();
     fprintf(fff, _("今日のターゲット : %s\n", "Today's target : %s\n"),
         player_ptr->knows_daily_bounty ? r_info[w_ptr->today_mon].name.c_str() : _("不明", "unknown"));
     fprintf(fff, "\n");
@@ -501,7 +499,6 @@ void do_cmd_knowledge_bounty(PlayerType *player_ptr)
         fprintf(fff, "\n%s\n", _("賞金首はもう残っていません。", "There are no more wanted monster."));
     }
 
-    angband_fclose(fff);
-    (void)show_file(player_ptr, true, file_name, _("賞金首の一覧", "Wanted monsters"), 0, 0);
-    fd_kill(file_name);
+    tempfile.close();
+    (void)show_file(player_ptr, true, tempfile.name(), _("賞金首の一覧", "Wanted monsters"), 0, 0);
 }

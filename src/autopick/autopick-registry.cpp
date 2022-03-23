@@ -19,6 +19,7 @@
 #include "system/object-type-definition.h"
 #include "system/player-type-definition.h"
 #include "util/angband-files.h"
+#include "util/angband-tempfile.h"
 #include "view/display-messages.h"
 
 static const char autoregister_header[] = "?:$AUTOREGISTER";
@@ -42,12 +43,10 @@ static bool clear_auto_register(PlayerType *player_ptr)
         return true;
     }
 
-    char tmp_file[1024];
-    FILE *tmp_fff;
-    tmp_fff = angband_fopen_temp(tmp_file, sizeof(tmp_file));
-    if (!tmp_fff) {
+    TempFile tempfile;
+    if (!tempfile.open()) {
         fclose(pref_fff);
-        msg_format(_("一時ファイル %s を作成できませんでした。", "Failed to create temporary file %s."), tmp_file);
+        msg_format(_("一時ファイル %s を作成できませんでした。", "Failed to create temporary file %s."), tempfile.name());
         msg_print(nullptr);
         return false;
     }
@@ -70,12 +69,12 @@ static bool clear_auto_register(PlayerType *player_ptr)
         if (streq(buf, autoregister_header)) {
             autoregister = true;
         } else {
-            fprintf(tmp_fff, "%s\n", buf);
+            fprintf(tempfile.fp(), "%s\n", buf);
         }
     }
 
     angband_fclose(pref_fff);
-    angband_fclose(tmp_fff);
+    tempfile.close();
 
     bool okay = true;
     if (num) {
@@ -91,7 +90,7 @@ static bool clear_auto_register(PlayerType *player_ptr)
     }
 
     if (autoregister) {
-        tmp_fff = angband_fopen(tmp_file, "r");
+        auto *tmp_fff = angband_fopen(tempfile.name(), "r");
         pref_fff = angband_fopen(pref_file, "w");
 
         while (!angband_fgets(tmp_fff, buf, sizeof(buf))) {
@@ -102,7 +101,6 @@ static bool clear_auto_register(PlayerType *player_ptr)
         angband_fclose(tmp_fff);
     }
 
-    fd_kill(tmp_file);
     return okay;
 }
 
