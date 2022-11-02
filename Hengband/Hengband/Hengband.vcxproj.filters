@@ -5370,6 +5370,9 @@
     <ClInclude Include="..\..\src\system\terrain-type-definition.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\util\singleton.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\wall.bmp" />

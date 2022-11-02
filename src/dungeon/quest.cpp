@@ -54,12 +54,6 @@ static concptr find_quest_map[] = {
     _("巻物を見つけた。メッセージが書いてある:", "You find a scroll with the following message"),
 };
 
-QuestList &QuestList::get_instance()
-{
-    static QuestList instance{};
-    return instance;
-}
-
 quest_type &QuestList::operator[](QuestId id)
 {
     return this->quest_data.at(id);

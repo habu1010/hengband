@@ -1808,6 +1808,7 @@
     <ClInclude Include="..\..\src\util\angband-files.h" />
     <ClInclude Include="..\..\src\util\object-sort.h" />
     <ClInclude Include="..\..\src\util\rng-xoshiro.h" />
+    <ClInclude Include="..\..\src\util\singleton.h" />
     <ClInclude Include="..\..\src\util\string-processor.h" />
     <ClInclude Include="..\..\src\util\tag-sorter.h" />
     <ClInclude Include="..\..\src\view\display-birth.h" />

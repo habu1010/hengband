@@ -3,6 +3,7 @@
 #include "system/angband.h"
 
 #include "util/enum-converter.h"
+#include "util/singleton.h"
 #include <map>
 #include <vector>
 
@@ -124,13 +125,14 @@ public:
     static bool is_fixed(QuestId quest_idx);
 };
 
-class QuestList final {
+class QuestList final : public Singleton<QuestList> {
+    friend class Singleton<QuestList>;
+
 public:
     using iterator = std::map<QuestId, quest_type>::iterator;
     using reverse_iterator = std::map<QuestId, quest_type>::reverse_iterator;
     using const_iterator = std::map<QuestId, quest_type>::const_iterator;
     using const_reverse_iterator = std::map<QuestId, quest_type>::const_reverse_iterator;
-    static QuestList &get_instance();
     quest_type &operator[](QuestId id);
     const quest_type &operator[](QuestId id) const;
     iterator begin();
@@ -145,16 +147,16 @@ public:
     const_iterator find(QuestId id) const;
     size_t size() const;
     void initialize();
-    QuestList(const QuestList &) = delete;
-    QuestList(QuestList &&) = delete;
+
+	QuestList(const QuestList &) = delete;
     QuestList &operator=(const QuestList &) = delete;
+    QuestList(QuestList &&) = delete;
     QuestList &operator=(QuestList &&) = delete;
 
-private:
+    private:
     bool initialized = false;
     std::map<QuestId, quest_type> quest_data;
     QuestList() = default;
-    ~QuestList() = default;
 };
 
 extern char quest_text[10][80];
