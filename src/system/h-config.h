@@ -34,8 +34,16 @@ constexpr auto MAINTAINER = "echizen@users.sourceforge.jp";
 #ifdef WINDOWS
   #define PATH_SEP "\\"
   #ifdef JP
-    #define iskanji(x) ((0x81 <= (unsigned char)(x) && (unsigned char)(x) <= 0x9f) || (0xe0 <= (unsigned char)(x) && (unsigned char)(x) <= 0xfc))
-    #define iskana(x) (((unsigned char)(x) >= 0xA0) && ((unsigned char)(x) <= 0xDF))
+constexpr bool iskanji(char c)
+{
+    auto uc = static_cast<unsigned char>(c);
+    return ((0x81 <= uc) && (uc <= 0x9f)) || ((0xe0 <= uc) && (uc <= 0xfc));
+}
+constexpr bool iskana(char c)
+{
+    auto uc = static_cast<unsigned char>(c);
+    return (uc >= 0xa0) && (uc <= 0xdf);
+}
   #endif
 #else
   #define PATH_SEP "/"
@@ -91,8 +99,15 @@ constexpr auto MAINTAINER = "echizen@users.sourceforge.jp";
   
   #ifdef JP
     #ifdef EUC
-      #define iskanji(x) (((unsigned char)(x) >= 0xa1 && (unsigned char)(x) <= 0xfe) || (unsigned char)(x) == 0x8e)
-      #define iskana(x) (0)
+constexpr bool iskanji(char c)
+{
+    auto uc = static_cast<unsigned char>(c);
+    return ((0xa1 <= uc) && (uc <= 0xfe)) || (uc == 0x8e);
+}
+constexpr bool iskana(char)
+{
+    return false;
+}
     #else
       #error Oops! Please define "EUC" for kanji-code of your system.
     #endif
