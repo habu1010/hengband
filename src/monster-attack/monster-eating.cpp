@@ -196,13 +196,14 @@ void process_eat_food(PlayerType *player_ptr, MonsterAttackPlayer *monap_ptr)
 
 void process_eat_lite(PlayerType *player_ptr, MonsterAttackPlayer *monap_ptr)
 {
-    if ((monap_ptr->o_ptr->fuel <= 0) || monap_ptr->o_ptr->is_fixed_artifact()) {
+    auto *lite_data = monap_ptr->o_ptr->get_bi_specific_data<lite_data_type>();
+    if (!lite_data || (lite_data->fuel <= 0) || monap_ptr->o_ptr->is_fixed_artifact()) {
         return;
     }
 
-    monap_ptr->o_ptr->fuel -= 250 + randint1(250);
-    if (monap_ptr->o_ptr->fuel < 1) {
-        monap_ptr->o_ptr->fuel = 1;
+    lite_data->fuel -= 250 + randint1(250);
+    if (lite_data->fuel < 1) {
+        lite_data->fuel = 1;
     }
 
     if (!player_ptr->effects()->blindness()->is_blind()) {

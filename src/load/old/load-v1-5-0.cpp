@@ -254,7 +254,6 @@ void rd_item_old(ItemEntity *o_ptr)
     }
 
     if (h_older_than(0, 2, 3)) {
-        o_ptr->fuel = 0;
         o_ptr->captured_monster_current_hp = 0;
         o_ptr->smith_hit = 0;
         o_ptr->smith_damage = 0;
@@ -289,7 +288,8 @@ void rd_item_old(ItemEntity *o_ptr)
 
         auto xtra4 = rd_s16b();
         if (tval == ItemKindType::LITE) {
-            o_ptr->fuel = xtra4;
+            auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+            lite_data->fuel = xtra4;
         } else if (tval == ItemKindType::CAPTURE) {
             o_ptr->captured_monster_current_hp = xtra4;
         } else {
@@ -301,7 +301,10 @@ void rd_item_old(ItemEntity *o_ptr)
     }
 
     if (h_older_than(1, 0, 5) && o_ptr->is_fuel()) {
-        o_ptr->fuel = o_ptr->pval;
+        auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+        if (lite_data) {
+            lite_data->fuel = o_ptr->pval;
+        }
         o_ptr->pval = 0;
     }
 

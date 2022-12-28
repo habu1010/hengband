@@ -150,16 +150,18 @@ int object_similar_part(const ItemEntity *o_ptr, const ItemEntity *j_ptr)
         }
 
         break;
-    case ItemKindType::LITE:
-        if (o_ptr->fuel != j_ptr->fuel) {
+    case ItemKindType::LITE: {
+        auto *o_lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+        auto *j_lite_data = j_ptr->get_bi_specific_data<lite_data_type>();
+        if (o_lite_data->fuel != j_lite_data->fuel) {
             return 0;
         }
 
         if (!o_ptr->can_pile(j_ptr)) {
             return 0;
         }
-
         break;
+    }
     case ItemKindType::BOW:
     case ItemKindType::DIGGING:
     case ItemKindType::HAFTED:

@@ -36,6 +36,7 @@ void ItemLoader50::rd_item(ItemEntity *o_ptr)
     o_ptr->ix = rd_byte();
     auto &baseitem = baseitems_info[o_ptr->bi_id];
     o_ptr->bi_key = baseitem.bi_key;
+    o_ptr->update_bi_specific_data();
     o_ptr->pval = any_bits(flags, SaveDataItemFlagType::PVAL) ? rd_s16b() : 0;
     o_ptr->discount = any_bits(flags, SaveDataItemFlagType::DISCOUNT) ? rd_byte() : 0;
     o_ptr->number = any_bits(flags, SaveDataItemFlagType::NUMBER) ? rd_byte() : 1;
@@ -131,11 +132,12 @@ void ItemLoader50::rd_item(ItemEntity *o_ptr)
         o_ptr->captured_monster_speed = any_bits(flags, SaveDataItemFlagType::CAPTURED_MONSTER_SPEED) ? rd_byte() : 0;
     }
 
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
     // xtra4フィールドが複数目的に共用されていた頃の名残.
     if (loading_savefile_version_is_older_than(13)) {
         int16_t xtra4 = any_bits(flags, SavedataItemOlderThan13FlagType::XTRA4) ? rd_s16b() : 0;
-        if (o_ptr->is_fuel()) {
-            o_ptr->fuel = static_cast<short>(xtra4);
+        if (o_ptr->is_fuel() && lite_data) {
+            lite_data->fuel = static_cast<short>(xtra4);
         } else if (tval == ItemKindType::CAPTURE) {
             o_ptr->captured_monster_current_hp = xtra4;
         } else {
@@ -143,14 +145,17 @@ void ItemLoader50::rd_item(ItemEntity *o_ptr)
             o_ptr->smith_damage = static_cast<byte>(xtra4 & 0x000f);
         }
     } else {
-        o_ptr->fuel = any_bits(flags, SaveDataItemFlagType::FUEL) ? rd_s16b() : 0;
+        auto fuel = any_bits(flags, SaveDataItemFlagType::FUEL) ? rd_s16b() : 0;
+        if (lite_data) {
+            lite_data->fuel = fuel;
+        }
         o_ptr->captured_monster_current_hp = any_bits(flags, SaveDataItemFlagType::CAPTURED_MONSTER_CURRENT_HP) ? rd_s16b() : 0;
     }
 
-    if (o_ptr->is_fuel() && (o_ptr->bi_key.tval() == ItemKindType::LITE)) {
+    if (lite_data && o_ptr->is_fuel() && (o_ptr->bi_key.tval() == ItemKindType::LITE)) {
         const auto fuel_max = o_ptr->bi_key.sval() == SV_LITE_TORCH ? FUEL_TORCH : FUEL_LAMP;
-        if (o_ptr->fuel < 0 || o_ptr->fuel > fuel_max) {
-            o_ptr->fuel = 0;
+        if (lite_data->fuel < 0 || lite_data->fuel > fuel_max) {
+            lite_data->fuel = 0;
         }
     }
 

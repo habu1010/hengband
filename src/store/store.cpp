@@ -356,12 +356,13 @@ static void store_create(PlayerType *player_ptr, short fix_k_idx, StoreSaleType 
         const auto tval = q_ptr->bi_key.tval();
         const auto sval = q_ptr->bi_key.sval();
         if (tval == ItemKindType::LITE) {
+            auto *lite_data = q_ptr->get_bi_specific_data<lite_data_type>();
             if (sval == SV_LITE_TORCH) {
-                q_ptr->fuel = FUEL_TORCH / 2;
+                lite_data->fuel = FUEL_TORCH / 2;
             }
 
             if (sval == SV_LITE_LANTERN) {
-                q_ptr->fuel = FUEL_LAMP / 2;
+                lite_data->fuel = FUEL_LAMP / 2;
             }
         }
 

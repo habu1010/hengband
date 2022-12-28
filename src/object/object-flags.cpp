@@ -24,7 +24,8 @@ static void object_flags_lite(const ItemEntity *o_ptr, TrFlags &flgs)
     const auto &ego = egos_info[o_ptr->ego_idx];
     flgs.set(ego.flags);
 
-    const auto is_out_of_fuel = o_ptr->fuel == 0;
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    const auto is_out_of_fuel = lite_data && (lite_data->fuel == 0);
     if ((o_ptr->ego_idx == EgoType::AURA_FIRE) && is_out_of_fuel && o_ptr->is_lite_requiring_fuel()) {
         flgs.reset(TR_SH_FIRE);
         return;

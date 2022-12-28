@@ -22,9 +22,21 @@ enum class ItemKindType : short;
 enum class SmithEffectType : int16_t;
 enum class RandomArtActType : short;
 
+#include <memory>
+#include <variant>
+struct lite_data_type {
+    short fuel = 0;
+};
+
+using BaseitemSpecificData = std::variant<
+    std::monostate,
+    lite_data_type
+
+    >;
 class ItemEntity {
 public:
     ItemEntity();
+
     short bi_id{}; /*!< ベースアイテムID (0は、不具合調査用の無効アイテム または 何も装備していない箇所のアイテム であることを示す) */
     POSITION iy{}; /*!< Y-position on map, or zero */
     POSITION ix{}; /*!< X-position on map, or zero */
@@ -42,12 +54,14 @@ public:
     uint8_t captured_monster_speed = 0; /*!< 捕らえたモンスターの速度 */
     short captured_monster_current_hp = 0; /*!< 捕らえたモンスターの現HP */
     short captured_monster_max_hp = 0; /*!< 捕らえたモンスターの最大HP */
-    short fuel = 0; /*!< 光源の残り寿命 / Remaining fuel */
+    // short fuel = 0; /*!< 光源の残り寿命 / Remaining fuel */
 
     byte smith_hit = 0; /*!< 鍛冶をした結果上昇した命中値 */
     byte smith_damage = 0; /*!< 鍛冶をした結果上昇したダメージ */
     std::optional<SmithEffectType> smith_effect; //!< 鍛冶で付与された効果
     std::optional<RandomArtActType> smith_act_idx; //!< 鍛冶で付与された発動効果のID
+
+    BaseitemSpecificData bi_specific_data;
 
     HIT_PROB to_h{}; /*!< Plusses to hit */
     int to_d{}; /*!< Plusses to damage */
@@ -134,8 +148,27 @@ public:
     bool is_cross_bow() const;
     bool is_inscribed() const;
 
+    template <typename T>
+    T *get_bi_specific_data();
+    template <typename T>
+    const T *get_bi_specific_data() const;
+
+    void update_bi_specific_data();
+
 private:
     int get_baseitem_price() const;
     int calc_figurine_value() const;
     int calc_capture_value() const;
 };
+
+template <typename T>
+T *ItemEntity::get_bi_specific_data()
+{
+    return std::get_if<T>(&this->bi_specific_data);
+}
+
+template <typename T>
+const T *ItemEntity::get_bi_specific_data() const
+{
+    return std::get_if<T>(&this->bi_specific_data);
+}

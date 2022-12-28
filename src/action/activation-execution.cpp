@@ -138,7 +138,8 @@ static bool check_activation_conditions(PlayerType *player_ptr, ae_type *ae_ptr)
         return false;
     }
 
-    if (ae_ptr->o_ptr->is_fuel() && (ae_ptr->o_ptr->fuel == 0)) {
+    const auto lite_data = ae_ptr->o_ptr->get_bi_specific_data<lite_data_type>();
+    if (ae_ptr->o_ptr->is_fuel() && lite_data && lite_data->fuel == 0) {
         msg_print(_("燃料がない。", "It has no fuel."));
         PlayerEnergy(player_ptr).reset_player_turn();
         return false;

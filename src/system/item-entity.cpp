@@ -105,6 +105,21 @@ void ItemEntity::prep(short new_bi_id)
     if (baseitem.gen_flags.has(ItemGenerationTraitType::RANDOM_CURSE2)) {
         this->curse_flags.set(get_curse(2, this));
     }
+
+    this->update_bi_specific_data();
+}
+
+void ItemEntity::update_bi_specific_data()
+{
+    switch (this->bi_key.tval()) {
+    case ItemKindType::LITE:
+    case ItemKindType::FLASK:
+        this->bi_specific_data = lite_data_type{};
+        break;
+    default:
+        this->bi_specific_data = std::monostate{};
+        break;
+    }
 }
 
 /*!

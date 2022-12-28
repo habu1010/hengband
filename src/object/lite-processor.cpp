@@ -25,16 +25,17 @@ void reduce_lite_life(PlayerType *player_ptr)
         return;
     }
 
-    if (o_ptr->is_fixed_artifact() || (o_ptr->bi_key.sval() == SV_LITE_FEANOR) || (o_ptr->fuel <= 0)) {
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    if (o_ptr->is_fixed_artifact() || (o_ptr->bi_key.sval() == SV_LITE_FEANOR) || (lite_data->fuel <= 0)) {
         return;
     }
 
     if (o_ptr->ego_idx == EgoType::LITE_LONG) {
         if (w_ptr->game_turn % (TURNS_PER_TICK * 2)) {
-            o_ptr->fuel--;
+            lite_data->fuel--;
         }
     } else {
-        o_ptr->fuel--;
+        lite_data->fuel--;
     }
 
     notice_lite_change(player_ptr, o_ptr);
@@ -47,27 +48,32 @@ void reduce_lite_life(PlayerType *player_ptr)
  */
 void notice_lite_change(PlayerType *player_ptr, ItemEntity *o_ptr)
 {
-    if ((o_ptr->fuel < 100) || (!(o_ptr->fuel % 100))) {
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    if (!lite_data) {
+        return;
+    }
+
+    if ((lite_data->fuel < 100) || (!(lite_data->fuel % 100))) {
         player_ptr->window_flags |= (PW_EQUIP);
     }
 
     if (player_ptr->effects()->blindness()->is_blind()) {
-        if (o_ptr->fuel == 0) {
-            o_ptr->fuel++;
+        if (lite_data->fuel == 0) {
+            lite_data->fuel++;
         }
-    } else if (o_ptr->fuel == 0) {
+    } else if (lite_data->fuel == 0) {
         disturb(player_ptr, false, true);
         msg_print(_("明かりが消えてしまった！", "Your light has gone out!"));
         player_ptr->update |= (PU_TORCH);
         player_ptr->update |= (PU_BONUS);
     } else if (o_ptr->ego_idx == EgoType::LITE_LONG) {
-        if ((o_ptr->fuel < 50) && (!(o_ptr->fuel % 5)) && (w_ptr->game_turn % (TURNS_PER_TICK * 2))) {
+        if ((lite_data->fuel < 50) && (!(lite_data->fuel % 5)) && (w_ptr->game_turn % (TURNS_PER_TICK * 2))) {
             if (disturb_minor) {
                 disturb(player_ptr, false, true);
             }
             msg_print(_("明かりが微かになってきている。", "Your light is growing faint."));
         }
-    } else if ((o_ptr->fuel < 100) && (!(o_ptr->fuel % 10))) {
+    } else if ((lite_data->fuel < 100) && (!(lite_data->fuel % 10))) {
         if (disturb_minor) {
             disturb(player_ptr, false, true);
         }

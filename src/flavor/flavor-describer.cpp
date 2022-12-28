@@ -401,10 +401,12 @@ static std::string describe_lamp_life(const ItemEntity &item)
         return "";
     }
 
+    auto *lite_data = item.get_bi_specific_data<lite_data_type>();
+
     const auto fuel_magnification = item.ego_idx == EgoType::LITE_LONG ? 2 : 1;
     std::stringstream ss;
     ss << _("(", " (with ")
-       << fuel_magnification * item.fuel
+       << fuel_magnification * lite_data->fuel
        << _("ターンの寿命)", " turns of light)");
 
     return ss.str();

@@ -27,7 +27,8 @@
  */
 bool is_active_torch(ItemEntity *o_ptr)
 {
-    return (o_ptr->bi_key == BaseitemKey(ItemKindType::LITE, SV_LITE_TORCH)) && (o_ptr->fuel > 0);
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    return (o_ptr->bi_key == BaseitemKey(ItemKindType::LITE, SV_LITE_TORCH)) && (lite_data->fuel > 0);
 }
 
 /*!
@@ -75,9 +76,10 @@ void torch_lost_fuel(ItemEntity *o_ptr)
         return;
     }
 
-    o_ptr->fuel -= FUEL_TORCH / 25;
-    if (o_ptr->fuel < 0) {
-        o_ptr->fuel = 0;
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    lite_data->fuel -= FUEL_TORCH / 25;
+    if (lite_data->fuel < 0) {
+        lite_data->fuel = 0;
     }
 }
 
@@ -105,11 +107,12 @@ void update_lite_radius(PlayerType *player_ptr)
         if (flgs.has_not(TR_DARK_SOURCE)) {
             if (o_ptr->bi_key.tval() == ItemKindType::LITE) {
                 const auto sval = o_ptr->bi_key.sval();
-                if ((sval == SV_LITE_TORCH) && (o_ptr->fuel <= 0)) {
+                auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+                if ((sval == SV_LITE_TORCH) && (lite_data->fuel <= 0)) {
                     continue;
                 }
 
-                if ((sval == SV_LITE_LANTERN) && (o_ptr->fuel <= 0)) {
+                if ((sval == SV_LITE_LANTERN) && (lite_data->fuel <= 0)) {
                     continue;
                 }
             }

@@ -50,9 +50,10 @@ OtherItemsEnchanter::OtherItemsEnchanter(PlayerType *player_ptr, ItemEntity *o_p
 void OtherItemsEnchanter::apply_magic()
 {
     const auto tval = this->o_ptr->bi_key.tval();
+    auto *lite_data = this->o_ptr->get_bi_specific_data<lite_data_type>();
     switch (tval) {
     case ItemKindType::FLASK:
-        this->o_ptr->fuel = this->o_ptr->pval;
+        lite_data->fuel = this->o_ptr->pval;
         this->o_ptr->pval = 0;
         break;
     case ItemKindType::WAND:

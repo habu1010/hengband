@@ -16,15 +16,16 @@ LiteEnchanter::LiteEnchanter(PlayerType *player_ptr, ItemEntity *o_ptr, int powe
         return;
     }
 
+    auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
     switch (sval.value()) {
     case SV_LITE_TORCH:
         if (o_ptr->pval > 0) {
-            o_ptr->fuel = randint1(o_ptr->pval);
+            lite_data->fuel = randint1(o_ptr->pval);
         }
         return;
     case SV_LITE_LANTERN:
         if (o_ptr->pval > 0) {
-            o_ptr->fuel = randint1(o_ptr->pval);
+            lite_data->fuel = randint1(o_ptr->pval);
         }
         return;
     default:
@@ -77,9 +78,10 @@ void LiteEnchanter::give_ego_index()
 void LiteEnchanter::give_cursed()
 {
     this->o_ptr->ego_idx = get_random_ego(INVEN_LITE, false);
+    auto *lite_data = this->o_ptr->get_bi_specific_data<lite_data_type>();
     switch (this->o_ptr->ego_idx) {
     case EgoType::LITE_DARKNESS:
-        this->o_ptr->fuel = 0;
+        lite_data->fuel = 0;
         this->add_dark_flag();
         return;
     default:

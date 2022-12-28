@@ -189,7 +189,9 @@ bool store_object_similar(ItemEntity *o_ptr, ItemEntity *j_ptr)
         return false;
     }
 
-    if ((tval == ItemKindType::LITE) && (o_ptr->fuel != j_ptr->fuel)) {
+    auto *o_lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+    auto *j_lite_data = j_ptr->get_bi_specific_data<lite_data_type>();
+    if ((tval == ItemKindType::LITE) && (o_lite_data->fuel != j_lite_data->fuel)) {
         return false;
     }
 

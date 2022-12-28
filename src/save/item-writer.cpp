@@ -90,7 +90,8 @@ static void write_item_flags(ItemEntity *o_ptr, BIT_FLAGS *flags)
         set_bits(*flags, SaveDataItemFlagType::CAPTURED_MONSTER_SPEED);
     }
 
-    if (o_ptr->fuel > 0) {
+    if (auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+        lite_data && (lite_data->fuel > 0)) {
         set_bits(*flags, SaveDataItemFlagType::FUEL);
     }
 
@@ -197,7 +198,8 @@ static void write_item_info(ItemEntity *o_ptr, const BIT_FLAGS flags)
     }
 
     if (any_bits(flags, SaveDataItemFlagType::FUEL)) {
-        wr_s16b(o_ptr->fuel);
+        const auto *lite_data = o_ptr->get_bi_specific_data<lite_data_type>();
+        wr_s16b(lite_data->fuel);
     }
 
     if (any_bits(flags, SaveDataItemFlagType::CAPTURED_MONSTER_CURRENT_HP)) {
