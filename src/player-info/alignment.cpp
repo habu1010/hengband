@@ -9,6 +9,7 @@
 #include "monster/monster-status.h"
 #include "player-info/equipment-info.h"
 #include "player-info/race-info.h"
+#include "player/player-virtue.h"
 #include "system/floor-type-definition.h"
 #include "system/item-entity.h"
 #include "system/monster-entity.h"
@@ -99,39 +100,38 @@ void PlayerAlignment::update_alignment()
         this->bias_evil_alignment(1000);
     }
 
-    int j = 0;
-    int neutral[2];
+    PlayerVirtue pv(this->player_ptr);
     for (int i = 0; i < 8; i++) {
-        switch (this->player_ptr->vir_types[i]) {
+        const auto vir_type = this->player_ptr->vir_types[i];
+        const auto value = pv.get(vir_type).value();
+        switch (vir_type) {
         case Virtue::JUSTICE:
-            this->bias_good_alignment(this->player_ptr->virtues[i] * 2);
+            this->bias_good_alignment(value * 2);
             break;
         case Virtue::CHANCE:
-            break;
         case Virtue::NATURE:
         case Virtue::HARMONY:
-            neutral[j++] = i;
             break;
         case Virtue::UNLIFE:
-            this->bias_evil_alignment(this->player_ptr->virtues[i]);
+            this->bias_evil_alignment(value);
             break;
         default:
-            this->bias_good_alignment(this->player_ptr->virtues[i]);
+            this->bias_good_alignment(value);
             break;
         }
     }
 
-    for (int i = 0; i < j; i++) {
+    const auto neutralize_value = pv.get(Virtue::NATURE).value_or(0) + pv.get(Virtue::HARMONY).value_or(0);
+
+    if (this->player_ptr->alignment > 0) {
+        this->bias_evil_alignment(neutralize_value / 2);
+        if (this->player_ptr->alignment < 0) {
+            this->reset_alignment();
+        }
+    } else if (this->player_ptr->alignment < 0) {
+        this->bias_good_alignment(neutralize_value / 2);
         if (this->player_ptr->alignment > 0) {
-            this->bias_evil_alignment(this->player_ptr->virtues[neutral[i]] / 2);
-            if (this->player_ptr->alignment < 0) {
-                this->reset_alignment();
-            }
-        } else if (this->player_ptr->alignment < 0) {
-            this->bias_good_alignment(this->player_ptr->virtues[neutral[i]] / 2);
-            if (this->player_ptr->alignment > 0) {
-                this->reset_alignment();
-            }
+            this->reset_alignment();
         }
     }
 }

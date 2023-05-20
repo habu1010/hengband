@@ -689,6 +689,7 @@ hengband_SOURCES = \
 	player/player-personality-types.h \
 	player/player-sex.cpp player/player-sex.h \
 	player/player-view.cpp player/player-view.h \
+	player/player-virtue.cpp player/player-virtue.h \
 	player/special-defense-types.h \
 	\
 	player-ability/player-ability-types.h \

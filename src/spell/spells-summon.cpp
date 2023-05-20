@@ -15,6 +15,7 @@
 #include "monster/smart-learn-types.h"
 #include "object/item-tester-hooker.h"
 #include "object/item-use-flags.h"
+#include "player/player-virtue.h"
 #include "spell-kind/earthquake.h"
 #include "spell-kind/spells-floor.h"
 #include "spell-kind/spells-genocide.h"
@@ -457,17 +458,17 @@ void cast_invoke_spirits(PlayerType *player_ptr, DIRECTION dir)
 {
     PLAYER_LEVEL plev = player_ptr->lev;
     int die = randint1(100) + plev / 5;
-    int vir = virtue_number(player_ptr, Virtue::CHANCE);
+    PlayerVirtue pv(player_ptr);
 
-    if (vir != 0) {
-        if (player_ptr->virtues[vir - 1] > 0) {
-            while (randint1(400) < player_ptr->virtues[vir - 1]) {
-                die++;
-            }
-        } else {
-            while (randint1(400) < (0 - player_ptr->virtues[vir - 1])) {
-                die--;
-            }
+    const auto chance = pv.get(Virtue::CHANCE).value_or(0);
+
+    if (chance > 0) {
+        while (randint1(400) < chance) {
+            die++;
+        }
+    } else {
+        while (randint1(400) < (0 - chance)) {
+            die--;
         }
     }
 

@@ -20,6 +20,7 @@
 #include "player-info/samurai-data-type.h"
 #include "player-status/player-energy.h"
 #include "player/attack-defense-types.h"
+#include "player/player-virtue.h"
 #include "player/special-defense-types.h"
 #include "spell-kind/spells-beam.h"
 #include "spell-kind/spells-charm.h"
@@ -58,26 +59,26 @@ bool wand_effect(PlayerType *player_ptr, int sval, int dir, bool powerful, bool 
 
     /* XXX Hack -- Wand of wonder can do anything before it */
     if (sval == SV_WAND_WONDER) {
-        int vir = virtue_number(player_ptr, Virtue::CHANCE);
         sval = randint0(SV_WAND_WONDER);
 
-        if (vir) {
-            if (player_ptr->virtues[vir - 1] > 0) {
-                while (randint1(300) < player_ptr->virtues[vir - 1]) {
-                    sval++;
-                }
-                if (sval > SV_WAND_COLD_BALL) {
-                    sval = randint0(4) + SV_WAND_ACID_BALL;
-                }
-            } else {
-                while (randint1(300) < (0 - player_ptr->virtues[vir - 1])) {
-                    sval--;
-                }
-                if (sval < SV_WAND_HEAL_MONSTER) {
-                    sval = randint0(3) + SV_WAND_HEAL_MONSTER;
-                }
+        PlayerVirtue pv(player_ptr);
+        const auto chance = pv.get(Virtue::CHANCE).value_or(0);
+        if (chance > 0) {
+            while (randint1(300) < chance) {
+                sval++;
+            }
+            if (sval > SV_WAND_COLD_BALL) {
+                sval = randint0(4) + SV_WAND_ACID_BALL;
+            }
+        } else {
+            while (randint1(300) < (0 - chance)) {
+                sval--;
+            }
+            if (sval < SV_WAND_HEAL_MONSTER) {
+                sval = randint0(3) + SV_WAND_HEAL_MONSTER;
             }
         }
+
         if (sval < SV_WAND_TELEPORT_AWAY) {
             chg_virtue(player_ptr, Virtue::CHANCE, 1);
         }

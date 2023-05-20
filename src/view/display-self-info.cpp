@@ -5,6 +5,7 @@
 #include "player-info/race-info.h"
 #include "player-info/self-info-util.h"
 #include "player/player-status-table.h"
+#include "player/player-virtue.h"
 #include "system/player-type-definition.h"
 #include "term/gameterm.h"
 #include "term/screen-processor.h"
@@ -40,36 +41,37 @@ void display_virtue(PlayerType *player_ptr, self_info_type *self_ptr)
     strnfmt(self_ptr->plev_buf, sizeof(self_ptr->plev_buf), _("現在の属性 : %s", "Your alignment : %s"), alg.data());
     angband_strcpy(self_ptr->buf[1], self_ptr->plev_buf, sizeof(self_ptr->buf[1]));
     self_ptr->info[self_ptr->line++] = self_ptr->buf[1];
+    PlayerVirtue pv(player_ptr);
     for (int v_nr = 0; v_nr < 8; v_nr++) {
         const auto vir_name = virtue_names.at(player_ptr->vir_types[v_nr]).data();
         std::string vir_desc;
-        int tester = player_ptr->virtues[v_nr];
-        if (tester < -100) {
-            vir_desc = format(_("[%s]の対極 (%d)", "You are the polar opposite of %s (%d)."), vir_name, tester);
-        } else if (tester < -80) {
-            vir_desc = format(_("[%s]の大敵 (%d)", "You are an arch-enemy of %s (%d)."), vir_name, tester);
-        } else if (tester < -60) {
-            vir_desc = format(_("[%s]の強敵 (%d)", "You are a bitter enemy of %s (%d)."), vir_name, tester);
-        } else if (tester < -40) {
-            vir_desc = format(_("[%s]の敵 (%d)", "You are an enemy of %s (%d)."), vir_name, tester);
-        } else if (tester < -20) {
-            vir_desc = format(_("[%s]の罪者 (%d)", "You have sinned against %s (%d)."), vir_name, tester);
-        } else if (tester < 0) {
-            vir_desc = format(_("[%s]の迷道者 (%d)", "You have strayed from the path of %s (%d)."), vir_name, tester);
-        } else if (tester == 0) {
-            vir_desc = format(_("[%s]の中立者 (%d)", "You are neutral to %s (%d)."), vir_name, tester);
-        } else if (tester < 20) {
-            vir_desc = format(_("[%s]の小徳者 (%d)", "You are somewhat virtuous in %s (%d)."), vir_name, tester);
-        } else if (tester < 40) {
-            vir_desc = format(_("[%s]の中徳者 (%d)", "You are virtuous in %s (%d)."), vir_name, tester);
-        } else if (tester < 60) {
-            vir_desc = format(_("[%s]の高徳者 (%d)", "You are very virtuous in %s (%d)."), vir_name, tester);
-        } else if (tester < 80) {
-            vir_desc = format(_("[%s]の覇者 (%d)", "You are a champion of %s (%d)."), vir_name, tester);
-        } else if (tester < 100) {
-            vir_desc = format(_("[%s]の偉大な覇者 (%d)", "You are a great champion of %s (%d)."), vir_name, tester);
+        const int value = pv.get(player_ptr->vir_types[v_nr]).value();
+        if (value < -100) {
+            vir_desc = format(_("[%s]の対極 (%d)", "You are the polar opposite of %s (%d)."), vir_name, value);
+        } else if (value < -80) {
+            vir_desc = format(_("[%s]の大敵 (%d)", "You are an arch-enemy of %s (%d)."), vir_name, value);
+        } else if (value < -60) {
+            vir_desc = format(_("[%s]の強敵 (%d)", "You are a bitter enemy of %s (%d)."), vir_name, value);
+        } else if (value < -40) {
+            vir_desc = format(_("[%s]の敵 (%d)", "You are an enemy of %s (%d)."), vir_name, value);
+        } else if (value < -20) {
+            vir_desc = format(_("[%s]の罪者 (%d)", "You have sinned against %s (%d)."), vir_name, value);
+        } else if (value < 0) {
+            vir_desc = format(_("[%s]の迷道者 (%d)", "You have strayed from the path of %s (%d)."), vir_name, value);
+        } else if (value == 0) {
+            vir_desc = format(_("[%s]の中立者 (%d)", "You are neutral to %s (%d)."), vir_name, value);
+        } else if (value < 20) {
+            vir_desc = format(_("[%s]の小徳者 (%d)", "You are somewhat virtuous in %s (%d)."), vir_name, value);
+        } else if (value < 40) {
+            vir_desc = format(_("[%s]の中徳者 (%d)", "You are virtuous in %s (%d)."), vir_name, value);
+        } else if (value < 60) {
+            vir_desc = format(_("[%s]の高徳者 (%d)", "You are very virtuous in %s (%d)."), vir_name, value);
+        } else if (value < 80) {
+            vir_desc = format(_("[%s]の覇者 (%d)", "You are a champion of %s (%d)."), vir_name, value);
+        } else if (value < 100) {
+            vir_desc = format(_("[%s]の偉大な覇者 (%d)", "You are a great champion of %s (%d)."), vir_name, value);
         } else {
-            vir_desc = format(_("[%s]の具現者 (%d)", "You are the living embodiment of %s (%d)."), vir_name, tester);
+            vir_desc = format(_("[%s]の具現者 (%d)", "You are the living embodiment of %s (%d)."), vir_name, value);
         }
 
         angband_strcpy(self_ptr->v_string[v_nr], vir_desc.data(), sizeof(self_ptr->v_string[v_nr]));

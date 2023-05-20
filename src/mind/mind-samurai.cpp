@@ -28,6 +28,7 @@
 #include "player-base/player-class.h"
 #include "player-info/samurai-data-type.h"
 #include "player/attack-defense-types.h"
+#include "player/player-virtue.h"
 #include "status/action-setter.h"
 #include "system/grid-type-definition.h"
 #include "system/item-entity.h"
@@ -477,10 +478,8 @@ int calc_attack_quality(PlayerType *player_ptr, player_attack_type *pa_ptr)
         chance = std::max(chance * 3 / 2, chance + 60);
     }
 
-    int vir = virtue_number(player_ptr, Virtue::VALOUR);
-    if (vir != 0) {
-        chance += (player_ptr->virtues[vir - 1] / 10);
-    }
+    PlayerVirtue pv(player_ptr);
+    chance += pv.get(Virtue::VALOUR).value_or(0) / 10;
 
     return chance;
 }

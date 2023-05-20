@@ -32,6 +32,7 @@
 #include "player/player-status-flags.h"
 #include "player/player-status-resist.h"
 #include "player/player-status.h"
+#include "player/player-virtue.h"
 #include "player/special-defense-types.h"
 #include "status/bad-status-setter.h"
 #include "status/element-resistance.h"
@@ -435,16 +436,12 @@ void process_player_hp_mp(PlayerType *player_ptr)
  */
 bool hp_player(PlayerType *player_ptr, int num)
 {
-    int vir;
-    vir = virtue_number(player_ptr, Virtue::VITALITY);
-
     if (num <= 0) {
         return false;
     }
 
-    if (vir) {
-        num = num * (player_ptr->virtues[vir - 1] + 1250) / 1250;
-    }
+    PlayerVirtue pv(player_ptr);
+    num = num * (pv.get(Virtue::VITALITY).value_or(0) + 1250) / 1250;
 
     if (player_ptr->chp < player_ptr->mhp) {
         if ((num > 0) && (player_ptr->chp < (player_ptr->mhp / 3))) {

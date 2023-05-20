@@ -21,6 +21,7 @@
 #include "pet/pet-util.h"
 #include "player-base/player-class.h"
 #include "player/player-status-flags.h"
+#include "player/player-virtue.h"
 #include "spell/spells-diceroll.h"
 #include "status/bad-status-setter.h"
 #include "system/floor-type-definition.h"
@@ -58,19 +59,13 @@ static void effect_monster_charm_resist(PlayerType *player_ptr, effect_monster_t
 
 ProcessResult effect_monster_charm(PlayerType *player_ptr, effect_monster_type *em_ptr)
 {
-    int vir = virtue_number(player_ptr, Virtue::HARMONY);
-    if (vir) {
-        em_ptr->dam += player_ptr->virtues[vir - 1] / 10;
-    }
-
-    vir = virtue_number(player_ptr, Virtue::INDIVIDUALISM);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 20;
-    }
-
     if (em_ptr->seen) {
         em_ptr->obvious = true;
     }
+
+    PlayerVirtue pv(player_ptr);
+    em_ptr->dam += pv.get(Virtue::HARMONY).value_or(0) / 10;
+    em_ptr->dam -= pv.get(Virtue::INDIVIDUALISM).value_or(0) / 20;
 
     effect_monster_charm_resist(player_ptr, em_ptr);
     em_ptr->dam = 0;
@@ -83,15 +78,9 @@ ProcessResult effect_monster_control_undead(PlayerType *player_ptr, effect_monst
         em_ptr->obvious = true;
     }
 
-    int vir = virtue_number(player_ptr, Virtue::UNLIFE);
-    if (vir) {
-        em_ptr->dam += player_ptr->virtues[vir - 1] / 10;
-    }
-
-    vir = virtue_number(player_ptr, Virtue::INDIVIDUALISM);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 20;
-    }
+    PlayerVirtue pv(player_ptr);
+    em_ptr->dam += pv.get(Virtue::UNLIFE).value_or(0) / 10;
+    em_ptr->dam -= pv.get(Virtue::INDIVIDUALISM).value_or(0) / 20;
 
     if (common_saving_throw_control(player_ptr, em_ptr->dam, em_ptr->m_ptr) || em_ptr->r_ptr->kind_flags.has_not(MonsterKindType::UNDEAD)) {
         em_ptr->note = _("には効果がなかった。", " is unaffected.");
@@ -119,15 +108,9 @@ ProcessResult effect_monster_control_demon(PlayerType *player_ptr, effect_monste
         em_ptr->obvious = true;
     }
 
-    int vir = virtue_number(player_ptr, Virtue::UNLIFE);
-    if (vir) {
-        em_ptr->dam += player_ptr->virtues[vir - 1] / 10;
-    }
-
-    vir = virtue_number(player_ptr, Virtue::INDIVIDUALISM);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 20;
-    }
+    PlayerVirtue pv(player_ptr);
+    em_ptr->dam += pv.get(Virtue::UNLIFE).value_or(0) / 10;
+    em_ptr->dam -= pv.get(Virtue::INDIVIDUALISM).value_or(0) / 20;
 
     if (common_saving_throw_control(player_ptr, em_ptr->dam, em_ptr->m_ptr) || em_ptr->r_ptr->kind_flags.has_not(MonsterKindType::DEMON)) {
         em_ptr->note = _("には効果がなかった。", " is unaffected.");
@@ -155,15 +138,9 @@ ProcessResult effect_monster_control_animal(PlayerType *player_ptr, effect_monst
         em_ptr->obvious = true;
     }
 
-    int vir = virtue_number(player_ptr, Virtue::NATURE);
-    if (vir) {
-        em_ptr->dam += player_ptr->virtues[vir - 1] / 10;
-    }
-
-    vir = virtue_number(player_ptr, Virtue::INDIVIDUALISM);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 20;
-    }
+    PlayerVirtue pv(player_ptr);
+    em_ptr->dam += pv.get(Virtue::NATURE).value_or(0) / 10;
+    em_ptr->dam -= pv.get(Virtue::INDIVIDUALISM).value_or(0) / 20;
 
     if (common_saving_throw_control(player_ptr, em_ptr->dam, em_ptr->m_ptr) || em_ptr->r_ptr->kind_flags.has_not(MonsterKindType::ANIMAL)) {
         em_ptr->note = _("には効果がなかった。", " is unaffected.");
@@ -190,20 +167,13 @@ ProcessResult effect_monster_control_animal(PlayerType *player_ptr, effect_monst
 
 ProcessResult effect_monster_charm_living(PlayerType *player_ptr, effect_monster_type *em_ptr)
 {
-    int vir = virtue_number(player_ptr, Virtue::UNLIFE);
     if (em_ptr->seen) {
         em_ptr->obvious = true;
     }
 
-    vir = virtue_number(player_ptr, Virtue::UNLIFE);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 10;
-    }
-
-    vir = virtue_number(player_ptr, Virtue::INDIVIDUALISM);
-    if (vir) {
-        em_ptr->dam -= player_ptr->virtues[vir - 1] / 20;
-    }
+    PlayerVirtue pv(player_ptr);
+    em_ptr->dam -= pv.get(Virtue::UNLIFE).value_or(0) / 10;
+    em_ptr->dam -= pv.get(Virtue::INDIVIDUALISM).value_or(0) / 20;
 
     msg_format(_("%sを見つめた。", "You stare at %s."), em_ptr->m_name);
 
