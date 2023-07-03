@@ -572,6 +572,7 @@ hengband_SOURCES = \
 	\
 	net/curl-easy-session.cpp net/curl-easy-session.h \
 	net/curl-slist.cpp net/curl-slist.h \
+	net/download-music.cpp net/download-music.h \
 	net/http-client.cpp net/http-client.h \
 	\
 	object/item-tester-hooker.cpp object/item-tester-hooker.h \

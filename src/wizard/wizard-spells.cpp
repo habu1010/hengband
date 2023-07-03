@@ -21,6 +21,7 @@
 #include "monster-race/race-ability-flags.h"
 #include "monster-race/race-indice-types.h"
 #include "mutation/mutation-processor.h"
+#include "net/download-music.h"
 #include "object-activation/activation-others.h"
 #include "player-base/player-class.h"
 #include "player-info/bluemage-data-type.h"
@@ -53,6 +54,8 @@ static const std::vector<debug_spell_command> debug_spell_commands_list = {
     { 2, "drop weapons", { .spell2 = { drop_weapons } } },
     { 4, "ty curse", { .spell4 = { activate_ty_curse } } },
     { 5, "pattern teleport", { .spell5 = { pattern_teleport } } },
+    { 2, "music", { .spell2 = { download_music } } },
+    { 2, "sound", { .spell2 = { download_sound } } },
 };
 
 /*!
