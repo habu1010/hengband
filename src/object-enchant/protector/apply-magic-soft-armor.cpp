@@ -7,6 +7,7 @@
 #include "object-enchant/protector/apply-magic-soft-armor.h"
 #include "object/object-kind-hook.h"
 #include "object/tval-types.h"
+#include "player-base/player-personality.h"
 #include "sv-definition/sv-armor-types.h"
 #include "system/baseitem-info.h"
 #include "system/item-entity.h"
@@ -57,7 +58,7 @@ void SoftArmorEnchanter::sval_enchant()
         this->o_ptr->pval = randint1(4);
         return;
     case SV_ABUNAI_MIZUGI:
-        if (this->player_ptr->ppersonality != PERSONALITY_SEXY) {
+        if (!PlayerPersonality(this->player_ptr).equals(PlayerPersonalityType::SEXY)) {
             return;
         }
 

@@ -2,6 +2,7 @@
 #include "mutation/mutation-flag-types.h"
 #include "mutation/mutation-util.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "system/player-type-definition.h"
 
 void switch_gain_mutation(PlayerType *player_ptr, glm_type *glm_ptr)
@@ -477,7 +478,7 @@ void switch_gain_mutation(PlayerType *player_ptr, glm_type *glm_ptr)
         glm_ptr->muta_desc = _("関節が突然痛み出した。", "Your joints suddenly hurt.");
         break;
     case 188:
-        if (player_ptr->ppersonality == PERSONALITY_LUCKY) {
+        if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LUCKY)) {
             break;
         }
 

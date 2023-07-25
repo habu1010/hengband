@@ -50,6 +50,7 @@
 #include "object-hook/hook-armor.h"
 #include "object-hook/hook-weapon.h"
 #include "object/item-tester-hooker.h"
+#include "player-base/player-personality.h"
 #include "player-status/player-energy.h"
 #include "player/player-personality-types.h"
 #include "spell-kind/spells-perception.h"
@@ -219,7 +220,7 @@ static void bldg_process_command(PlayerType *player_ptr, building_type *bldg, in
 
     case BACT_LOSE_MUTATION: {
         auto muta = player_ptr->muta;
-        if (player_ptr->ppersonality == PERSONALITY_LUCKY) {
+        if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LUCKY)) {
             // ラッキーマンの白オーラは突然変異治療の対象外
             muta.reset(PlayerMutationType::GOOD_LUCK);
         }

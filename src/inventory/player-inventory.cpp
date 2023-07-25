@@ -22,6 +22,7 @@
 #include "object/item-use-flags.h"
 #include "object/object-info.h"
 #include "object/object-mark-types.h"
+#include "player-base/player-personality.h"
 #include "player/player-move.h"
 #include "spell-kind/spells-perception.h"
 #include "system/floor-type-definition.h"
@@ -200,7 +201,8 @@ void describe_pickup_item(PlayerType *player_ptr, OBJECT_IDX o_idx)
     auto slot = store_item_to_inventory(player_ptr, o_ptr);
     o_ptr = &player_ptr->inventory_list[slot];
     delete_object_idx(player_ptr, o_idx);
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    PlayerPersonality pp(player_ptr);
+    if (pp.equals(PlayerPersonalityType::MUNCHKIN)) {
         bool old_known = identify_item(player_ptr, o_ptr);
         autopick_alter_item(player_ptr, slot, (bool)(destroy_identify && !old_known));
         if (o_ptr->marked.has(OmType::AUTODESTROY)) {
@@ -210,7 +212,7 @@ void describe_pickup_item(PlayerType *player_ptr, OBJECT_IDX o_idx)
 
     const auto item_name = describe_flavor(player_ptr, o_ptr, 0);
 #ifdef JP
-    if (o_ptr->is_specific_artifact(FixedArtifactId::CRIMSON) && (player_ptr->ppersonality == PERSONALITY_COMBAT)) {
+    if (o_ptr->is_specific_artifact(FixedArtifactId::CRIMSON) && pp.equals(PlayerPersonalityType::COMBAT)) {
         msg_format("こうして、%sは『クリムゾン』を手に入れた。", player_ptr->name);
         msg_print("しかし今、『混沌のサーペント』の放ったモンスターが、");
         msg_format("%sに襲いかかる．．．", player_ptr->name);

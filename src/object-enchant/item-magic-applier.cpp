@@ -11,6 +11,7 @@
 #include "object-enchant/item-apply-magic.h"
 #include "object-enchant/object-curse.h"
 #include "object-enchant/special-object-flags.h"
+#include "player-base/player-personality.h"
 #include "player/player-status-flags.h"
 #include "system/artifact-type-definition.h"
 #include "system/baseitem-info.h"
@@ -34,7 +35,7 @@ ItemMagicApplier::ItemMagicApplier(PlayerType *player_ptr, ItemEntity *o_ptr, DE
     , lev(lev)
     , mode(mode)
 {
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         this->lev += randint0(player_ptr->lev / 2 + 10);
     }
 
@@ -81,7 +82,7 @@ std::tuple<int, int> ItemMagicApplier::calculate_chances()
     }
 
     auto chance_great = chance_good * 2 / 3;
-    if ((this->player_ptr->ppersonality != PERSONALITY_MUNCHKIN) && (chance_great > dungeon.obj_great)) {
+    if (!PlayerPersonality(this->player_ptr).equals(PlayerPersonalityType::MUNCHKIN) && (chance_great > dungeon.obj_great)) {
         chance_great = dungeon.obj_great;
     }
 

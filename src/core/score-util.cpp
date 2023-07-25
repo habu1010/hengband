@@ -51,7 +51,7 @@ void high_score::copy_info(const PlayerType &player)
     std::copy_n(prace.begin(), prace.length(), this->p_r);
     const auto pclass = format("%2d", enum2i(std::min(player.pclass, PlayerClassType::MAX)));
     std::copy_n(pclass.begin(), pclass.length(), this->p_c);
-    const auto ppersonality = format("%2d", std::min(player.ppersonality, MAX_PERSONALITIES));
+    const auto ppersonality = format("%2d", std::min(enum2i(player.ppersonality), MAX_PERSONALITIES));
     std::copy_n(ppersonality.begin(), ppersonality.length(), this->p_a);
     const auto current_level = format("%3d", std::min<ushort>(player.lev, 999));
     std::copy_n(current_level.begin(), current_level.length(), this->cur_lev);

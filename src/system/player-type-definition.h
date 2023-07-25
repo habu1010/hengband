@@ -37,7 +37,7 @@ public:
     player_sex psex{}; /* Sex index */
     PlayerRaceType prace{}; /* Race index */
     PlayerClassType pclass{}; /* Class index */
-    player_personality_type ppersonality{}; /* Personality index */
+    PlayerPersonalityType ppersonality{}; /* Personality index */
     int16_t realm1{}; /* First magic realm */
     int16_t realm2{}; /* Second magic realm */
     int16_t element{}; //!< 元素使い領域番号 / Elementalist system index

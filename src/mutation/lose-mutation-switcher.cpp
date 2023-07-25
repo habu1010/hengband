@@ -1,6 +1,7 @@
 #include "mutation/lose-mutation-switcher.h"
 #include "mutation/mutation-flag-types.h"
 #include "mutation/mutation-util.h"
+#include "player-base/player-personality.h"
 #include "system/player-type-definition.h"
 
 void switch_lose_mutation(PlayerType *player_ptr, glm_type *glm_ptr)
@@ -484,7 +485,7 @@ void switch_lose_mutation(PlayerType *player_ptr, glm_type *glm_ptr)
         glm_ptr->muta_desc = _("動作の正確さがなくなった。", "You move with less assurance.");
         break;
     case 193:
-        if (player_ptr->ppersonality == PERSONALITY_LUCKY) {
+        if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LUCKY)) {
             break;
         }
 

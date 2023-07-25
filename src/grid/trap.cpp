@@ -20,6 +20,7 @@
 #include "monster-floor/monster-summon.h"
 #include "monster-floor/place-monster-types.h"
 #include "monster/monster-util.h"
+#include "player-base/player-personality.h"
 #include "player-info/class-info.h"
 #include "player/eldritch-horror.h"
 #include "player/player-damage.h"
@@ -268,7 +269,7 @@ static int check_hit_from_monster_to_player(PlayerType *player_ptr, int power)
         return k < 5;
     }
 
-    if (player_ptr->ppersonality == PERSONALITY_LAZY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LAZY)) {
         if (one_in_(20)) {
             return true;
         }

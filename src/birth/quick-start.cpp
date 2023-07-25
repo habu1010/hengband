@@ -4,6 +4,7 @@
 #include "birth/game-play-initializer.h"
 #include "io/input-key-acceptor.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-info/class-info.h"
 #include "player-info/race-info.h"
 #include "player/player-personality.h"
@@ -61,7 +62,7 @@ bool ask_quick_start(PlayerType *player_ptr)
     auto short_pclass = enum2i(player_ptr->pclass);
     cp_ptr = &class_info[short_pclass];
     mp_ptr = &class_magics_info[short_pclass];
-    ap_ptr = &personality_info[player_ptr->ppersonality];
+    ap_ptr = PlayerPersonality(player_ptr).get_info();
 
     get_extra(player_ptr, false);
     static constexpr auto flags = {

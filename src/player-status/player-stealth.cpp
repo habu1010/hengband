@@ -2,6 +2,7 @@
 #include "mind/mind-ninja.h"
 #include "mutation/mutation-flag-types.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/class-info.h"
 #include "player-info/equipment-info.h"
@@ -42,7 +43,7 @@ int16_t PlayerStealth::race_bonus()
  */
 int16_t PlayerStealth::personality_bonus()
 {
-    const player_personality *a_ptr = &personality_info[this->player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(this->player_ptr).get_info();
     return a_ptr->a_stl;
 }
 

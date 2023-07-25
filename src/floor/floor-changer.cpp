@@ -33,6 +33,7 @@
 #include "monster/monster-status.h"
 #include "monster/monster-update.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "spell-kind/spells-floor.h"
 #include "system/artifact-type-definition.h"
 #include "system/dungeon-info.h"
@@ -420,7 +421,7 @@ void change_floor(PlayerType *player_ptr)
     update_unique_artifact(player_ptr->current_floor_ptr, new_floor_id);
     player_ptr->floor_id = new_floor_id;
     w_ptr->character_dungeon = true;
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         wiz_lite(player_ptr, PlayerClass(player_ptr).equals(PlayerClassType::NINJA));
     }
 

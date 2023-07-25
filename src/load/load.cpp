@@ -35,6 +35,7 @@
 #include "load/store-loader.h"
 #include "load/world-loader.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-info/class-info.h"
 #include "player-info/race-info.h"
 #include "player/player-personality.h"
@@ -212,7 +213,7 @@ static errr exe_reading_savefile(PlayerType *player_ptr)
     sp_ptr = &sex_info[player_ptr->psex];
     rp_ptr = &race_info[enum2i(player_ptr->prace)];
     cp_ptr = &class_info[short_pclass];
-    ap_ptr = &personality_info[player_ptr->ppersonality];
+    ap_ptr = PlayerPersonality(player_ptr).get_info();
 
     set_zangband_class(player_ptr);
     mp_ptr = &class_magics_info[short_pclass];

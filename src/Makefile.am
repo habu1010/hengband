@@ -712,6 +712,7 @@ hengband_SOURCES = \
 	player-attack/player-attack.cpp player-attack/player-attack.h \
 	\
 	player-base/player-class.cpp player-base/player-class.h \
+	player-base/player-personality.cpp player-base/player-personality.h \
 	player-base/player-race.cpp player-base/player-race.h \
 	\
 	player-info/alignment.cpp player-info/alignment.h \

@@ -76,7 +76,7 @@ void rd_base_info(PlayerType *player_ptr)
 
     player_ptr->prace = i2enum<PlayerRaceType>(rd_byte());
     player_ptr->pclass = i2enum<PlayerClassType>(rd_byte());
-    player_ptr->ppersonality = i2enum<player_personality_type>(rd_byte());
+    player_ptr->ppersonality = i2enum<PlayerPersonalityType>(rd_byte());
     player_ptr->psex = i2enum<player_sex>(rd_byte());
 
     rd_realms(player_ptr);

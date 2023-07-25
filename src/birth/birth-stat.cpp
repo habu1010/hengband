@@ -1,6 +1,7 @@
 #include "birth/birth-stat.h"
 #include "birth/auto-roller.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/class-info.h"
 #include "player-info/race-info.h"
@@ -140,7 +141,7 @@ void get_extra(PlayerType *player_ptr, bool roll_hitdie)
     player_ptr->weapon_exp = class_skills_info[pclass].w_start;
     player_ptr->weapon_exp_max = class_skills_info[pclass].w_max;
 
-    if (player_ptr->ppersonality == PERSONALITY_SEXY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::SEXY)) {
         auto &whip_exp = player_ptr->weapon_exp[ItemKindType::HAFTED][SV_WHIP];
         whip_exp = std::max(whip_exp, PlayerSkill::weapon_exp_at(PlayerSkillRank::BEGINNER));
     }

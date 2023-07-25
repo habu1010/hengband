@@ -2,6 +2,7 @@
 #include "effect/attribute-types.h"
 #include "inventory/inventory-slot-types.h"
 #include "object-enchant/object-ego.h"
+#include "player-base/player-personality.h"
 #include "object-enchant/trg-types.h"
 #include "object-hook/hook-weapon.h"
 #include "object/object-value-calc.h"
@@ -120,7 +121,7 @@ void calc_android_exp(PlayerType *player_ptr)
         }
 
         const auto &bi_key = o_ptr->bi_key;
-        if ((bi_key == BaseitemKey(ItemKindType::SOFT_ARMOR, SV_ABUNAI_MIZUGI)) && (player_ptr->ppersonality != PERSONALITY_SEXY)) {
+        if ((bi_key == BaseitemKey(ItemKindType::SOFT_ARMOR, SV_ABUNAI_MIZUGI)) && !PlayerPersonality(player_ptr).equals(PlayerPersonalityType::SEXY)) {
             value /= 32;
         }
 

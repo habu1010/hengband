@@ -1,18 +1,22 @@
 #pragma once
 
-enum player_personality_type {
-    PERSONALITY_ORDINARY = 0,
-    PERSONALITY_MIGHTY = 1,
-    PERSONALITY_SHREWD = 2,
-    PERSONALITY_PIOUS = 3,
-    PERSONALITY_NIMBLE = 4,
-    PERSONALITY_FEARLESS = 5,
-    PERSONALITY_COMBAT = 6,
-    PERSONALITY_LAZY = 7,
-    PERSONALITY_SEXY = 8,
-    PERSONALITY_LUCKY = 9,
-    PERSONALITY_PATIENT = 10,
-    PERSONALITY_MUNCHKIN = 11,
-    PERSONALITY_CHARGEMAN = 12,
-    MAX_PERSONALITIES = 13,
+#include "util/enum-converter.h"
+
+enum class PlayerPersonalityType {
+    ORDINARY = 0,
+    MIGHTY = 1,
+    SHREWD = 2,
+    PIOUS = 3,
+    NIMBLE = 4,
+    FEARLESS = 5,
+    COMBAT = 6,
+    LAZY = 7,
+    SEXY = 8,
+    LUCKY = 9,
+    PATIENT = 10,
+    MUNCHKIN = 11,
+    CHARGEMAN = 12,
+    MAX,
 };
+
+constexpr auto MAX_PERSONALITIES = enum2i(PlayerPersonalityType::MAX);

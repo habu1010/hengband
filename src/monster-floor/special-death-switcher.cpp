@@ -31,6 +31,7 @@
 #include "object-enchant/item-apply-magic.h"
 #include "object-enchant/item-magic-applier.h"
 #include "object/object-kind-hook.h"
+#include "player-base/player-personality.h"
 #include "spell/summon-types.h"
 #include "sv-definition/sv-other-types.h"
 #include "sv-definition/sv-protector-types.h"
@@ -164,7 +165,7 @@ static void on_dead_dawn(PlayerType *player_ptr, monster_death_type *md_ptr)
 
 static void on_dead_sacred_treasures(PlayerType *player_ptr, monster_death_type *md_ptr)
 {
-    if ((player_ptr->ppersonality != PERSONALITY_LAZY) || !md_ptr->drop_chosen_item) {
+    if (!PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LAZY) || !md_ptr->drop_chosen_item) {
         return;
     }
 

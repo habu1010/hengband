@@ -12,6 +12,7 @@
 #include "floor/floor-town.h"
 #include "info-reader/fixed-map-parser.h"
 #include "io-dump/dump-util.h"
+#include "player-base/player-personality.h"
 #include "player-info/alignment.h"
 #include "player-info/class-info.h"
 #include "player/player-personality.h"
@@ -77,8 +78,8 @@ static void dump_yourself(PlayerType *player_ptr, FILE *fff)
     dump_explanation(class_explanations[short_pclass].data(), fff);
 
     fprintf(fff, "\n");
-    fprintf(fff, _("性格: %s\n", "Pesonality: %s\n"), personality_info[player_ptr->ppersonality].title);
-    dump_explanation(personality_explanations[player_ptr->ppersonality], fff);
+    fprintf(fff, _("性格: %s\n", "Pesonality: %s\n"), PlayerPersonality(player_ptr).get_info()->title);
+    dump_explanation(personality_explanations[enum2i(player_ptr->ppersonality)], fff);
 
     fprintf(fff, "\n");
     if (player_ptr->realm1) {

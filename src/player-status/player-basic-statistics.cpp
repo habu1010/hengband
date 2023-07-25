@@ -2,6 +2,7 @@
 #include "core/window-redrawer.h"
 #include "mutation/mutation-flag-types.h"
 #include "object/object-flags.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/class-info.h"
 #include "player-info/mimic-info-table.h"
@@ -76,7 +77,7 @@ int16_t PlayerBasicStatistics::class_bonus()
  */
 int16_t PlayerBasicStatistics::personality_bonus()
 {
-    const player_personality *a_ptr = &personality_info[this->player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(this->player_ptr).get_info();
     return a_ptr->a_adj[this->ability_type];
 }
 

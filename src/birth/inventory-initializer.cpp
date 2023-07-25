@@ -15,6 +15,7 @@
 #include "object/object-kind-hook.h"
 #include "perception/object-perception.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/race-types.h"
 #include "player/player-personality-types.h"
@@ -157,6 +158,7 @@ void player_outfit(PlayerType *player_ptr)
 
     PlayerClass pc(player_ptr);
     PlayerRace pr(player_ptr);
+    PlayerPersonality pp(player_ptr);
     if (pr.equals(PlayerRaceType::VAMPIRE) && !pc.equals(PlayerClassType::NINJA)) {
         q_ptr->prep(lookup_baseitem_id({ ItemKindType::SCROLL, SV_SCROLL_DARKNESS }));
         q_ptr->number = (ITEM_NUMBER)rand_range(2, 5);
@@ -201,7 +203,7 @@ void player_outfit(PlayerType *player_ptr)
             add_outfit(player_ptr, q_ptr);
         }
     } else if (pc.equals(PlayerClassType::TOURIST)) {
-        if (player_ptr->ppersonality != PERSONALITY_SEXY) {
+        if (!pp.equals(PlayerPersonalityType::SEXY)) {
             q_ptr->prep(lookup_baseitem_id({ ItemKindType::SHOT, SV_AMMO_LIGHT }));
             q_ptr->number = rand_range(15, 20);
             add_outfit(player_ptr, q_ptr);
@@ -245,7 +247,7 @@ void player_outfit(PlayerType *player_ptr)
     // 「状況によって特別に持たせたいアイテム」は別途定義すべき.
     if (!pc.equals(PlayerClassType::SORCERER)) {
         auto short_pclass = enum2i(player_ptr->pclass);
-        if (player_ptr->ppersonality == PERSONALITY_SEXY) {
+        if (pp.equals(PlayerPersonalityType::SEXY)) {
             player_init[short_pclass][2] = std::make_tuple(ItemKindType::HAFTED, SV_WHIP);
         } else if (pr.equals(PlayerRaceType::MERFOLK)) {
             player_init[short_pclass][2] = std::make_tuple(ItemKindType::POLEARM, SV_TRIDENT);

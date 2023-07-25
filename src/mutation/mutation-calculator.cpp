@@ -13,6 +13,7 @@
 
 #include "mutation/mutation-calculator.h"
 #include "mutation/mutation-flag-types.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "system/player-type-definition.h"
 
@@ -38,7 +39,7 @@ int calc_mutant_regenerate_mod(PlayerType *player_ptr)
     int regen;
     int mod = 10;
     int count = count_mutations(player_ptr);
-    if (player_ptr->ppersonality == PERSONALITY_LUCKY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LUCKY)) {
         count--;
     }
 

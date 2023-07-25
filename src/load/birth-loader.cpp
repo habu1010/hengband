@@ -19,7 +19,7 @@ void load_quick_start(void)
     previous_char.psex = i2enum<player_sex>(rd_byte());
     previous_char.prace = i2enum<PlayerRaceType>(rd_byte());
     previous_char.pclass = i2enum<PlayerClassType>(rd_byte());
-    previous_char.ppersonality = i2enum<player_personality_type>(rd_byte());
+    previous_char.ppersonality = i2enum<PlayerPersonalityType>(rd_byte());
     previous_char.realm1 = rd_byte();
     previous_char.realm2 = rd_byte();
 

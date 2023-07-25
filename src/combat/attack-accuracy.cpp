@@ -8,6 +8,7 @@
 #include "object/tval-types.h"
 #include "player-attack/player-attack.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player/attack-defense-types.h"
 #include "player/player-status-flags.h"
 #include "specific-object/death-scythe.h"
@@ -48,7 +49,7 @@ PERCENTAGE hit_chance(PlayerType *player_ptr, int reli, ARMOUR_CLASS ac)
     if (reli <= 0) {
         return 5;
     }
-    if (player_ptr->ppersonality == PERSONALITY_LAZY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LAZY)) {
         chance_left = (chance_left * 19 + 9) / 20;
     }
     chance += (100 - ((ac * 75) / reli)) * chance_left / 100;

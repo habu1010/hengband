@@ -58,6 +58,7 @@
 #include "player-ability/player-strength.h"
 #include "player-ability/player-wisdom.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/alignment.h"
 #include "player-info/class-info.h"
@@ -821,7 +822,7 @@ static void update_max_mana(PlayerType *player_ptr)
         if (msp) {
             msp += (msp * rp_ptr->r_adj[mp_ptr->spell_stat] / 20);
         }
-        if (msp && (player_ptr->ppersonality == PERSONALITY_MUNCHKIN)) {
+        if (msp && PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
             msp += msp / 2;
         }
         if (msp && pc.equals(PlayerClassType::HIGH_MAGE)) {
@@ -1134,7 +1135,7 @@ static ACTION_SKILL_POWER calc_disarming(PlayerType *player_ptr)
     }
 
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     pow = tmp_rp_ptr->r_dis + c_ptr->c_dis + a_ptr->a_dis;
     pow += ((cp_ptr->x_dis * player_ptr->lev / 10) + (ap_ptr->a_dis * player_ptr->lev / 50));
@@ -1166,7 +1167,7 @@ static ACTION_SKILL_POWER calc_device_ability(PlayerType *player_ptr)
     }
 
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     pow = tmp_rp_ptr->r_dev + c_ptr->c_dev + a_ptr->a_dev;
     pow += ((c_ptr->x_dev * player_ptr->lev / 10) + (ap_ptr->a_dev * player_ptr->lev / 50));
@@ -1222,7 +1223,7 @@ static ACTION_SKILL_POWER calc_saving_throw(PlayerType *player_ptr)
     }
 
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     pow = tmp_rp_ptr->r_sav + c_ptr->c_sav + a_ptr->a_sav;
     pow += ((cp_ptr->x_sav * player_ptr->lev / 10) + (ap_ptr->a_sav * player_ptr->lev / 50));
@@ -1295,7 +1296,7 @@ static ACTION_SKILL_POWER calc_search(PlayerType *player_ptr)
     }
 
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     pow = tmp_rp_ptr->r_srh + c_ptr->c_srh + a_ptr->a_srh;
     pow += (c_ptr->x_srh * player_ptr->lev / 10);
@@ -1346,7 +1347,7 @@ static ACTION_SKILL_POWER calc_search_freq(PlayerType *player_ptr)
     }
 
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     pow = tmp_rp_ptr->r_fos + c_ptr->c_fos + a_ptr->a_fos;
     pow += (c_ptr->x_fos * player_ptr->lev / 10);
@@ -1386,7 +1387,7 @@ static ACTION_SKILL_POWER calc_to_hit_melee(PlayerType *player_ptr)
     ACTION_SKILL_POWER pow;
     const player_race_info *tmp_rp_ptr;
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     if (player_ptr->mimic_form != MimicKindType::NONE) {
         tmp_rp_ptr = &mimic_info.at(player_ptr->mimic_form);
@@ -1411,7 +1412,7 @@ static ACTION_SKILL_POWER calc_to_hit_shoot(PlayerType *player_ptr)
     ACTION_SKILL_POWER pow;
     const player_race_info *tmp_rp_ptr;
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     if (player_ptr->mimic_form != MimicKindType::NONE) {
         tmp_rp_ptr = &mimic_info.at(player_ptr->mimic_form);
@@ -1437,7 +1438,7 @@ static ACTION_SKILL_POWER calc_to_hit_throw(PlayerType *player_ptr)
     ACTION_SKILL_POWER pow;
     const player_race_info *tmp_rp_ptr;
     const player_class_info *c_ptr = &class_info[enum2i(player_ptr->pclass)];
-    const player_personality *a_ptr = &personality_info[player_ptr->ppersonality];
+    const auto *a_ptr = PlayerPersonality(player_ptr).get_info();
 
     if (player_ptr->mimic_form != MimicKindType::NONE) {
         tmp_rp_ptr = &mimic_info.at(player_ptr->mimic_form);
@@ -1696,17 +1697,18 @@ static int16_t calc_num_blow(PlayerType *player_ptr, int i)
 static int16_t calc_to_magic_chance(PlayerType *player_ptr)
 {
     int16_t chance = 0;
+    PlayerPersonality pp(player_ptr);
 
-    if (player_ptr->ppersonality == PERSONALITY_LAZY) {
+    if (pp.equals(PlayerPersonalityType::LAZY)) {
         chance += 10;
     }
-    if (player_ptr->ppersonality == PERSONALITY_SHREWD) {
+    if (pp.equals(PlayerPersonalityType::SHREWD)) {
         chance -= 3;
     }
-    if ((player_ptr->ppersonality == PERSONALITY_PATIENT) || (player_ptr->ppersonality == PERSONALITY_MIGHTY)) {
+    if (pp.equals(PlayerPersonalityType::PATIENT) || pp.equals(PlayerPersonalityType::MIGHTY)) {
         chance++;
     }
-    if (player_ptr->ppersonality == PERSONALITY_CHARGEMAN) {
+    if (pp.equals(PlayerPersonalityType::CHARGEMAN)) {
         chance += 5;
     }
 
@@ -3178,7 +3180,7 @@ long calc_score(PlayerType *player_ptr)
         }
     }
 
-    if ((player_ptr->ppersonality == PERSONALITY_MUNCHKIN) && point) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN) && point) {
         point = 1;
         if (w_ptr->total_winner) {
             point = 2;
@@ -3258,12 +3260,12 @@ bool is_shero(PlayerType *player_ptr)
 
 bool is_echizen(PlayerType *player_ptr)
 {
-    return (player_ptr->ppersonality == PERSONALITY_COMBAT) || (player_ptr->inventory_list[INVEN_BOW].is_specific_artifact(FixedArtifactId::CRIMSON));
+    return PlayerPersonality(player_ptr).equals(PlayerPersonalityType::COMBAT) || (player_ptr->inventory_list[INVEN_BOW].is_specific_artifact(FixedArtifactId::CRIMSON));
 }
 
 bool is_chargeman(PlayerType *player_ptr)
 {
-    return player_ptr->ppersonality == PERSONALITY_CHARGEMAN;
+    return PlayerPersonality(player_ptr).equals(PlayerPersonalityType::CHARGEMAN);
 }
 
 WEIGHT calc_weapon_weight_limit(PlayerType *player_ptr)

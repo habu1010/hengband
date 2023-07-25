@@ -1,6 +1,7 @@
 #include "player/player-skill.h"
 #include "monster-race/monster-race.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/class-info.h"
 #include "player/player-realm.h"
@@ -449,7 +450,7 @@ void PlayerSkill::apply_special_weapon_skill_max_values()
     }
 
     auto &w_exp_max = this->player_ptr->weapon_exp_max;
-    if (this->player_ptr->ppersonality == PERSONALITY_SEXY) {
+    if (PlayerPersonality(this->player_ptr).equals(PlayerPersonalityType::SEXY)) {
         w_exp_max[ItemKindType::HAFTED][SV_WHIP] = PlayerSkill::weapon_exp_at(PlayerSkillRank::MASTER);
     }
 

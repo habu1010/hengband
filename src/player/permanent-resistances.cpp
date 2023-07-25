@@ -4,6 +4,7 @@
 #include "mutation/mutation-flag-types.h"
 #include "object-enchant/tr-types.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/equipment-info.h"
 #include "player-info/race-types.h"
@@ -65,14 +66,15 @@ static void add_mutation_flags(PlayerType *player_ptr, TrFlags &flags)
  */
 static void add_personality_flags(PlayerType *player_ptr, TrFlags &flags)
 {
-    if (player_ptr->ppersonality == PERSONALITY_SEXY) {
+    PlayerPersonality pp(player_ptr);
+    if (pp.equals(PlayerPersonalityType::SEXY)) {
         flags.set(TR_AGGRAVATE);
     }
-    if (player_ptr->ppersonality == PERSONALITY_CHARGEMAN) {
+    if (pp.equals(PlayerPersonalityType::CHARGEMAN)) {
         flags.set(TR_RES_CONF);
     }
 
-    if (player_ptr->ppersonality != PERSONALITY_MUNCHKIN) {
+    if (!pp.equals(PlayerPersonalityType::MUNCHKIN)) {
         return;
     }
 

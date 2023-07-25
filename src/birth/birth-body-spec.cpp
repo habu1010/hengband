@@ -1,5 +1,6 @@
 #include "birth/birth-body-spec.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/race-info.h"
 #include "player-info/race-types.h"
@@ -67,9 +68,10 @@ void get_money(PlayerType *player_ptr)
         gold = minimum_deposit;
     }
 
-    if (player_ptr->ppersonality == PERSONALITY_LAZY) {
+    PlayerPersonality pp(player_ptr);
+    if (pp.equals(PlayerPersonalityType::LAZY)) {
         gold /= 2;
-    } else if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    } else if (pp.equals(PlayerPersonalityType::MUNCHKIN)) {
         gold = 10000000;
     }
     if (PlayerRace(player_ptr).equals(PlayerRaceType::ANDROID)) {

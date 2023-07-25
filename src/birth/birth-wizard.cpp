@@ -224,14 +224,14 @@ static bool let_player_select_class(PlayerType *player_ptr)
 
 static bool let_player_select_personality(PlayerType *player_ptr)
 {
-    player_ptr->ppersonality = PERSONALITY_ORDINARY;
+    player_ptr->ppersonality = PlayerPersonalityType::ORDINARY;
     while (true) {
         if (!get_player_personality(player_ptr)) {
             return false;
         }
 
         clear_from(10);
-        display_wrap_around(personality_explanations[player_ptr->ppersonality], 74, 12, 3);
+        display_wrap_around(personality_explanations[enum2i(player_ptr->ppersonality)], 74, 12, 3);
 
         if (input_check_strict(player_ptr, _("よろしいですか？", "Are you sure? "), UserCheck::DEFAULT_Y)) {
             break;

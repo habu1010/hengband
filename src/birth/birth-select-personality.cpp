@@ -1,6 +1,7 @@
 #include "birth/birth-select-personality.h"
 #include "birth/birth-util.h"
 #include "io/input-key-acceptor.h"
+#include "player-base/player-personality.h"
 #include "player/player-personality.h"
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
@@ -158,7 +159,7 @@ static int interpret_personality_select_key_move(PlayerType *player_ptr, char ke
 
 static bool select_personality(PlayerType *player_ptr, int *k, concptr sym)
 {
-    int cs = player_ptr->ppersonality;
+    auto cs = enum2i(player_ptr->ppersonality);
     int os = MAX_PERSONALITIES;
     std::string cur = birth_personality_label(os, sym);
     while (true) {
@@ -250,8 +251,8 @@ bool get_player_personality(PlayerType *player_ptr)
         return false;
     }
 
-    player_ptr->ppersonality = (player_personality_type)k;
-    ap_ptr = &personality_info[player_ptr->ppersonality];
+    player_ptr->ppersonality = i2enum<PlayerPersonalityType>(k);
+    ap_ptr = &personality_info[k];
     display_player_name(player_ptr);
     return true;
 }

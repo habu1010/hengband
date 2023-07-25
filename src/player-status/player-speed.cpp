@@ -9,6 +9,7 @@
 #include "object-enchant/tr-types.h"
 #include "object/object-flags.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/equipment-info.h"
 #include "player-info/monk-data-type.h"
@@ -74,7 +75,7 @@ int16_t PlayerSpeed::class_bonus()
     PlayerRace pr(this->player_ptr);
     auto has_speed = pr.equals(PlayerRaceType::KLACKON);
     has_speed |= pr.equals(PlayerRaceType::SPRITE);
-    has_speed |= this->player_ptr->ppersonality == PERSONALITY_MUNCHKIN;
+    has_speed |= PlayerPersonality(this->player_ptr).equals(PlayerPersonalityType::MUNCHKIN);
     if (pc.equals(PlayerClassType::NINJA)) {
         if (heavy_armor(this->player_ptr)) {
             bonus -= (this->player_ptr->lev) / 10;
@@ -122,7 +123,7 @@ int16_t PlayerSpeed::class_bonus()
 int16_t PlayerSpeed::personality_bonus()
 {
     PlayerRace pr(this->player_ptr);
-    if (this->player_ptr->ppersonality != PERSONALITY_MUNCHKIN) {
+    if (!PlayerPersonality(this->player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         return 0;
     }
 

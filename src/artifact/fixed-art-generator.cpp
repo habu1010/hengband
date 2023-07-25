@@ -22,6 +22,7 @@
 #include "object-enchant/trg-types.h"
 #include "object/object-kind-hook.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player/player-sex.h"
 #include "specific-object/bloody-moon.h"
 #include "system/artifact-type-definition.h"
@@ -68,7 +69,7 @@ static bool invest_terror_mask(PlayerType *player_ptr, ItemEntity *o_ptr)
  */
 static void milim_swimsuit(PlayerType *player_ptr, ItemEntity *o_ptr)
 {
-    if (!o_ptr->is_specific_artifact(FixedArtifactId::MILIM) || (player_ptr->ppersonality != PERSONALITY_SEXY)) {
+    if (!o_ptr->is_specific_artifact(FixedArtifactId::MILIM) || !PlayerPersonality(player_ptr).equals(PlayerPersonalityType::SEXY)) {
         return;
     }
 

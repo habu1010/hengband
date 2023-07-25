@@ -31,6 +31,7 @@
 #include "object/object-mark-types.h"
 #include "perception/object-perception.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/equipment-info.h"
 #include "player-info/samurai-data-type.h"
@@ -272,7 +273,7 @@ void do_cmd_wield(PlayerType *player_ptr)
     }
 
     check_find_art_quest_completion(player_ptr, o_ptr);
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         identify_item(player_ptr, o_ptr);
         autopick_alter_item(player_ptr, item, false);
     }

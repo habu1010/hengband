@@ -18,6 +18,7 @@
 #include "player-ability/player-strength.h"
 #include "player-ability/player-wisdom.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-base/player-race.h"
 #include "player-info/class-info.h"
 #include "player-info/equipment-info.h"
@@ -878,7 +879,7 @@ BIT_FLAGS has_hold_exp(PlayerType *player_ptr)
 {
     BIT_FLAGS result = common_cause_flags(player_ptr, TR_HOLD_EXP);
 
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         result |= FLAG_CAUSE_PERSONALITY;
     }
 
@@ -1062,7 +1063,7 @@ void update_curses(PlayerType *player_ptr)
     player_ptr->cursed.clear();
     player_ptr->cursed_special.clear();
 
-    if (player_ptr->ppersonality == PERSONALITY_SEXY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::SEXY)) {
         player_ptr->cursed.set(CurseTraitType::AGGRAVATE);
     }
 
@@ -1307,7 +1308,8 @@ BIT_FLAGS has_resist_conf(PlayerType *player_ptr)
 {
     BIT_FLAGS result = common_cause_flags(player_ptr, TR_RES_CONF);
 
-    if (player_ptr->ppersonality == PERSONALITY_CHARGEMAN || player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    PlayerPersonality pp(player_ptr);
+    if (pp.equals(PlayerPersonalityType::CHARGEMAN) || pp.equals(PlayerPersonalityType::MUNCHKIN)) {
         result |= FLAG_CAUSE_PERSONALITY;
     }
 
@@ -1410,7 +1412,7 @@ BIT_FLAGS has_resist_blind(PlayerType *player_ptr)
 {
     BIT_FLAGS result = common_cause_flags(player_ptr, TR_RES_BLIND);
 
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         result |= FLAG_CAUSE_PERSONALITY;
     }
 
@@ -1681,7 +1683,7 @@ BIT_FLAGS has_lite(PlayerType *player_ptr)
         return 0L;
     }
 
-    if (player_ptr->ppersonality == PERSONALITY_MUNCHKIN) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::MUNCHKIN)) {
         result |= FLAG_CAUSE_PERSONALITY;
     }
 
@@ -1791,13 +1793,13 @@ bool has_not_monk_weapon(PlayerType *player_ptr, int i)
 
 bool has_good_luck(PlayerType *player_ptr)
 {
-    return (player_ptr->ppersonality == PERSONALITY_LUCKY) || (player_ptr->muta.has(PlayerMutationType::GOOD_LUCK));
+    return PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LUCKY) || (player_ptr->muta.has(PlayerMutationType::GOOD_LUCK));
 }
 
 BIT_FLAGS player_aggravate_state(PlayerType *player_ptr)
 {
     if (player_ptr->cursed.has(CurseTraitType::AGGRAVATE)) {
-        if ((PlayerRace(player_ptr).equals(PlayerRaceType::S_FAIRY)) && (player_ptr->ppersonality != PERSONALITY_SEXY)) {
+        if ((PlayerRace(player_ptr).equals(PlayerRaceType::S_FAIRY)) && !PlayerPersonality(player_ptr).equals(PlayerPersonalityType::SEXY)) {
             return AGGRAVATE_S_FAIRY;
         }
         return AGGRAVATE_NORMAL;

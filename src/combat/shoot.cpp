@@ -47,6 +47,7 @@
 #include "object/object-info.h"
 #include "object/object-mark-types.h"
 #include "player-base/player-class.h"
+#include "player-base/player-personality.h"
 #include "player-info/class-info.h"
 #include "player-info/sniper-data-type.h"
 #include "player-status/player-energy.h"
@@ -1029,7 +1030,7 @@ bool test_hit_fire(PlayerType *player_ptr, int chance, MonsterEntity *m_ptr, int
         return true;
     }
 
-    if (player_ptr->ppersonality == PERSONALITY_LAZY) {
+    if (PlayerPersonality(player_ptr).equals(PlayerPersonalityType::LAZY)) {
         if (one_in_(20)) {
             return false;
         }
