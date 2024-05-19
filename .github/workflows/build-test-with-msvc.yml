@@ -33,11 +33,11 @@ jobs:
       - name: Print sccache path
         run: |
           (Get-Command sccache).Source
-      
+
       - name: copy sccache.exe as cl.exe to temporary directory
         run: |
           Copy-Item -v -Path (Get-Command sccache).Source -Destination $env:TEMP\cl.exe -Force
 
-      # - name: Run build test
-      #   run: |
-      #     MSBuild -warnAsError .\Hengband\Hengband.sln /t:Rebuild /p:Configuration=Debug
+      - name: Run build test
+        run: |
+          MSBuild -warnAsError .\Hengband\Hengband.sln /p:CLToolPath=$env:TEMP /p:CLToolExe=cl.exe /t:Rebuild /p:Configuration=Debug
