@@ -24,6 +24,10 @@ jobs:
         run: |
           NuGet restore .\Hengband\Hengband.sln
 
+      - name: Print sccache path
+        run: |
+          (Get-Command sccache).Source
+
       - name: Run build test
         run: |
           MSBuild -warnAsError .\Hengband\Hengband.sln /t:Rebuild /p:Configuration=Debug
