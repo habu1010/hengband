@@ -16,6 +16,7 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@v1.2
         with:
+          variant: sccache
           key: MSVC-BuildTest
           max-size: "200M"
 
@@ -31,7 +32,11 @@ jobs:
 
       - name: Print sccache path
         run: |
-          (Get-Command ccache).Source
+          (Get-Command sccache).Source
+      
+      - name: copy sccache.exe as cl.exe to temporary directory
+        run: |
+          Copy-Item -v -Path (Get-Command sccache).Source -Destination $env:TEMP\cl.exe -Force
 
       # - name: Run build test
       #   run: |
