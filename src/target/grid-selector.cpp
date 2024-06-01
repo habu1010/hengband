@@ -17,6 +17,7 @@
 #include "target/target-checker.h"
 #include "target/target-sorter.h"
 #include "term/screen-processor.h"
+#include "timed-effect/player-hallucination.h"
 #include "timed-effect/timed-effects.h"
 #include "util/int-char-converter.h"
 #include "view/display-messages.h"

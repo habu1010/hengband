@@ -14,6 +14,7 @@
 #include "spell/summon-types.h"
 #include "system/monster-race-info.h"
 #include "system/player-type-definition.h"
+#include "timed-effect/player-blindness.h"
 #include "timed-effect/timed-effects.h"
 #include "view/display-messages.h"
 

@@ -10,6 +10,7 @@
 #include "mspell/mspell-result.h"
 #include "mspell/mspell-util.h"
 #include "system/floor-type-definition.h"
+#include "timed-effect/player-blindness.h"
 #include "timed-effect/timed-effects.h"
 #include "view/display-messages.h"
 

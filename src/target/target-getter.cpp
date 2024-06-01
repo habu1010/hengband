@@ -16,6 +16,7 @@
 #include "target/target-checker.h"
 #include "target/target-setter.h"
 #include "target/target-types.h"
+#include "timed-effect/player-confusion.h"
 #include "timed-effect/timed-effects.h"
 #include "util/finalizer.h"
 #include "view/display-messages.h"

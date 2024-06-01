@@ -27,6 +27,7 @@
 #include "system/monster-entity.h"
 #include "system/monster-race-info.h"
 #include "system/player-type-definition.h"
+#include "timed-effect/player-deceleration.h"
 #include "timed-effect/timed-effects.h"
 #include "util/bit-flags-calculator.h"
 

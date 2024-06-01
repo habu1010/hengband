@@ -17,6 +17,7 @@
 #include "system/monster-entity.h"
 #include "system/monster-race-info.h"
 #include "system/player-type-definition.h"
+#include "timed-effect/player-paralysis.h"
 #include "timed-effect/timed-effects.h"
 #include "view/display-messages.h"
 

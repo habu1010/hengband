@@ -30,6 +30,13 @@
 #include "term/gameterm.h"
 #include "term/screen-processor.h"
 #include "term/z-form.h"
+#include "timed-effect/player-blindness.h"
+#include "timed-effect/player-confusion.h"
+#include "timed-effect/player-cut.h"
+#include "timed-effect/player-fear.h"
+#include "timed-effect/player-hallucination.h"
+#include "timed-effect/player-poison.h"
+#include "timed-effect/player-stun.h"
 #include "timed-effect/timed-effects.h"
 #include "view/display-self-info.h"
 

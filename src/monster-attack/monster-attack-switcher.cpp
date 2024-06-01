@@ -33,6 +33,7 @@
 #include "system/item-entity.h"
 #include "system/monster-entity.h"
 #include "system/player-type-definition.h"
+#include "timed-effect/player-acceleration.h"
 #include "timed-effect/timed-effects.h"
 #include "view/display-messages.h"
 
