@@ -169,7 +169,7 @@ static errr set_mon_symbol(const nlohmann::json &symbol_data, MonsterRaceInfo &m
 static errr set_mon_speed(const nlohmann::json &speed_data, MonsterRaceInfo &monrace)
 {
     int speed;
-    if (auto err = info_set_integer(speed_data, speed, true, Range(-50, 99))) {
+    if (auto err = info_set_integer(speed_data, speed, true, RangeInclusive(-50, 99))) {
         return err;
     }
     monrace.speed = speed + STANDARD_SPEED;
@@ -188,10 +188,10 @@ static errr set_mon_evolve(nlohmann::json &evolve_data, MonsterRaceInfo &monrace
         return PARSE_ERROR_NONE;
     }
 
-    if (auto err = info_set_integer(evolve_data["need_exp"], monrace.next_exp, true, Range(0, 9999999))) {
+    if (auto err = info_set_integer(evolve_data["need_exp"], monrace.next_exp, true, RangeInclusive(0, 9999999))) {
         return err;
     }
-    if (auto err = info_set_integer(evolve_data["to"], monrace.next_r_idx, true, Range(0, 9999))) {
+    if (auto err = info_set_integer(evolve_data["to"], monrace.next_r_idx, true, RangeInclusive(0, 9999))) {
         return err;
     }
 
@@ -238,11 +238,11 @@ static errr set_mon_artifacts(nlohmann::json &artifact_data, MonsterRaceInfo &mo
 
     for (auto &artifact : artifact_data.items()) {
         FixedArtifactId fa_id;
-        if (auto err = info_set_integer(artifact.value()["drop_artifact_id"], fa_id, true, Range(0, 1024))) {
+        if (auto err = info_set_integer(artifact.value()["drop_artifact_id"], fa_id, true, RangeInclusive(0, 1024))) {
             return err;
         }
         int prob;
-        if (auto err = info_set_integer(artifact.value()["drop_probability"], prob, true, Range(1, 100))) {
+        if (auto err = info_set_integer(artifact.value()["drop_probability"], prob, true, RangeInclusive(1, 100))) {
             return err;
         }
 
@@ -268,7 +268,7 @@ static errr set_mon_escorts(nlohmann::json &escort_data, MonsterRaceInfo &monrac
 
     for (auto &escort : escort_data.items()) {
         MonsterRaceId monrace_id;
-        if (auto err = info_set_integer(escort.value()["escorts_id"], monrace_id, true, Range(0, 8192))) {
+        if (auto err = info_set_integer(escort.value()["escorts_id"], monrace_id, true, RangeInclusive(0, 8192))) {
             return err;
         }
 
@@ -450,32 +450,32 @@ errr parse_monraces_info(nlohmann::json &mon_data, angband_header *)
         msg_format(_("モンスターHP読込失敗。ID: '%d'。", "Failed to load monster HP. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["vision"], monrace.aaf, true, Range(0, 999));
+    err = info_set_integer(mon_data["vision"], monrace.aaf, true, RangeInclusive(0, 999));
     if (err) {
         msg_format(_("モンスター感知範囲読込失敗。ID: '%d'。", "Failed to load monster vision. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["armor_class"], monrace.ac, true, Range(0, 10000));
+    err = info_set_integer(mon_data["armor_class"], monrace.ac, true, RangeInclusive(0, 10000));
     if (err) {
         msg_format(_("モンスターAC読込失敗。ID: '%d'。", "Failed to load monster AC. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["alertness"], monrace.sleep, true, Range(0, 255));
+    err = info_set_integer(mon_data["alertness"], monrace.sleep, true, RangeInclusive(0, 255));
     if (err) {
         msg_format(_("モンスター警戒度読込失敗。ID: '%d'。", "Failed to load monster alertness. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["level"], monrace.level, true, Range(0, 255));
+    err = info_set_integer(mon_data["level"], monrace.level, true, RangeInclusive(0, 255));
     if (err) {
         msg_format(_("モンスターレベル読込失敗。ID: '%d'。", "Failed to load monster level. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["rarity"], monrace.rarity, true, Range(0, 255));
+    err = info_set_integer(mon_data["rarity"], monrace.rarity, true, RangeInclusive(0, 255));
     if (err) {
         msg_format(_("モンスター希少度読込失敗。ID: '%d'。", "Failed to load monster rarity. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["exp"], monrace.mexp, true, Range(0, 9999999));
+    err = info_set_integer(mon_data["exp"], monrace.mexp, true, RangeInclusive(0, 9999999));
     if (err) {
         msg_format(_("モンスター経験値読込失敗。ID: '%d'。", "Failed to load monster exp. ID: '%d'."), error_idx);
         return err;
@@ -490,12 +490,12 @@ errr parse_monraces_info(nlohmann::json &mon_data, angband_header *)
         msg_format(_("モンスター性別読込失敗。ID: '%d'。", "Failed to load monster sex. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["odds_correction_ratio"], monrace.arena_ratio, false, Range(1, 9999));
+    err = info_set_integer(mon_data["odds_correction_ratio"], monrace.arena_ratio, false, RangeInclusive(1, 9999));
     if (err) {
         msg_format(_("モンスター賭け倍率読込失敗。ID: '%d'。", "Failed to load monster odds for arena. ID: '%d'."), error_idx);
         return err;
     }
-    err = info_set_integer(mon_data["start_hp_percentage"], monrace.cur_hp_per, false, Range(0, 99));
+    err = info_set_integer(mon_data["start_hp_percentage"], monrace.cur_hp_per, false, RangeInclusive(0, 99));
     if (err) {
         msg_format(_("モンスター初期体力読込失敗。ID: '%d'。", "Failed to load monster starting HP. ID: '%d'."), error_idx);
         return err;

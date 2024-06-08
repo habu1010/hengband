@@ -3,11 +3,10 @@
 #include "external-lib/include-json.h"
 #include "info-reader/parse-error-types.h"
 #include "system/angband.h"
+#include "util/range.h"
 #include <concepts>
 #include <optional>
 #include <utility>
-
-using Range = std::pair<int, int>;
 
 template <typename T>
 concept IntegralOrEnum = std::integral<T> || std::is_enum_v<T>;
@@ -28,7 +27,7 @@ errr info_set_dice(const nlohmann::json &json, DICE_NUMBER &dd, DICE_SID &ds, bo
  * @return エラーコード
  */
 template <IntegralOrEnum T>
-errr info_set_integer(const nlohmann::json &json, T &data, bool is_required, std::optional<Range> range = std::nullopt)
+errr info_set_integer(const nlohmann::json &json, T &data, bool is_required, const RangeInclusive<int> &range)
 {
     if (json.is_null()) {
         return is_required ? PARSE_ERROR_TOO_FEW_ARGUMENTS : PARSE_ERROR_NONE;
@@ -37,11 +36,11 @@ errr info_set_integer(const nlohmann::json &json, T &data, bool is_required, std
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
 
-    const auto value = json.get<T>();
-    if (range && (value < static_cast<T>(range->first) || value > static_cast<T>(range->second))) {
+    const auto value = json.get<int>();
+    if (!range.contains(value)) {
         return PARSE_ERROR_INVALID_FLAG;
     }
 
-    data = value;
+    data = static_cast<T>(value);
     return PARSE_ERROR_NONE;
 }

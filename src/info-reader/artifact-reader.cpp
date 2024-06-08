@@ -48,12 +48,12 @@ static errr set_art_baseitem(nlohmann::json &baseitem_data, ArtifactType &artifa
     }
 
     ItemKindType type_value;
-    if (auto err = info_set_integer(baseitem_data["type_value"], type_value, true, Range(0, 128))) {
+    if (auto err = info_set_integer(baseitem_data["type_value"], type_value, true, RangeInclusive(0, 128))) {
         return err;
     }
 
     int subtype_value;
-    if (auto err = info_set_integer(baseitem_data["subtype_value"], subtype_value, true, Range(0, 128))) {
+    if (auto err = info_set_integer(baseitem_data["subtype_value"], subtype_value, true, RangeInclusive(0, 128))) {
         return err;
     }
 
@@ -139,27 +139,27 @@ errr parse_artifacts_info(nlohmann::json &art_data, angband_header *)
         msg_format(_("アーティファクトのベースアイテム読込失敗。ID: '%d'。", "Failed to load base item of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["parameter_value"], artifact.pval, false, Range(-128, 128))) {
+    if (auto err = info_set_integer(art_data["parameter_value"], artifact.pval, false, RangeInclusive(-128, 128))) {
         msg_format(_("アーティファクトのパラメータ値読込失敗。ID: '%d'。", "Failed to load parameter value of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["level"], artifact.level, true, Range(0, 128))) {
+    if (auto err = info_set_integer(art_data["level"], artifact.level, true, RangeInclusive(0, 128))) {
         msg_format(_("アーティファクトのレベル読込失敗。ID: '%d'。", "Failed to load level of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["rarity"], artifact.rarity, true)) {
+    if (auto err = info_set_integer(art_data["rarity"], artifact.rarity, true, RangeInclusive(0, 255))) {
         msg_format(_("アーティファクトの希少度読込失敗。ID: '%d'。", "Failed to load rarity of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["weight"], artifact.weight, true, Range(0, 9999))) {
+    if (auto err = info_set_integer(art_data["weight"], artifact.weight, true, RangeInclusive(0, 9999))) {
         msg_format(_("アーティファクトの重量読込失敗。ID: '%d'。", "Failed to load weight of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["cost"], artifact.cost, true, Range(0, 99999999))) {
+    if (auto err = info_set_integer(art_data["cost"], artifact.cost, true, RangeInclusive(0, 99999999))) {
         msg_format(_("アーティファクトの売値読込失敗。ID: '%d'。", "Failed to load cost of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["base_ac"], artifact.ac, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(art_data["base_ac"], artifact.ac, false, RangeInclusive(-99, 99))) {
         msg_format(_("アーティファクトのベースAC読込失敗。ID: '%d'。", "Failed to load base AC of artifact. ID: '%d'."), error_idx);
         return err;
     }
@@ -167,15 +167,15 @@ errr parse_artifacts_info(nlohmann::json &art_data, angband_header *)
         msg_format(_("アーティファクトのベースダイス読込失敗。ID: '%d'。", "Failed to load base dice of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["hit_bonus"], artifact.to_h, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(art_data["hit_bonus"], artifact.to_h, false, RangeInclusive(-99, 99))) {
         msg_format(_("アーティファクトの命中補正値読込失敗。ID: '%d'。", "Failed to load hit bonus of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["damage_bonus"], artifact.to_d, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(art_data["damage_bonus"], artifact.to_d, false, RangeInclusive(-99, 99))) {
         msg_format(_("アーティファクトの命中補正値読込失敗。ID: '%d'。", "Failed to load damage bonus of artifact. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(art_data["ac_bonus"], artifact.to_a, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(art_data["ac_bonus"], artifact.to_a, false, RangeInclusive(-99, 99))) {
         msg_format(_("アーティファクトのAC補正値読込失敗。ID: '%d'。", "Failed to load AC bonus of artifact. ID: '%d'."), error_idx);
         return err;
     }

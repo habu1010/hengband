@@ -88,11 +88,11 @@ static errr set_baseitem_kind(nlohmann::json &baseitem_data, BaseitemInfo &basei
     }
 
     ItemKindType type_value;
-    if (auto err = info_set_integer(baseitem_data["type_value"], type_value, true, Range(0, 128))) {
+    if (auto err = info_set_integer(baseitem_data["type_value"], type_value, true, RangeInclusive(0, 128))) {
         return err;
     }
     int subtype_value;
-    if (auto err = info_set_integer(baseitem_data["subtype_value"], subtype_value, true, Range(0, 128))) {
+    if (auto err = info_set_integer(baseitem_data["subtype_value"], subtype_value, true, RangeInclusive(0, 128))) {
         return err;
     }
 
@@ -108,7 +108,7 @@ static errr set_baseitem_kind(nlohmann::json &baseitem_data, BaseitemInfo &basei
  */
 static errr set_baseitem_parameter_value(const nlohmann::json &pval_data, BaseitemInfo &baseitem)
 {
-    if (auto err = info_set_integer(pval_data, baseitem.pval, false, Range(-9999, 9999))) {
+    if (auto err = info_set_integer(pval_data, baseitem.pval, false, RangeInclusive(-9999, 9999))) {
         return err;
     }
     if ((baseitem.bi_key.tval() == ItemKindType::ROD) && (baseitem.pval <= 0)) {
@@ -136,10 +136,10 @@ static errr set_baseitem_allocations(nlohmann::json &allocations_data, BaseitemI
     for (auto i = 0; auto &element : allocations_data.items()) {
         auto &alloc = element.value();
         auto &table = baseitem.alloc_tables[i];
-        if (auto err = info_set_integer(alloc["depth"], table.level, true, Range(0, 128))) {
+        if (auto err = info_set_integer(alloc["depth"], table.level, true, RangeInclusive(0, 128))) {
             return err;
         }
-        if (auto err = info_set_integer(alloc["rarity"], table.chance, true, Range(0, 256))) {
+        if (auto err = info_set_integer(alloc["rarity"], table.chance, true, RangeInclusive(0, 256))) {
             return err;
         }
         i++;
@@ -242,19 +242,19 @@ errr parse_baseitems_info(nlohmann::json &item_data, angband_header *)
         msg_format(_("アイテムのパラメータ値読込失敗。ID: '%d'。", "Failed to load prameter value of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["level"], baseitem.level, true, Range(0, 128))) {
+    if (auto err = info_set_integer(item_data["level"], baseitem.level, true, RangeInclusive(0, 128))) {
         msg_format(_("アイテムのレベル読込失敗。ID: '%d'。", "Failed to load level of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["weight"], baseitem.weight, true, Range(0, 9999))) {
+    if (auto err = info_set_integer(item_data["weight"], baseitem.weight, true, RangeInclusive(0, 9999))) {
         msg_format(_("アイテムの重量読込失敗。ID: '%d'。", "Failed to load weight of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["cost"], baseitem.cost, true, Range(0, 99999999))) {
+    if (auto err = info_set_integer(item_data["cost"], baseitem.cost, true, RangeInclusive(0, 99999999))) {
         msg_format(_("アイテムの売値読込失敗。ID: '%d'。", "Failed to load cost of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["base_ac"], baseitem.ac, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(item_data["base_ac"], baseitem.ac, false, RangeInclusive(-99, 99))) {
         msg_format(_("アイテムのベースAC読込失敗。ID: '%d'。", "Failed to load base AC of item. ID: '%d'."), error_idx);
         return err;
     }
@@ -262,15 +262,15 @@ errr parse_baseitems_info(nlohmann::json &item_data, angband_header *)
         msg_format(_("アイテムのベースダイス読込失敗。ID: '%d'。", "Failed to load base dice of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["hit_bonus"], baseitem.to_h, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(item_data["hit_bonus"], baseitem.to_h, false, RangeInclusive(-99, 99))) {
         msg_format(_("アイテムの命中補正値読込失敗。ID: '%d'。", "Failed to load hit bonus of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["damage_bonus"], baseitem.to_d, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(item_data["damage_bonus"], baseitem.to_d, false, RangeInclusive(-99, 99))) {
         msg_format(_("アイテムの命中補正値読込失敗。ID: '%d'。", "Failed to load damage bonus of item. ID: '%d'."), error_idx);
         return err;
     }
-    if (auto err = info_set_integer(item_data["ac_bonus"], baseitem.to_a, false, Range(-99, 99))) {
+    if (auto err = info_set_integer(item_data["ac_bonus"], baseitem.to_a, false, RangeInclusive(-99, 99))) {
         msg_format(_("アイテムのAC補正値読込失敗。ID: '%d'。", "Failed to load AC bonus of item. ID: '%d'."), error_idx);
         return err;
     }
