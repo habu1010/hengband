@@ -30,6 +30,7 @@
 void wiz_enter_quest(PlayerType *player_ptr);
 void wiz_complete_quest(PlayerType *player_ptr);
 void wiz_restore_monster_max_num(MonraceId monrace_id);
+void wiz_show_rng();
 
 /*!
  * @brief ゲーム設定コマンド一覧表
@@ -40,6 +41,7 @@ constexpr std::array wizard_game_modifier_menu_table = {
     std::make_tuple('Q', _("クエストに突入", "Enter quest")),
     std::make_tuple('u', _("ユニーク/ナズグルの生存数を復元", "Restore living info of unique/nazgul")),
     std::make_tuple('g', _("モンスター闘技場出場者更新", "Update gambling monster")),
+    std::make_tuple('r', _("RNGの情報表示", "Show RNG info")),
 };
 
 /*!
@@ -95,6 +97,9 @@ void wizard_game_modifier(PlayerType *player_ptr)
         break;
     case 't':
         AngbandWorld::get_instance().set_gametime();
+        break;
+    case 'r':
+        wiz_show_rng();
         break;
     }
 }
@@ -175,4 +180,21 @@ void wiz_restore_monster_max_num(MonraceId monrace_id)
     ss << monrace.name << _("の出現数を復元しました。", " can appear again now.");
     msg_print(ss.str());
     msg_print(nullptr);
+}
+
+void wiz_show_rng()
+{
+    screen_save();
+    auto &system = AngbandSystem::get_instance();
+    const auto rng_state = system.get_rng().get_state();
+    for (int i = 0; i < std::ssize(rng_state); ++i) {
+        auto line = format("state%d: %08x", i, rng_state[i]);
+        term_erase(14, i + 1, 64);
+        put_str(line, i + 1, 15);
+    }
+    term_erase(14, rng_state.size() + 1, 64);
+
+    msg_print("RNG");
+    msg_print(nullptr);
+    screen_load();
 }
