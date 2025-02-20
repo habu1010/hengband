@@ -68,8 +68,8 @@ void write_bitset(const std::bitset<BITSET_SIZE> &bs, Func wr_byte_func, size_t 
     }
 }
 
-template <typename InputIter>
-constexpr unsigned long long calc_bitset_val(InputIter first, InputIter last) noexcept
+template <typename InputIter, std::sentinel_for<InputIter> S>
+constexpr unsigned long long calc_bitset_val(InputIter first, S last) noexcept
 {
     auto result = 0ULL;
     for (; first != last; ++first) {
@@ -166,9 +166,9 @@ public:
      * @param first 範囲の開始位置を示す入力イテレータ
      * @param last 範囲の終了位置を示す入力イテレータ
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
         requires(FLAG_TYPE_MAX <= sizeof(unsigned long long) * 8)
-    constexpr FlagGroup(InputIter first, InputIter last)
+    constexpr FlagGroup(InputIter first, S last)
         : bs_(flag_group::detail::calc_bitset_val(first, last))
     {
     }
@@ -191,9 +191,9 @@ public:
      * @param first 範囲の開始位置を示す入力イテレータ
      * @param last 範囲の終了位置を示す入力イテレータ
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
         requires(FLAG_TYPE_MAX > sizeof(unsigned long long) * 8)
-    FlagGroup(InputIter first, InputIter last)
+    FlagGroup(InputIter first, S last)
     {
         for (; first != last; ++first) {
             set(*first);
@@ -258,8 +258,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return *thisの参照を返す
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    FlagGroup<FlagType, MAX> &set(InputIter first, InputIter last) &
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    FlagGroup<FlagType, MAX> &set(InputIter first, S last) &
     {
         return set(FlagGroup(first, last));
     }
@@ -272,8 +272,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return *thisを返す
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    FlagGroup<FlagType, MAX> set(InputIter first, InputIter last) &&
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    FlagGroup<FlagType, MAX> set(InputIter first, S last) &&
     {
         this->set(first, last);
         return std::move(*this);
@@ -335,8 +335,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return *thisの参照を返す
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    FlagGroup<FlagType, MAX> &reset(InputIter first, InputIter last) &
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    FlagGroup<FlagType, MAX> &reset(InputIter first, S last) &
     {
         return reset(FlagGroup(first, last));
     }
@@ -349,8 +349,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return *thisを返す
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    FlagGroup<FlagType, MAX> reset(InputIter first, InputIter last) &&
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    FlagGroup<FlagType, MAX> reset(InputIter first, S last) &&
     {
         this->reset(first, last);
         return std::move(*this);
@@ -436,8 +436,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return すべてのフラグがONであればtrue、そうでなければfalse
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    [[nodiscard]] bool has_all_of(InputIter first, InputIter last) const
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    [[nodiscard]] bool has_all_of(InputIter first, S last) const
     {
         return has_all_of(FlagGroup(first, last));
     }
@@ -461,8 +461,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return いずれかのフラグがONであればtrue、そうでなければfalse
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    [[nodiscard]] bool has_any_of(InputIter first, InputIter last) const
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    [[nodiscard]] bool has_any_of(InputIter first, S last) const
     {
         return has_any_of(FlagGroup(first, last));
     }
@@ -486,8 +486,8 @@ public:
      * @param last 範囲の終了位置を示す入力イテレータ
      * @return すべてのフラグがOFFであればtrue、そうでなければfalse
      */
-    template <flag_group::FlagIter<FlagType> InputIter>
-    [[nodiscard]] bool has_none_of(InputIter first, InputIter last) const
+    template <flag_group::FlagIter<FlagType> InputIter, std::sentinel_for<InputIter> S>
+    [[nodiscard]] bool has_none_of(InputIter first, S last) const
     {
         return !has_any_of(first, last);
     }

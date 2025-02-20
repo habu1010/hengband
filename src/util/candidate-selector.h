@@ -26,7 +26,7 @@ concept Describer = requires(Func f, Arg a) {
 template <typename T>
 concept SizedContainer = requires(T t) {
     { std::begin(t) } -> std::convertible_to<typename T::iterator>;
-    { std::end(t) } -> std::convertible_to<typename T::iterator>;
+    { std::end(t) } -> std::sentinel_for<typename T::iterator>;
     std::size(t);
     typename T::value_type;
 };
@@ -80,7 +80,7 @@ public:
 
             const auto cmd = input_command(this->prompt);
             if (!cmd) {
-                return std::end(candidates);
+                return std::next(std::begin(candidates), candidates_count);
             }
 
             const auto page_base_idx = current_page * this->max_per_page;

@@ -211,9 +211,12 @@ struct Rectangle2D {
         }
     }
 
+    struct sentinel;
+
     /// @brief 長方形内の座標を走査するイテレータ
     class iterator {
     public:
+        using difference_type = int;
         using value_type = Point2D<T>;
         using iterator_category = std::input_iterator_tag;
 
@@ -247,16 +250,28 @@ struct Rectangle2D {
     private:
         const Rectangle2D *rect;
         value_type pos_cur;
+
+        friend struct Rectangle2D::sentinel;
     };
+
+    struct sentinel {
+        constexpr bool operator==(iterator it) const noexcept
+        {
+            return it.pos_cur.y == it.rect->bottom_right.y + 1 && it.pos_cur.x == it.rect->top_left.x;
+        }
+    };
+
+    using value_type = Point2D<T>;
+    using const_iterator = iterator;
 
     constexpr iterator begin() const noexcept
     {
         return iterator(this, this->top_left);
     }
 
-    constexpr iterator end() const noexcept
+    constexpr sentinel end() const noexcept
     {
-        return iterator(this, Point2D<T>(this->bottom_right.y + 1, this->top_left.x));
+        return sentinel{};
     }
 };
 

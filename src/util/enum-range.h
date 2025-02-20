@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <range/v3/range/concepts.hpp>
 #include <type_traits>
 
 /*!
@@ -13,6 +14,7 @@ template <typename EnumType>
     requires std::is_enum_v<EnumType>
 class EnumRange {
 public:
+    struct sentinel;
     /*!
      * @brief 列挙値の範囲のイテレータクラス
      */
@@ -21,6 +23,7 @@ public:
         // std::iterator_traits に対応するための定義
         using difference_type = int;
         using value_type = EnumType;
+        using iterator_category = std::input_iterator_tag;
         using iterator_concept = std::input_iterator_tag;
 
         /*!
@@ -28,8 +31,9 @@ public:
          *
          * @param val イテレータオブジェクトが指す列挙値
          */
-        constexpr iterator(EnumType val) noexcept
-            : index(std::underlying_type_t<EnumType>(val))
+        constexpr iterator(const EnumRange *range, EnumType val) noexcept
+            : range(range)
+            , index(std::underlying_type_t<EnumType>(val))
         {
         }
 
@@ -41,6 +45,11 @@ public:
         constexpr EnumType operator*() const noexcept
         {
             return static_cast<EnumType>(index);
+        }
+
+        constexpr const EnumType *operator->() const noexcept
+        {
+            return &this->operator*();
         }
 
         /*!
@@ -74,10 +83,42 @@ public:
          */
         constexpr bool operator==(const iterator &other) const noexcept = default;
 
+        constexpr bool equal(sentinel) const noexcept
+        {
+            return index == static_cast<std::underlying_type_t<EnumType>>(range->end_val);
+        }
+
+#if 1
+        friend bool operator==(iterator it, sentinel) noexcept
+        {
+            return it.index == static_cast<std::underlying_type_t<EnumType>>(it.range->end_val);
+        }
+
+        friend bool operator==(sentinel s, iterator it) noexcept
+        {
+            return it == s;
+        }
+#endif
+
     private:
+        const EnumRange *range;
         //! 現在イテレータが指している列挙値の基底型における整数値
         std::underlying_type_t<EnumType> index;
+
+        friend struct EnumRange::sentinel;
     };
+
+#if 0
+    struct sentinel {
+        constexpr bool operator==(iterator it) const noexcept
+        {
+            return it.index == static_cast<std::underlying_type_t<EnumType>>(it.range->end_val);
+        }
+    };
+#else
+    struct sentinel {
+    };
+#endif
 
     using value_type = EnumType;
     using const_iterator = iterator;
@@ -115,7 +156,12 @@ public:
      */
     constexpr iterator begin() const noexcept
     {
-        return iterator(begin_val);
+        return iterator(this, begin_val);
+    }
+
+    constexpr iterator begin() noexcept
+    {
+        return iterator(this, begin_val);
     }
 
     /*!
@@ -123,9 +169,14 @@ public:
      *
      * @return 範囲の最後の列挙値の次の値を指すイテレータ
      */
-    constexpr iterator end() const noexcept
+    constexpr sentinel end() const noexcept
     {
-        return iterator(end_val);
+        return sentinel{};
+    }
+
+    constexpr sentinel end() noexcept
+    {
+        return sentinel{};
     }
 
     /*!
@@ -215,3 +266,8 @@ public:
 private:
     EnumRange<EnumType> range;
 };
+
+namespace ranges {
+template <typename EnumType>
+inline constexpr bool enable_view<EnumRange<EnumType>> = true;
+}
