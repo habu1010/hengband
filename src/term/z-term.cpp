@@ -1701,7 +1701,7 @@ errr term_redraw_section(TERM_LEN x1, TERM_LEN y1, TERM_LEN x2, TERM_LEN y2)
         TERM_LEN x1j = x1;
         TERM_LEN x2j = x2;
 
-        if (x1j > 0) {
+        if (x1j > 0 && x1j < game_term->wid) {
             if (game_term->scr->a[i][x1j] & AF_KANJI2) {
                 x1j--;
             }

@@ -144,6 +144,8 @@ if test "$have_x" = yes; then
     PKG_CHECK_MODULES(XFT, [xft],
       [AC_DEFINE([USE_XFT], [1], [Use XFT])])
   ])
+
+  PKG_CHECK_MODULES(XEXT, [xext], [AC_DEFINE([USE_XDBE], [1], [Use Xdbe])])
 fi
 
 if test "$use_japanese" != no; then

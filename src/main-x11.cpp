@@ -143,6 +143,8 @@
 #include <X11/Xft/Xft.h>
 #endif
 
+#include <X11/extensions/Xdbe.h>
+
 /*
  * Include some helpful X11 code.
  */
@@ -263,6 +265,7 @@ struct metadpy {
  */
 struct infowin {
     Window win;
+    XdbeBackBuffer back_buffer;
 #ifdef USE_XIM
     XIC xic;
     long xic_mask;
@@ -474,6 +477,11 @@ static errr Metadpy_init_2(Display *dpy, concptr name)
 static errr Metadpy_update(int flush, int sync, int discard)
 {
     if (flush) {
+        XdbeSwapInfo swap_info;
+        swap_info.swap_window = Infowin->win;
+        swap_info.swap_action = XdbeCopied;
+        XdbeSwapBuffers(Metadpy->dpy, &swap_info, 1);
+
         XFlush(Metadpy->dpy);
     }
     if (sync) {
@@ -540,6 +548,8 @@ static errr Infowin_prepare(Window xid)
     iwin->mask = xwa.your_event_mask;
     iwin->mapped = ((xwa.map_state == IsUnmapped) ? 0 : 1);
     iwin->redraw = 1;
+    iwin->back_buffer = XdbeAllocateBackBufferName(Metadpy->dpy, xid, XdbeCopied);
+
     return 0;
 }
 
@@ -625,7 +635,9 @@ static errr Infowin_resize(int w, int h)
  */
 static errr Infowin_wipe(void)
 {
-    XClearWindow(Metadpy->dpy, Infowin->win);
+    XSetForeground(Metadpy->dpy, DefaultGCOfScreen(Metadpy->screen), BlackPixelOfScreen(Metadpy->screen));
+    XFillRectangle(Metadpy->dpy, Infowin->back_buffer, DefaultGCOfScreen(Metadpy->screen), 0, 0, Infowin->w, Infowin->h);
+    // XClearWindow(Metadpy->dpy, Infowin->win);
     return 0;
 }
 
@@ -891,8 +903,8 @@ static void Infofnt_init_data(concptr name)
 #ifdef USE_XFT
 static auto create_xft_draw()
 {
-    auto *vis = DefaultVisual(Metadpy->dpy, 0);
-    auto *draw = XftDrawCreate(Metadpy->dpy, Infowin->win, vis, Metadpy->cmap);
+    auto *vis = DefaultVisualOfScreen(Metadpy->screen);
+    auto *draw = XftDrawCreate(Metadpy->dpy, Infowin->back_buffer, vis, Metadpy->cmap);
     return std::unique_ptr<XftDraw, decltype(&XftDrawDestroy)>(draw, XftDrawDestroy);
 }
 
@@ -950,7 +962,7 @@ static errr Infofnt_text_std(int x, int y, concptr str, int len)
 #ifndef USE_XFT
         int i;
         for (i = 0; i < len; ++i) {
-            XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc, x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
+            XDrawImageString(Metadpy->dpy, Infowin->back_buffer, Infoclr->gc, x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
         }
 #endif
     } else {
@@ -965,7 +977,7 @@ static errr Infofnt_text_std(int x, int y, concptr str, int len)
 #ifdef USE_XFT
         Infofnt_text_std_xft(x, y, len, Infoclr->fg, Infoclr->bg, _(utf8_buf, str), _(utf8_len, len));
 #else
-        XmbDrawImageString(Metadpy->dpy, Infowin->win, Infofnt->info, Infoclr->gc, x, y, _(utf8_buf, str), _(utf8_len, len));
+        XmbDrawImageString(Metadpy->dpy, Infowin->back_buffer, Infofnt->info, Infoclr->gc, x, y, _(utf8_buf, str), _(utf8_len, len));
 #endif
     }
 
@@ -991,7 +1003,7 @@ static errr Infofnt_text_non(int x, int y, concptr str, int len)
     auto draw = create_xft_draw();
     XftDrawRect(draw.get(), &Infoclr->fg, x, y, w, h);
 #else
-    XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc, x, y, w, h);
+    XFillRectangle(Metadpy->dpy, Infowin->back_buffer, Infoclr->gc, x, y, w, h);
 #endif
 
     return 0;
@@ -1221,12 +1233,6 @@ static void sort_co_ord(co_ord *min, co_ord *max, const co_ord *b, const co_ord 
 }
 
 #ifdef USE_XFT
-template <class T, class D>
-auto make_unique_ptr_with_deleter(T *p, D d) noexcept
-{
-    return std::unique_ptr<T, D>(p, std::move(d));
-}
-
 /*!
  * @brief 矩形領域の枠を描画する
  *
@@ -1239,14 +1245,14 @@ auto make_unique_ptr_with_deleter(T *p, D d) noexcept
  */
 static void draw_rectangle_frame(int x, int y, int width, int height)
 {
-    auto gc = make_unique_ptr_with_deleter(XCreateGC(Metadpy->dpy, Infowin->win, 0, NULL),
-        [dpy = Metadpy->dpy](GC gc) { XFreeGC(dpy, gc); });
+    auto gc = DefaultGCOfScreen(Metadpy->screen);
 
-    XSetForeground(Metadpy->dpy, gc.get(), WhitePixel(Metadpy->dpy, DefaultScreen(Metadpy->dpy)));
-    XDrawLine(Metadpy->dpy, Infowin->win, gc.get(), x, y, x + width, y);
-    XDrawLine(Metadpy->dpy, Infowin->win, gc.get(), x, y, x, y + height);
-    XDrawLine(Metadpy->dpy, Infowin->win, gc.get(), x + width, y, x + width, y + height);
-    XDrawLine(Metadpy->dpy, Infowin->win, gc.get(), x, y + height, x + width, y + height);
+    XSetForeground(Metadpy->dpy, gc, WhitePixelOfScreen(Metadpy->screen));
+    XDrawLine(Metadpy->dpy, Infowin->back_buffer, gc, x, y, x + width, y);
+    XDrawLine(Metadpy->dpy, Infowin->back_buffer, gc, x, y, x, y + height);
+    XDrawLine(Metadpy->dpy, Infowin->back_buffer, gc, x + width, y, x + width, y + height);
+    XDrawLine(Metadpy->dpy, Infowin->back_buffer, gc, x, y + height, x + width, y + height);
+    term_xtra(TERM_XTRA_FRESH, 0);
 }
 #endif
 
@@ -1275,7 +1281,7 @@ static void draw_cursor(int x, int y, int len)
     square_to_pixel(&x, &y, x, y);
     const auto width = Infofnt->wid * len;
     const auto height = Infofnt->hgt;
-    XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc, x, y, width, height);
+    XFillRectangle(Metadpy->dpy, Infowin->back_buffer, Infoclr->gc, x, y, width, height);
 #endif
 }
 
@@ -1299,7 +1305,7 @@ static void mark_selection_mark(int x1, int y1, int x2, int y2)
 #ifdef USE_XFT
     draw_rectangle_frame(x1, y1, x2 - x1 + Infofnt->wid - 1, y2 - y1 + Infofnt->hgt - 1);
 #else
-    XDrawRectangle(Metadpy->dpy, Infowin->win, clr[2]->gc, x1, y1, x2 - x1 + Infofnt->wid - 1, y2 - y1 + Infofnt->hgt - 1);
+    XDrawRectangle(Metadpy->dpy, Infowin->back_buffer, clr[2]->gc, x1, y1, x2 - x1 + Infofnt->wid - 1, y2 - y1 + Infofnt->hgt - 1);
 #endif
 }
 
@@ -1983,9 +1989,9 @@ static errr game_term_curs_x11(int x, int y)
         XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
 #else
         XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
+            Metadpy->dpy, Infowin->back_buffer, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
         XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
+            Metadpy->dpy, Infowin->back_buffer, xor_->gc, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
 #endif
     } else {
         Infoclr_set(xor_.get());
@@ -2007,9 +2013,9 @@ static errr game_term_bigcurs_x11(int x, int y)
         XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->twid - 3, Infofnt->hgt - 3);
 #else
         XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->twid - 1, Infofnt->hgt - 1);
+            Metadpy->dpy, Infowin->back_buffer, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->twid - 1, Infofnt->hgt - 1);
         XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->twid - 3, Infofnt->hgt - 3);
+            Metadpy->dpy, Infowin->back_buffer, xor_->gc, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->twid - 3, Infofnt->hgt - 3);
 #endif
     } else {
         Infoclr_set(xor_.get());
@@ -2073,7 +2079,7 @@ static errr game_term_pict_x11(TERM_LEN x, TERM_LEN y, int n, const TERM_COLOR *
         x1 = (c & 0x7F) * td->fnt->twid;
         y1 = (a & 0x7F) * td->fnt->hgt;
         if (td->tiles->width < x1 + td->fnt->wid || td->tiles->height < y1 + td->fnt->hgt) {
-            XFillRectangle(Metadpy->dpy, td->win->win, clr[0]->gc, x, y, td->fnt->twid, td->fnt->hgt);
+            XFillRectangle(Metadpy->dpy, td->win->back_buffer, clr[0]->gc, x, y, td->fnt->twid, td->fnt->hgt);
             continue;
         }
 
@@ -2084,7 +2090,7 @@ static errr game_term_pict_x11(TERM_LEN x, TERM_LEN y, int n, const TERM_COLOR *
         y2 = (ta & 0x7F) * td->fnt->hgt;
 
         if (((x1 == x2) && (y1 == y2)) || !(((byte)ta & 0x80) && ((byte)tc & 0x80)) || td->tiles->width < x2 + td->fnt->wid || td->tiles->height < y2 + td->fnt->hgt) {
-            XPutImage(Metadpy->dpy, td->win->win, clr[0]->gc, td->tiles, x1, y1, x, y, td->fnt->twid, td->fnt->hgt);
+            XPutImage(Metadpy->dpy, td->win->back_buffer, clr[0]->gc, td->tiles, x1, y1, x, y, td->fnt->twid, td->fnt->hgt);
         } else {
             blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
             for (k = 0; k < td->fnt->twid; k++) {
@@ -2097,7 +2103,7 @@ static errr game_term_pict_x11(TERM_LEN x, TERM_LEN y, int n, const TERM_COLOR *
                 }
             }
 
-            XPutImage(Metadpy->dpy, td->win->win, clr[0]->gc, td->TmpImage, 0, 0, x, y, td->fnt->twid, td->fnt->hgt);
+            XPutImage(Metadpy->dpy, td->win->back_buffer, clr[0]->gc, td->TmpImage, 0, 0, x, y, td->fnt->twid, td->fnt->hgt);
         }
     }
 
@@ -2199,23 +2205,37 @@ static void game_term_nuke_x11(term_type *)
 {
     for (auto i = 0; i < MAX_TERM_DATA; i++) {
         infofnt *ifnt = data[i].fnt.get();
-        infowin *iwin = data[i].win.get();
         if (ifnt && ifnt->info)
 #ifdef USE_XFT
             XftFontClose(Metadpy->dpy, ifnt->info);
 #else
             XFreeFontSet(Metadpy->dpy, ifnt->info);
 #endif
+#ifdef USE_XIM
+        infowin *iwin = data[i].win.get();
         if (iwin && iwin->xic) {
             XDestroyIC(iwin->xic);
         }
+#endif
         angband_terms[i] = nullptr;
     }
 
+#ifdef USE_XIM
     if (Metadpy->xim) {
         XCloseIM(Metadpy->xim);
     }
+#endif
+
+#ifndef USE_XFT
+    XFreeGC(Metadpy->dpy, xor_->gc);
+    for (auto &c : clr) {
+        XFreeGC(Metadpy->dpy, c->gc);
+    }
+#endif
+
+#ifdef USE_XIM
     XUnregisterIMInstantiateCallback(Metadpy->dpy, NULL, NULL, NULL, IMInstantiateCallback, NULL);
+#endif
     XCloseDisplay(Metadpy->dpy);
 }
 

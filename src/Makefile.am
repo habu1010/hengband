@@ -1439,8 +1439,8 @@ EXTRA_DIST = \
 DEFAULT_INCLUDES = \
 	-I. -I$(srcdir) -I$(srcdir)/external-lib/include
 
-CPPFLAGS += $(XFT_CFLAGS) $(libcurl_CFLAGS)
-LIBS += $(XFT_LIBS) $(libcurl_LIBS)
+CPPFLAGS += $(XFT_CFLAGS) $(XEXT_CFLAGS) $(libcurl_CFLAGS)
+LIBS += $(XFT_LIBS) $(XEXT_LIBS) $(libcurl_LIBS)
 
 AM_CXXFLAGS =
 
