@@ -267,9 +267,6 @@ struct infowin {
     XIC xic;
     long xic_mask;
 #endif
-#ifdef USE_XFT
-    XftDraw *draw;
-#endif
 
     long mask;
 
@@ -531,7 +528,6 @@ static errr Infowin_prepare(Window xid)
     if (vis->c_class != TrueColor) {
         quit_fmt("Display does not support truecolor.\n");
     }
-    iwin->draw = XftDrawCreate(Metadpy->dpy, iwin->win, vis, Metadpy->cmap);
 #endif
 
     iwin->x = x;
@@ -893,9 +889,17 @@ static void Infofnt_init_data(concptr name)
 }
 
 #ifdef USE_XFT
+static auto create_xft_draw()
+{
+    auto *vis = DefaultVisual(Metadpy->dpy, 0);
+    auto *draw = XftDrawCreate(Metadpy->dpy, Infowin->win, vis, Metadpy->cmap);
+    return std::unique_ptr<XftDraw, decltype(&XftDrawDestroy)>(draw, XftDrawDestroy);
+}
+
 static void Infofnt_text_std_xft_draw_str(int px, int py, const XftColor &fg, concptr str, concptr str_end)
 {
     int offset = 0;
+    auto draw = create_xft_draw();
     while (str < str_end) {
         const int byte_len = utf8_next_char_byte_length(str);
 
@@ -903,7 +907,7 @@ static void Infofnt_text_std_xft_draw_str(int px, int py, const XftColor &fg, co
             return;
         }
 
-        XftDrawStringUtf8(Infowin->draw, &fg, Infofnt->info, px + Infofnt->wid * offset, py, (const FcChar8 *)str, byte_len);
+        XftDrawStringUtf8(draw.get(), &fg, Infofnt->info, px + Infofnt->wid * offset, py, (const FcChar8 *)str, byte_len);
         offset += (byte_len > 1 ? 2 : 1);
         str += byte_len;
     }
@@ -911,16 +915,16 @@ static void Infofnt_text_std_xft_draw_str(int px, int py, const XftColor &fg, co
 
 static void Infofnt_text_std_xft(int x, int y, int len, const XftColor &fg, const XftColor &bg, const char *str, int utf8_len)
 {
-    auto *draw = Infowin->draw;
+    auto draw = create_xft_draw();
 
     const auto py = (y * Infofnt->hgt) + Infofnt->asc + Infowin->oy;
     const auto px = (x * Infofnt->wid) + Infowin->ox;
 
     XRectangle r{ 0, 0, static_cast<unsigned short>(Infofnt->wid * len), static_cast<unsigned short>(Infofnt->hgt) };
-    XftDrawSetClipRectangles(draw, px, py - Infofnt->asc, &r, 1);
-    XftDrawRect(draw, &bg, px, py - Infofnt->asc, r.width, r.height);
+    XftDrawSetClipRectangles(draw.get(), px, py - Infofnt->asc, &r, 1);
+    XftDrawRect(draw.get(), &bg, px, py - Infofnt->asc, r.width, r.height);
     Infofnt_text_std_xft_draw_str(px, py, fg, str, str + utf8_len);
-    XftDrawSetClip(draw, 0);
+    XftDrawSetClip(draw.get(), 0);
 }
 #endif
 
@@ -984,7 +988,8 @@ static errr Infofnt_text_non(int x, int y, concptr str, int len)
     y = y * h + Infowin->oy;
 
 #ifdef USE_XFT
-    XftDrawRect(Infowin->draw, &Infoclr->fg, x, y, w, h);
+    auto draw = create_xft_draw();
+    XftDrawRect(draw.get(), &Infoclr->fg, x, y, w, h);
 #else
     XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc, x, y, w, h);
 #endif
@@ -1973,8 +1978,9 @@ static errr game_term_curs_x11(int x, int y)
 {
     if (use_graphics) {
 #ifdef USE_XFT
-        XftDrawRect(Infowin->draw, &xor_->fg, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
-        XftDrawRect(Infowin->draw, &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
+        auto draw = create_xft_draw();
+        XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
+        XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
 #else
         XDrawRectangle(
             Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
@@ -1996,8 +2002,9 @@ static errr game_term_bigcurs_x11(int x, int y)
 {
     if (use_graphics) {
 #ifdef USE_XFT
-        XftDrawRect(Infowin->draw, &xor_->fg, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->twid - 1, Infofnt->hgt - 1);
-        XftDrawRect(Infowin->draw, &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->twid - 3, Infofnt->hgt - 3);
+        auto draw = create_xft_draw();
+        XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->twid - 1, Infofnt->hgt - 1);
+        XftDrawRect(draw.get(), &xor_->fg, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->twid - 3, Infofnt->hgt - 3);
 #else
         XDrawRectangle(
             Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->twid - 1, Infofnt->hgt - 1);
@@ -2202,11 +2209,6 @@ static void game_term_nuke_x11(term_type *)
         if (iwin && iwin->xic) {
             XDestroyIC(iwin->xic);
         }
-#ifdef USE_XFT
-        if (iwin && iwin->draw) {
-            XftDrawDestroy(iwin->draw);
-        }
-#endif
         angband_terms[i] = nullptr;
     }
 
