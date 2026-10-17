@@ -225,6 +225,7 @@ python3 tools/bot/hbctl.py quit            # ゲームを終了
 | `command_char` | `prompt`: 1文字入力のプロンプト |
 | `string` | `prompt`, `max_length`: 入力欄に合わせて調整した内部文字コードでのバイト上限, `initial`: 初期文字列 |
 | `quantity` | `prompt`, `max`: 入力後の数量の上限, `initial`: 初期数量（1） |
+| `more` | `prompt`: メッセージの後に表示した `-続く-`（英語版は `-more-`） |
 
 例: `{ "kind": "string", "prompt": "名前: ", "max_length": 20, "initial": "PLAYER" }` /
 `{ "kind": "quantity", "prompt": "いくつですか (1-5): ", "max": 5, "initial": 1 }`
@@ -233,6 +234,12 @@ python3 tools/bot/hbctl.py quit            # ゲームを終了
 `string.initial` も UTF-8 です。初期文字列は呼び出し元の指定を保持し、`max_length` に合わせた切り詰めは行いません。
 数量がコマンドの引数や繰り返しから決まって入力を待たない場合、`quantity` の文脈は公開しません。
 キャラクター生成前は `state` がエラーになるため、`screen` で確認してください。
+
+`more` で送るキーは次のとおりです。スペースはそのメッセージだけを流します。
+ESC は次のキーを読むまでの `-続く-` を省きます（キャラクター生成前など、プレイ中でない間は省きません）。
+Enter は次の `-続く-` を1回省くことがあります（長いメッセージを分割した次の断片など）。
+ほかのキーは `quick_messages` が有効（既定）ならスペースと同じで、無効なら受け付けません。
+流しているメッセージは `messages` で取れます。ただしキャラクター生成前のメッセージは履歴に入らないため、`screen` の1行目で確認してください。
 
 `keys` には `\e`（ESC）、`^X`（Ctrl+X）、`\xNN` といったマクロ表記を使えます。
 マクロトリガ表記 `\[～]` は受け付けません。
