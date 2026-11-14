@@ -1024,12 +1024,7 @@ static errr Infofnt_text_non(int x, int y, concptr str, int len)
     h = Infofnt->hgt;
     y = y * h + Infowin->oy;
 
-#ifdef USE_XFT
-    if (use_xft_runtime) {
-        XftDrawRect(Infowin->draw, &Infoclr->fg.xft, x, y, w, h);
-        return 0;
-    }
-#endif
+    // TrueType フォントのときも GC の前景は XftColor と同じ画素値なので、同じく GC で塗る
     XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc, x, y, w, h);
 
     return 0;
