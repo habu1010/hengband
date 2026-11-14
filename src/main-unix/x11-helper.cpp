@@ -63,7 +63,7 @@
 
 #endif /* IsModifierKey */
 
-static bool gamma_table_ready = true;
+static bool gamma_table_ready = false;
 static int gamma_val = 0;
 
 /*
