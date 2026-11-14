@@ -538,7 +538,6 @@ void wilderness_gen(PlayerType *player_ptr)
         player_ptr->ambush_flag = true;
     }
 
-    wilderness.set_ambushes(false);
     auto &quests = QuestList::get_instance();
     for (auto &[quest_id, quest] : quests) {
         if (quest.status == QuestStatusType::REWARDED) {
