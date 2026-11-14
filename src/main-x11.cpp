@@ -125,6 +125,8 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
+#include <tl/optional.hpp>
 #include <utility>
 /*
  * Available graphic modes
@@ -795,6 +797,38 @@ static void Infofnt_prepare_xft(XftFont *info)
 }
 #endif
 
+/*!
+ * @brief フォントセットで、ゲームが描く文字に使われるフォントの ascent と descent を求める
+ * @param info フォントセット
+ * @return ascent と descent の組。求められなければ tl::nullopt
+ * @details フォントセットには、ロケールが扱う文字集合ごとのフォントがすべて入る。UTF-8 のロケールでは
+ * iso10646-1 のフォント (アラビア文字のフォントなど) も入り、ゲームでは使わないそのフォントの descent で
+ * 行が高くなってしまう。そこで ASCII と日本語の文字を実際に測り、使われるフォントだけから求める。
+ * XmbTextExtents() の論理的な大きさは、文字列に使われたフォントの ascent と descent の最大になる。
+ * 測っていない文字 (JIS X 0212 の文字など) が別の背の高いフォントで描かれると行からはみ出すが、まれなので許容する。
+ */
+static tl::optional<std::pair<int, int>> measure_fontset_vertical_extents(XFontSet info)
+{
+    // 描くときは UTF-8 で渡すので、測る文字も UTF-8 で書く (英語版は C のロケールなので ASCII だけ)。
+    // 日本語版は ASCII・漢字・半角カナに加え、ロケールによって別のフォントで描かれうる文字も測る。
+    // 日本でだけ使う漢字 (込) は KSC5601・GB2312 のフォントに無く、ギリシャ文字・キリル文字は
+    // en_US.UTF-8 などでは ISO8859-7・KOI8-R などのフォントで描かれる。
+    // -fexec-charset の無いコンパイラではソースを EUC-JP に変換してからビルドするので、
+    // ASCII 以外の文字はユニバーサル文字名で書く ("A漢込αЖｱ")
+    constexpr std::u8string_view sample = _(u8"A\u6F22\u8FBC\u03B1\u0416\uFF71", u8"A");
+
+    XRectangle ink{};
+    XRectangle logical{};
+    XmbTextExtents(info, reinterpret_cast<const char *>(sample.data()), static_cast<int>(sample.length()), &ink, &logical);
+    const auto ascent = -logical.y;
+    const auto descent = logical.height + logical.y;
+    if ((ascent <= 0) || (descent < 0)) {
+        return tl::nullopt;
+    }
+
+    return std::make_pair(ascent, descent);
+}
+
 static errr Infofnt_prepare_fontset(XFontSet info)
 {
     infofnt *ifnt = Infofnt;
@@ -802,7 +836,7 @@ static errr Infofnt_prepare_fontset(XFontSet info)
     XFontStruct **fontinfo;
     char **fontname;
     int n_fonts;
-    int ascent, descent, width;
+    int max_ascent, max_descent, width;
 
     ifnt->fontset_info = info;
 
@@ -811,14 +845,14 @@ static errr Infofnt_prepare_fontset(XFontSet info)
         return -1;
     }
 
-    ascent = descent = width = 0;
+    max_ascent = max_descent = width = 0;
     while (n_fonts-- > 0) {
         cs = &((*fontinfo)->max_bounds);
-        if (ascent < (*fontinfo)->ascent) {
-            ascent = (*fontinfo)->ascent;
+        if (max_ascent < (*fontinfo)->ascent) {
+            max_ascent = (*fontinfo)->ascent;
         }
-        if (descent < (*fontinfo)->descent) {
-            descent = (*fontinfo)->descent;
+        if (max_descent < (*fontinfo)->descent) {
+            max_descent = (*fontinfo)->descent;
         }
         if (((*fontinfo)->max_byte1) > 0) {
             /* 多バイト文字の場合は幅半分(端数切り上げ)で評価する */
@@ -833,6 +867,9 @@ static errr Infofnt_prepare_fontset(XFontSet info)
         fontinfo++;
         fontname++;
     }
+    // 幅は従来どおりすべてのフォントから決め、高さは使われるフォントだけから決める。
+    // 測れなかったときは、高さもすべてのフォントの最大にする
+    const auto [ascent, descent] = measure_fontset_vertical_extents(info).value_or(std::make_pair(max_ascent, max_descent));
     ifnt->asc = ascent;
     ifnt->hgt = ascent + descent;
     ifnt->wid = width;
