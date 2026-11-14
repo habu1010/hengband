@@ -718,10 +718,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 {
     infoclr *iclr = Infoclr;
 
-    GC gc = (GC)0;
-    XGCValues gcv;
-    unsigned long gc_mask = 0UL;
-
+    // TrueType フォントのときの画素値は XftColor から取ったもので、従来から zg とは比べていない
     if (!use_xft_runtime) {
         if (bg.pixel > Metadpy->zg) {
             return -1;
@@ -729,25 +726,25 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
         if (fg.pixel > Metadpy->zg) {
             return -1;
         }
-        if ((op < 0) || (op > 15)) {
-            return -1;
-        }
-
-        gcv.function = op;
-        gcv.background = bg.pixel;
-        gcv.foreground = fg.pixel;
-        if (op == 6) {
-            gcv.background = 0;
-        }
-        if (op == 6) {
-            gcv.foreground = (bg.pixel ^ fg.pixel);
-        }
-
-        gcv.fill_style = (stip ? FillStippled : FillSolid);
-        gcv.graphics_exposures = False;
-        gc_mask = (GCFunction | GCBackground | GCForeground | GCFillStyle | GCGraphicsExposures);
-        gc = XCreateGC(Metadpy->dpy, Metadpy->root, gc_mask, &gcv);
     }
+    if ((op < 0) || (op > 15)) {
+        return -1;
+    }
+
+    // TrueType フォントの文字は XftColor で描くが、タイルやカーソルの枠は GC で描くので、フォントの種類によらず作る
+    XGCValues gcv;
+    gcv.function = op;
+    gcv.background = bg.pixel;
+    gcv.foreground = fg.pixel;
+    if (op == 6) {
+        gcv.background = 0;
+        gcv.foreground = (bg.pixel ^ fg.pixel);
+    }
+
+    gcv.fill_style = (stip ? FillStippled : FillSolid);
+    gcv.graphics_exposures = False;
+    const auto gc_mask = (GCFunction | GCBackground | GCForeground | GCFillStyle | GCGraphicsExposures);
+    const auto gc = XCreateGC(Metadpy->dpy, Metadpy->root, gc_mask, &gcv);
 
     *iclr = {};
 
@@ -771,12 +768,7 @@ static errr Infoclr_change_fg(Pixell fg)
 {
     infoclr *iclr = Infoclr;
 
-    if (use_xft_runtime) {
-        iclr->fg = fg;
-        return 0;
-    }
-
-    if (fg.pixel > Metadpy->zg) {
+    if (!use_xft_runtime && (fg.pixel > Metadpy->zg)) {
         return -1;
     }
     XSetForeground(Metadpy->dpy, iclr->gc, fg.pixel);
@@ -1047,11 +1039,9 @@ struct term_data {
     term_type t;
     std::unique_ptr<infofnt> fnt;
     std::unique_ptr<infowin> win;
-#ifndef USE_XFT
     XImage *tiles;
     XImage *TmpImage;
     XImage *original32_canvas; //!< Original32 のタイルを拡大・合成する作業用の画像
-#endif
 };
 }
 
@@ -2075,6 +2065,22 @@ static errr game_term_xtra_x11(int n, int v)
     return 1;
 }
 
+/*!
+ * @brief タイルを使っているときのカーソルを、二重の枠で描く
+ * @param x 左端の桁
+ * @param y 上端の行
+ * @param width 枠の幅 (画素)
+ * @param height 枠の高さ (画素)
+ */
+static void draw_tile_cursor(int x, int y, int width, int height)
+{
+    int left;
+    int top;
+    square_to_pixel(&left, &top, x, y);
+    XDrawRectangle(Metadpy->dpy, Infowin->win, xor_->gc, left, top, width - 1, height - 1);
+    XDrawRectangle(Metadpy->dpy, Infowin->win, xor_->gc, left + 1, top + 1, width - 3, height - 3);
+}
+
 /*
  * Draw the cursor as an inverted rectangle.
  *
@@ -2083,17 +2089,7 @@ static errr game_term_xtra_x11(int n, int v)
 static errr game_term_curs_x11(int x, int y)
 {
     if (use_graphics) {
-#ifdef USE_XFT
-        if (use_xft_runtime) {
-            XftDrawRect(Infowin->draw, &xor_->fg.xft, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
-            XftDrawRect(Infowin->draw, &xor_->fg.xft, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
-            return 0;
-        }
-#endif
-        XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox, y * Infofnt->hgt + Infowin->oy, Infofnt->wid - 1, Infofnt->hgt - 1);
-        XDrawRectangle(
-            Metadpy->dpy, Infowin->win, xor_->gc, x * Infofnt->wid + Infowin->ox + 1, y * Infofnt->hgt + Infowin->oy + 1, Infofnt->wid - 3, Infofnt->hgt - 3);
+        draw_tile_cursor(x, y, Infofnt->wid, Infofnt->hgt);
     } else {
         Infoclr_set(xor_.get());
         draw_cursor(x, y, 1);
@@ -2119,17 +2115,7 @@ static errr game_term_bigcurs_x11(int x, int y)
             height = Infofnt->hgt * block.height;
         }
 
-        const auto left = x * Infofnt->wid + Infowin->ox;
-        const auto top = y * Infofnt->hgt + Infowin->oy;
-#ifdef USE_XFT
-        if (use_xft_runtime) {
-            XftDrawRect(Infowin->draw, &xor_->fg.xft, left, top, width - 1, height - 1);
-            XftDrawRect(Infowin->draw, &xor_->fg.xft, left + 1, top + 1, width - 3, height - 3);
-            return 0;
-        }
-#endif
-        XDrawRectangle(Metadpy->dpy, Infowin->win, xor_->gc, left, top, width - 1, height - 1);
-        XDrawRectangle(Metadpy->dpy, Infowin->win, xor_->gc, left + 1, top + 1, width - 3, height - 3);
+        draw_tile_cursor(x, y, width, height);
     } else {
         Infoclr_set(xor_.get());
         draw_cursor(x, y, 2);
@@ -2160,7 +2146,6 @@ static errr game_term_text_x11(TERM_LEN x, TERM_LEN y, int n, TERM_COLOR a, conc
     return 0;
 }
 
-#ifndef USE_XFT
 /*
  * Draw some graphical characters.
  */
@@ -2223,9 +2208,8 @@ static errr game_term_pict_x11(TERM_LEN x, TERM_LEN y, int n, const TERM_COLOR *
     s_ptr->drawn = false;
     return 0;
 }
-#endif
 
-#if !defined(USE_XFT) && defined(HAVE_LIBPNG)
+#ifdef HAVE_LIBPNG
 namespace {
 /*!
  * @brief TrueColor の画面で、0x00RRGGBB の色を X の画素値に変える
@@ -2373,10 +2357,20 @@ void draw_original32_glyph(const term_data &td, int x, int y, int width, int hei
     const auto &font = *td.fnt;
     const auto text_x = x + (width - font.wid) / 2;
     const auto text_y = y + (height - font.hgt) / 2 + font.asc;
+    const auto draw = [&](int dx, int dy, const infoclr &iclr) {
+#ifdef USE_XFT
+        if (use_xft_runtime) {
+            // ASCII の文字なので UTF-8 への変換は要らない
+            XftDrawString8(td.win->draw, &iclr.fg.xft, font.xft_info, text_x + dx, text_y + dy, reinterpret_cast<const FcChar8 *>(&character), 1);
+            return;
+        }
+#endif
+        XmbDrawString(Metadpy->dpy, td.win->win, font.fontset_info, iclr.gc, text_x + dx, text_y + dy, &character, 1);
+    };
     for (const auto &[dx, dy] : { std::pair{ -1, 0 }, std::pair{ 1, 0 }, std::pair{ 0, -1 }, std::pair{ 0, 1 } }) {
-        XmbDrawString(Metadpy->dpy, td.win->win, font.fontset_info, clr[TERM_DARK]->gc, text_x + dx, text_y + dy, &character, 1);
+        draw(dx, dy, *clr[TERM_DARK]);
     }
-    XmbDrawString(Metadpy->dpy, td.win->win, font.fontset_info, clr[color]->gc, text_x, text_y, &character, 1);
+    draw(0, 0, *clr[color]);
 }
 }
 
@@ -2774,12 +2768,10 @@ errr init_x11(int argc, char *argv[])
     concptr dpy_name = "";
     int num_term = 3;
 
-#ifndef USE_XFT
     int pict_wid = 0;
     int pict_hgt = 0;
 
     char *TmpData;
-#endif
 
     for (i = 1; i < argc; i++) {
         if (prefix(argv[i], "-d")) {
@@ -2801,7 +2793,6 @@ errr init_x11(int argc, char *argv[])
             continue;
         }
 
-#ifndef USE_XFT
         if (prefix(argv[i], "-s")) {
             smoothRescaling = false;
             continue;
@@ -2826,7 +2817,6 @@ errr init_x11(int argc, char *argv[])
             original_tiles::double_map_size = true;
             continue;
         }
-#endif
 
         if (prefix(argv[i], "-b")) {
             arg_bigtile = use_bigtile = true;
@@ -2934,7 +2924,6 @@ errr init_x11(int argc, char *argv[])
     }
     use_music = arg_music;
 
-#ifndef USE_XFT
     char filename[1024]{};
     switch (arg_graphics) {
     case GRAPHICS_ORIGINAL: {
@@ -3029,7 +3018,6 @@ errr init_x11(int argc, char *argv[])
             td->TmpImage = XCreateImage(dpy, visual, depth, ZPixmap, 0, TmpData, td->fnt->twid, td->fnt->hgt, 8, 0);
         }
     }
-#endif /* ! USE_XFT */
     return 0;
 }
 

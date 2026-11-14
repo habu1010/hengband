@@ -9,8 +9,8 @@ License: unknown
 Group: Amusements/Games
 Url: https://hengband.github.io
 Source: hengband-%{version}.tar.gz
-Requires: ncurses-libs libstdc++ libcurl libX11 libXft
-BuildRequires: autoconf automake gcc-c++ ncurses-devel libcurl-devel nkf libX11-devel libXft-devel
+Requires: ncurses-libs libstdc++ libcurl libX11 libXft libpng
+BuildRequires: autoconf automake gcc-c++ ncurses-devel libcurl-devel nkf libX11-devel libXft-devel libpng-devel
 
 Requires: %{name}-data = %{version}
 
@@ -20,7 +20,7 @@ Summary: %{name}-data %{version}
 
 %package en
 
-Requires: ncurses-libs libstdc++ libcurl libX11 libXft
+Requires: ncurses-libs libstdc++ libcurl libX11 libXft libpng
 Requires: %{name}-data = %{version}
 Summary: %{name}-en %{version}
 
