@@ -16,8 +16,9 @@
 #include <X11/Xft/Xft.h>
 XftColor create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blue);
 #else
-extern bool smoothRescaling;
 unsigned long create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blue);
+#endif
+extern bool smoothRescaling;
 XImage *ReadBMP(Display *dpy, char *Name);
 XImage *ResizeImage(Display *dpy, XImage *Im, int ix, int iy, int ox, int oy);
 #ifdef HAVE_LIBPNG
@@ -31,7 +32,6 @@ struct RgbImage {
 };
 
 tl::optional<RgbImage> read_png(const std::filesystem::path &path);
-#endif
 #endif
 #endif
 

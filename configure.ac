@@ -289,10 +289,7 @@ if test "$have_x" = yes; then
   ])
 
   dnl Original32 のタイル (original32.png) を X11 版で読むために使う。無ければタイルを使えないだけでビルドはできる。
-  dnl XFT を使う版はタイルを描かないので調べない (libpng を明示的に求められたら、使えないので止める)。
-  AS_IF([test "x$enable_xft" = "xyes" && test "x$with_libpng" = "xyes"],
-    [AC_MSG_ERROR([--with-libpng cannot be used with --enable-xft: Original32 tiles are not drawn in Xft builds])])
-  AS_IF([test "x$enable_xft" != "xyes" && test "x$with_libpng" != "xno"], [
+  AS_IF([test "x$with_libpng" != "xno"], [
     PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.6],
       [AC_DEFINE([HAVE_LIBPNG], [1], [Use libpng to read Original32 tiles on X11])],
       [AS_IF([test "x$with_libpng" = "xyes"], [AC_MSG_ERROR([libpng was requested but not found])])])

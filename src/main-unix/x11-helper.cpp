@@ -127,7 +127,23 @@ unsigned long create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blu
 #endif
 }
 
-#ifndef USE_XFT
+/*!
+ * @brief RGB の値を X の画素値に変える
+ * @param dpy ディスプレイ
+ * @param red 赤 (0〜255)
+ * @param green 緑 (0〜255)
+ * @param blue 青 (0〜255)
+ * @return X の画素値
+ * @details XFT の版の create_pixel() は XftColor を返すので、画素値だけを取り出す。
+ */
+static unsigned long create_pixel_value(Display *dpy, uint8_t red, uint8_t green, uint8_t blue)
+{
+#ifdef USE_XFT
+    return create_pixel(dpy, red, green, blue).pixel;
+#else
+    return create_pixel(dpy, red, green, blue);
+#endif
+}
 
 /*
  * The Win32 "BITMAPFILEHEADER" type.
@@ -274,7 +290,7 @@ XImage *ReadBMP(Display *dpy, char *Name)
         rd_byte(f, &(clrg.filler));
 
         /* Analyze the color */
-        clr_pixels[i] = create_pixel(dpy, clrg.r, clrg.g, clrg.b);
+        clr_pixels[i] = create_pixel_value(dpy, clrg.r, clrg.g, clrg.b);
     }
 
     /* Determine total bytes needed for image */
@@ -317,7 +333,7 @@ XImage *ReadBMP(Display *dpy, char *Name)
                     quit(fmt::format("Unexpected end of file in {}", Name));
                 }
 
-                XPutPixel(Res, x, y2, create_pixel(dpy, ch, c2, c3));
+                XPutPixel(Res, x, y2, create_pixel_value(dpy, ch, c2, c3));
             } else if (infoheader.biBitCount == 8) {
                 XPutPixel(Res, x, y2, clr_pixels[ch]);
             } else if (infoheader.biBitCount == 4) {
@@ -809,7 +825,5 @@ tl::optional<RgbImage> read_png(const std::filesystem::path &path)
     return result;
 }
 #endif
-
-#endif /* !USE_XFT */
 
 #endif /* USE_X11 */
