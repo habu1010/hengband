@@ -40,6 +40,8 @@ constexpr bool is_mb_char_lead(char lead)
 
 bool is_printable_single_byte_char(char c);
 size_t mb_char_length_at(std::string_view str, size_t pos);
+bool is_multibyte_char_at(std::string_view sv, size_t pos = 0);
+bool is_multibyte_char_at(const char *s);
 std::string_view mb_first_char(std::string_view str);
 size_t mb_char_start_pos(std::string_view str, size_t pos);
 bool is_mb_char_boundary(std::string_view str, size_t pos);

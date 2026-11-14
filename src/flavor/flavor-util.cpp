@@ -8,7 +8,6 @@
 #include "system/artifact/artifact-definition.h"
 #include "system/baseitem/baseitem-definition.h"
 #include "system/item/item-entity.h"
-#include "util/string-processor.h"
 #include <sstream>
 
 static bool has_lite_flag(const TrFlags &flags)

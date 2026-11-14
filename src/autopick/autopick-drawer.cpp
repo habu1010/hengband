@@ -16,7 +16,6 @@
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
 #include "term/term-color-types.h"
-#include "util/string-processor.h"
 #include "view/display-util.h"
 #include <algorithm>
 #include <fmt/format.h>

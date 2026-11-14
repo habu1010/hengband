@@ -1,7 +1,6 @@
 #include "util/buffer-shaper.h"
 #include "locale/japanese.h"
 #include "locale/multibyte-char.h"
-#include "util/string-processor.h"
 #include <algorithm>
 
 namespace {

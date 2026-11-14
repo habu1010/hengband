@@ -26,6 +26,14 @@ TEST_CASE("is_printable_single_byte_char accepts printable ASCII characters only
     CHECK_FALSE(is_printable_single_byte_char('\x7f'));
 }
 
+TEST_CASE("is_multibyte_char_at returns false for ASCII strings")
+{
+    CHECK_FALSE(is_multibyte_char_at("ab"));
+    CHECK_FALSE(is_multibyte_char_at(std::string_view("ab"), 0));
+    CHECK_FALSE(is_multibyte_char_at(""));
+    CHECK_FALSE(is_multibyte_char_at(std::string_view(), 0));
+}
+
 TEST_CASE("mb_char_length_at returns 1 for ASCII and out-of-range positions")
 {
     CHECK(mb_char_length_at("abc"sv, 0) == 1);
@@ -95,6 +103,26 @@ TEST_CASE("mb_char_length_at treats a truncated character as one byte")
 {
     const auto str = test::cat("a", test::KANJI_KAN.substr(0, 1));
     CHECK(mb_char_length_at(str, 1) == 1);
+}
+
+TEST_CASE("is_multibyte_char_at finds a two byte character with its trailing byte")
+{
+    const auto str = test::cat("a", test::KANJI_KAN);
+    CHECK_FALSE(is_multibyte_char_at(str));
+    CHECK(is_multibyte_char_at(str, 1));
+    CHECK(is_multibyte_char_at(test::KANJI_KAN));
+    CHECK(is_multibyte_char_at(str.data() + 1));
+}
+
+TEST_CASE("is_multibyte_char_at rejects a leading byte without its trailing byte")
+{
+    const auto str = test::cat("a", test::KANJI_KAN.substr(0, 1));
+    CHECK_FALSE(is_multibyte_char_at(str, 1));
+    CHECK_FALSE(is_multibyte_char_at(str.data() + 1));
+
+    // 範囲外の位置は多バイト文字の先頭ではない
+    CHECK_FALSE(is_multibyte_char_at(str, 2));
+    CHECK_FALSE(is_multibyte_char_at(str, std::string_view::npos));
 }
 
 TEST_CASE("mb_first_char returns the first multibyte character")
@@ -172,6 +200,12 @@ TEST_CASE("mb_prev_char_pos treats a truncated character at the end as one chara
 TEST_CASE("is_printable_single_byte_char accepts half-width katakana")
 {
     CHECK(is_printable_single_byte_char('\xb1')); // 半角の「ア」
+}
+
+TEST_CASE("is_multibyte_char_at finds a character whose trailing byte is ASCII")
+{
+    CHECK(is_multibyte_char_at(test::DAME_SO));
+    CHECK(is_multibyte_char_at(test::cat(test::DAME_SO, "a").data()));
 }
 
 TEST_CASE("mb_char_start_pos does not treat an ASCII-valued trailing byte as a character start")

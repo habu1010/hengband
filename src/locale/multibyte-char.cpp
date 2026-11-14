@@ -46,6 +46,35 @@ size_t mb_char_length_at(std::string_view str, size_t pos)
 }
 
 /*!
+ * @brief 文字列の指定した位置から、後続のバイトまでそろった多バイト文字が始まるかを返す
+ * @param sv 文字列
+ * @param pos 位置(バイト)
+ * @return pos が多バイト文字の先頭バイトを指し、その後ろに後続のバイトがあれば true (英語版では常に false)
+ * @details
+ * 多バイト文字の後続のバイトは先頭バイトと同じ範囲の値もとるため、pos は文字の先頭を指していること。
+ */
+bool is_multibyte_char_at(std::string_view sv, size_t pos)
+{
+    return mb_char_length_at(sv, pos) > 1;
+}
+
+/*!
+ * @brief NUL 終端の文字列の先頭が、後続のバイトまでそろった多バイト文字かを返す
+ * @param s NUL 終端の文字列
+ * @return s が多バイト文字の先頭バイトを指し、その後ろに後続のバイトがあれば true (英語版では常に false)
+ */
+bool is_multibyte_char_at(const char *s)
+{
+    const auto char_length = mb_char_byte_length(s[0]);
+    if (char_length == 1) {
+        return false;
+    }
+
+    // 後続のバイトが揃っているかは、NUL 終端を越えて読まないように 1 バイトずつ確かめる
+    return std::find(s + 1, s + char_length, '\0') == s + char_length;
+}
+
+/*!
  * @brief 文字列の先頭の 1 文字を返す
  * @param str 文字列
  * @return 先頭の 1 文字。str が空なら空文字列
