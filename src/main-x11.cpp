@@ -3030,6 +3030,9 @@ errr init_x11(int argc, char *argv[])
             td->tiles = ResizeImage(dpy, tiles_raw, pict_wid, pict_hgt, td->fnt->twid, td->fnt->hgt);
         }
 
+        // 端末ごとに拡大・縮小した画像を作ったので、読み込んだ元の画像はもう使わない
+        XDestroyImage(tiles_raw);
+
         for (i = 0; i < num_term; i++) {
             term_data *td = &data[i];
             int ii, jj;
