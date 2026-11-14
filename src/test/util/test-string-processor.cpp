@@ -23,7 +23,6 @@
 #include <doctest/doctest.h>
 
 #include <cstdint>
-#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -611,13 +610,6 @@ TEST_CASE("is_multibyte_char_at rejects a leading byte without its trailing byte
     CHECK_FALSE(is_multibyte_char_at(str, std::string_view::npos));
 }
 
-TEST_CASE("str_find_all_multibyte_chars returns the index of each leading byte")
-{
-    const std::set<int> expected = { 1, 4 };
-    CHECK(str_find_all_multibyte_chars(cat("a", KANJI_KAN, "b", KANJI_JI)) == expected);
-    CHECK(str_find_all_multibyte_chars("abc").empty());
-}
-
 TEST_CASE("string-processor accepts a two byte character which lacks its trailing byte")
 {
     // 前半バイトだけで終わる壊れた文字列を渡しても、範囲外を読まずに処理を終える
@@ -637,9 +629,6 @@ TEST_CASE("string-processor accepts a two byte character which lacks its trailin
     CHECK(angband_strchr(str.data(), 'x') == nullptr);
     CHECK(angband_strstr(str.data(), "x") == nullptr);
     CHECK(angband_strchr(str.data(), 'a') == str.data());
-
-    const std::set<int> expected = { 1 };
-    CHECK(str_find_all_multibyte_chars(str) == expected);
 }
 
 #endif
@@ -711,12 +700,6 @@ TEST_CASE("is_multibyte_char_at finds a character whose trailing byte is ASCII")
 {
     CHECK(is_multibyte_char_at(DAME_SO));
     CHECK(is_multibyte_char_at(cat(DAME_SO, "a").data()));
-}
-
-TEST_CASE("str_find_all_multibyte_chars finds a character whose trailing byte is ASCII")
-{
-    const std::set<int> expected = { 0, 2, 4 };
-    CHECK(str_find_all_multibyte_chars(cat(DAME_SO, DAME_CHOON, DAME_KANA_A)) == expected);
 }
 
 #endif

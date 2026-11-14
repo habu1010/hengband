@@ -558,34 +558,6 @@ std::string str_upcase_first(std::string_view str)
 }
 
 /*!
- * @brief 文字列に含まれるすべての2バイト文字の位置を取得する
- *
- * @param str 文字列
- * @return std::set<int> 2バイト文字の前半バイトのインデックスの集合
- * @details
- * 英語版では常に空の集合を返す。
- * 文字列の末尾が2バイト文字の前半バイトだけで終わっている場合も、その位置を集合に含める。
- */
-std::set<int> str_find_all_multibyte_chars([[maybe_unused]] std::string_view str)
-{
-#ifdef JP
-    std::set<int> mb_chars;
-    for (size_t i = 0; i < str.length();) {
-        const auto char_length = mb_char_byte_length(str[i]);
-        if (char_length > 1) {
-            mb_chars.insert(mb_chars.end(), static_cast<int>(i));
-        }
-
-        i += char_length;
-    }
-
-    return mb_chars;
-#else
-    return {};
-#endif
-}
-
-/*!
  * @brief 文字列の指定した位置から、後続のバイトまでそろった多バイト文字が始まるかを返す
  * @param sv 文字列
  * @param pos 位置(バイト)

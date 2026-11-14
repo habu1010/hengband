@@ -173,4 +173,14 @@ TEST_CASE("is_printable_single_byte_char accepts half-width katakana")
 {
     CHECK(is_printable_single_byte_char('\xb1')); // 半角の「ア」
 }
+
+TEST_CASE("mb_char_start_pos does not treat an ASCII-valued trailing byte as a character start")
+{
+    // ダメ文字の後半バイトは ASCII の文字と同じ値なので、文字の境界は先頭から数えて求める
+    const auto str = test::cat(test::DAME_SO, test::DAME_CHOON, test::DAME_KANA_A);
+    CHECK(mb_char_start_pos(str, 1) == 0);
+    CHECK(mb_char_start_pos(str, 3) == 2);
+    CHECK(mb_char_start_pos(str, 5) == 4);
+    CHECK(mb_prev_char_pos(str, 4) == 2);
+}
 #endif
