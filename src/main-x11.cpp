@@ -2472,12 +2472,13 @@ static void IMInstantiateCallback(Display *display, XPointer unused1, XPointer u
             break;
         }
     }
-    if (i >= xim_styles->count_styles) {
+    const auto is_supported = i < xim_styles->count_styles;
+    XFree(xim_styles);
+    if (!is_supported) {
         fmt::println("Sorry, your IM does not support 'Root' preedit style...");
         XCloseIM(xim);
         return;
     }
-    XFree(xim_styles);
 
     Metadpy->xim = xim;
 
