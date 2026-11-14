@@ -466,7 +466,7 @@ static errr Metadpy_init_2(Display *dpy, concptr name)
     m->depth = DefaultDepthOfScreen(m->screen);
 
 #ifdef USE_XFT
-    Visual *vis = DefaultVisual(dpy, 0);
+    Visual *vis = DefaultVisualOfScreen(m->screen);
     if (!XftColorAllocName(dpy, vis, m->cmap, "black", &m->black.xft)) {
         m->black.pixel = BlackPixelOfScreen(m->screen);
         m->black.xft.pixel = m->black.pixel;
@@ -550,7 +550,7 @@ static errr Infowin_prepare(Window xid)
     XGetGeometry(Metadpy->dpy, xid, &tmp_win, &x, &y, &w, &h, &b, &d);
 
 #ifdef USE_XFT
-    Visual *vis = DefaultVisual(Metadpy->dpy, 0);
+    Visual *vis = DefaultVisualOfScreen(Metadpy->screen);
     if (vis->c_class != TrueColor) {
         quit("Display does not support truecolor.\n");
     }
@@ -906,7 +906,7 @@ static void Infofnt_init_data(concptr name)
 
 #ifdef USE_XFT
     if (use_xft_runtime) {
-        XftFont *info = XftFontOpenName(Metadpy->dpy, 0, name);
+        XftFont *info = XftFontOpenName(Metadpy->dpy, XScreenNumberOfScreen(Metadpy->screen), name);
         if (!info) {
             quit(fmt::format("Failed to find font:\"{}\"", name));
         }

@@ -75,7 +75,8 @@ XftColor create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blue)
 unsigned long create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blue)
 #endif
 {
-    Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
+    Screen *screen = DefaultScreenOfDisplay(dpy);
+    Colormap cmap = DefaultColormapOfScreen(screen);
     XColor xcolour;
     if (!gamma_table_ready) {
         concptr str = getenv("ANGBAND_X11_GAMMA");
@@ -112,7 +113,7 @@ unsigned long create_pixel(Display *dpy, uint8_t red, uint8_t green, uint8_t blu
     xcol.green = xcolour.green;
     xcol.blue = xcolour.blue;
     xcol.alpha = 0xFFFF;
-    if (!XftColorAllocValue(dpy, DefaultVisual(dpy, 0), cmap, &xcol, &color)) {
+    if (!XftColorAllocValue(dpy, DefaultVisualOfScreen(screen), cmap, &xcol, &color)) {
         quit(fmt::format("Couldn't allocate bitmap color '#{:02x}{:02x}{:02x}'\n", red, green, blue));
     }
 
