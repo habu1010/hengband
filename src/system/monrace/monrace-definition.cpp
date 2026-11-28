@@ -167,6 +167,21 @@ bool MonraceDefinition::is_angel_superficially() const
 }
 
 /*!
+ * @brief テレポートが必ず効かないかを返す
+ * @param flags 判定に使う耐性 (ゲームの判定では種族の耐性、思い出の表示では表示に使う耐性)
+ * @return テレポート耐性を持ち、ユニークかすべてに耐性を持てば true
+ * @details 思い出の表示で分かっていない耐性を漏らさないよう、耐性は引数で受け取る
+ */
+bool MonraceDefinition::is_teleport_immune(const EnumClassFlagGroup<MonsterResistanceType> &flags) const
+{
+    if (flags.has_not(MonsterResistanceType::RESIST_TELEPORT)) {
+        return false;
+    }
+
+    return this->kind_flags.has(MonsterKindType::UNIQUE) || flags.has(MonsterResistanceType::RESIST_ALL);
+}
+
+/*!
  * @brief モンスターのシンボル文字が指定された文字列に含まれるかどうかを返す
  * @param candidate_chars シンボル文字の集合の文字列。"pht" のように複数の文字を指定可能。
  * @return モンスターのシンボル文字が candidate_chars に含まれるならばtrue

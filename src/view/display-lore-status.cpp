@@ -318,7 +318,7 @@ void display_monster_concrete_resistances(lore_type *lore_ptr)
         lore_ptr->lore_msgs.emplace_back(_("あらゆる攻撃", "all"), TERM_YELLOW);
     }
 
-    if (lore_ptr->resistance_flags.has(MonsterResistanceType::RESIST_TELEPORT) && lore_ptr->monrace->kind_flags.has_not(MonsterKindType::UNIQUE)) {
+    if (lore_ptr->resistance_flags.has(MonsterResistanceType::RESIST_TELEPORT) && !lore_ptr->monrace->is_teleport_immune(lore_ptr->resistance_flags)) {
         lore_ptr->lore_msgs.emplace_back(_("テレポート", "teleportation"), TERM_ORANGE);
     }
 }
@@ -399,7 +399,7 @@ void display_monster_concrete_immunities(lore_type *lore_ptr)
         lore_ptr->lore_msgs.emplace_back(_("眠らされない", "slept"), TERM_BLUE);
     }
 
-    if (lore_ptr->resistance_flags.has(MonsterResistanceType::RESIST_TELEPORT) && lore_ptr->monrace->kind_flags.has(MonsterKindType::UNIQUE)) {
+    if (lore_ptr->monrace->is_teleport_immune(lore_ptr->resistance_flags)) {
         lore_ptr->lore_msgs.emplace_back(_("テレポートされない", "teleported"), TERM_ORANGE);
     }
 
@@ -662,7 +662,7 @@ static GroupState get_group_state(const lore_type *lore_ptr, const ResistGroupDe
     const auto &flags = fully_known ? lore_ptr->monrace->resistance_flags : lore_ptr->monrace->r_resistance_flags;
 
     if (d.immune) {
-        const auto no_teleport = d.immune.value() == MonsterResistanceType::RESIST_TELEPORT && lore_ptr->monrace->kind_flags.has(MonsterKindType::UNIQUE);
+        const auto no_teleport = d.immune.value() == MonsterResistanceType::RESIST_TELEPORT && lore_ptr->monrace->is_teleport_immune(flags);
         const auto other_flag = d.immune.value() != MonsterResistanceType::RESIST_TELEPORT;
         const auto no_inst_death = d.immune.value() == MonsterResistanceType::NO_INSTANTLY_DEATH && lore_ptr->monrace->kind_flags.has(MonsterKindType::UNIQUE);
         if ((no_teleport || other_flag) && (flags.has(d.immune.value()) || no_inst_death)) {
@@ -671,7 +671,7 @@ static GroupState get_group_state(const lore_type *lore_ptr, const ResistGroupDe
     }
 
     if (d.resist) {
-        const auto res_teleport = d.resist.value() == MonsterResistanceType::RESIST_TELEPORT && lore_ptr->monrace->kind_flags.has_not(MonsterKindType::UNIQUE);
+        const auto res_teleport = d.resist.value() == MonsterResistanceType::RESIST_TELEPORT && !lore_ptr->monrace->is_teleport_immune(flags);
         const auto other_flag = d.resist.value() != MonsterResistanceType::RESIST_TELEPORT;
         if ((res_teleport || other_flag) && flags.has(d.resist.value())) {
             return { GroupStateKind::RESIST, _(d.jp_resist, d.en_resist), d.color_resist };

@@ -1,8 +1,9 @@
 /*!
  * @brief モンスター種族定義 (MonraceDefinition) のテスト
  *
- * 調査 (probe_lore()) で思い出にオーラが記録されることと、
- * 闘技場の強さ (calc_power()) が大きな値でもあふれないことを検証する。
+ * 調査 (probe_lore()) で思い出にオーラが記録されること、
+ * 闘技場の強さ (calc_power()) が大きな値でもあふれないこと、
+ * テレポートが必ず効かないかの判定 (is_teleport_immune()) を検証する。
  */
 
 #include "system/monrace/monrace-definition.h"
@@ -80,4 +81,34 @@ TEST_CASE("MonraceDefinition::calc_power() does not overflow with a large odds c
         monrace.arena_ratio = 1000;
         CHECK(monrace.calc_power() == 43000000);
     }
+}
+
+TEST_CASE("MonraceDefinition::is_teleport_immune() requires teleport resistance and either uniqueness or resistance to all")
+{
+    MonraceDefinition monrace;
+    EnumClassFlagGroup<MonsterResistanceType> flags;
+    CHECK_FALSE(monrace.is_teleport_immune(flags));
+
+    flags.set(MonsterResistanceType::RESIST_TELEPORT);
+    CHECK_FALSE(monrace.is_teleport_immune(flags));
+
+    flags.set(MonsterResistanceType::RESIST_ALL);
+    CHECK(monrace.is_teleport_immune(flags));
+
+    flags.reset(MonsterResistanceType::RESIST_ALL);
+    monrace.kind_flags.set(MonsterKindType::UNIQUE);
+    CHECK(monrace.is_teleport_immune(flags));
+
+    flags.reset(MonsterResistanceType::RESIST_TELEPORT);
+    CHECK_FALSE(monrace.is_teleport_immune(flags));
+}
+
+TEST_CASE("MonraceDefinition::is_teleport_immune() uses the given flags instead of the race's flags")
+{
+    MonraceDefinition monrace;
+    monrace.resistance_flags.set({ MonsterResistanceType::RESIST_TELEPORT, MonsterResistanceType::RESIST_ALL });
+    EnumClassFlagGroup<MonsterResistanceType> known_flags;
+    known_flags.set(MonsterResistanceType::RESIST_TELEPORT);
+    CHECK_FALSE(monrace.is_teleport_immune(known_flags));
+    CHECK(monrace.is_teleport_immune(monrace.resistance_flags));
 }

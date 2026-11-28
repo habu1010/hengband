@@ -210,7 +210,7 @@ TeleportResistance judge_teleport_resistance(PlayerType *player_ptr, const Monst
         return TeleportResistance::NONE;
     }
 
-    const auto is_immune = monrace.kind_flags.has(MonsterKindType::UNIQUE) || monrace.resistance_flags.has(MonsterResistanceType::RESIST_ALL);
+    const auto is_immune = monrace.is_teleport_immune(monrace.resistance_flags);
     if (!is_immune && (monrace.level <= randint1(100))) {
         return TeleportResistance::NONE;
     }
