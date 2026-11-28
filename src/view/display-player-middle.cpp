@@ -306,10 +306,9 @@ static void display_player_exp(PlayerType *player_ptr)
 
     if (player_ptr->lev >= PY_MAX_LEVEL) {
         display_player_one_line(e, "*****", TERM_L_GREEN);
-    } else if (pr.equals(PlayerRaceType::ANDROID)) {
-        display_player_one_line(e, fmt::format("{}", player_exp_a[player_ptr->lev - 1] * player_ptr->expfact / 100), TERM_L_GREEN);
     } else {
-        display_player_one_line(e, fmt::format("{}", player_exp[player_ptr->lev - 1] * player_ptr->expfact / 100), TERM_L_GREEN);
+        const auto exp = calc_next_level_exp(player_ptr->lev, player_ptr->expfact, pr.equals(PlayerRaceType::ANDROID));
+        display_player_one_line(e, fmt::format("{}", exp), TERM_L_GREEN);
     }
 }
 

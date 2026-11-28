@@ -2777,7 +2777,7 @@ void check_experience(PlayerType *player_ptr)
         dur.request_player_status_recalculation();
         dur.set_flag(StatusRecalculatingFlag::TORCH); // 一時的な発光の明るさもレベルで決まる
     };
-    while ((player_ptr->lev > 1) && (player_ptr->exp < ((android ? player_exp_a : player_exp)[player_ptr->lev - 2] * player_ptr->expfact / 100L))) {
+    while ((player_ptr->lev > 1) && (player_ptr->exp < calc_next_level_exp(player_ptr->lev - 1, player_ptr->expfact, android))) {
         player_ptr->lev--;
         request_level_change_recalculation();
         static constexpr auto flags_mwrf = {
@@ -2792,7 +2792,7 @@ void check_experience(PlayerType *player_ptr)
     bool level_reward = false;
     bool level_mutation = false;
     bool level_inc_stat = false;
-    while ((player_ptr->lev < PY_MAX_LEVEL) && (player_ptr->exp >= ((android ? player_exp_a : player_exp)[player_ptr->lev - 1] * player_ptr->expfact / 100L))) {
+    while ((player_ptr->lev < PY_MAX_LEVEL) && (player_ptr->exp >= calc_next_level_exp(player_ptr->lev, player_ptr->expfact, android))) {
         player_ptr->lev++;
         if (player_ptr->lev > player_ptr->max_plv) {
             player_ptr->max_plv = player_ptr->lev;

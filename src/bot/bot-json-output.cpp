@@ -1580,8 +1580,7 @@ nlohmann::json calc_exp_to_advance(PlayerType *player_ptr)
         return nullptr;
     }
 
-    const auto &table = PlayerRace(player_ptr).equals(PlayerRaceType::ANDROID) ? player_exp_a : player_exp;
-    return table[player_ptr->lev - 1] * player_ptr->expfact / 100;
+    return calc_next_level_exp(player_ptr->lev, player_ptr->expfact, PlayerRace(player_ptr).equals(PlayerRaceType::ANDROID));
 }
 
 /*!

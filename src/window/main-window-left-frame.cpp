@@ -100,7 +100,7 @@ void print_exp(PlayerType *player_ptr)
         if (player_ptr->lev >= PY_MAX_LEVEL) {
             out_val = "********";
         } else {
-            out_val = fmt::format("{:8}", player_exp[player_ptr->lev - 1] * player_ptr->expfact / 100 - player_ptr->exp);
+            out_val = fmt::format("{:8}", calc_next_level_exp(player_ptr->lev, player_ptr->expfact, false) - player_ptr->exp);
         }
     }
 

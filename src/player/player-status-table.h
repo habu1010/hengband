@@ -28,5 +28,5 @@ extern const byte adj_chr_chm[];
 extern const concptr stat_names[A_MAX];
 extern const concptr stat_names_reduced[A_MAX];
 
-extern const int32_t player_exp[PY_MAX_LEVEL];
-extern const int32_t player_exp_a[PY_MAX_LEVEL];
+int32_t calc_next_level_exp_x100(int level, int expfact, bool is_android);
+int32_t calc_next_level_exp(int level, int expfact, bool is_android);

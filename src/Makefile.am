@@ -1312,6 +1312,7 @@ hengband_test_SOURCES = \
 	test/player/test-player-skill.cpp \
 	test/player/test-player-status-flags.cpp \
 	test/player/test-player-status-resist.cpp \
+	test/player/test-player-status-table.cpp \
 	test/player/test-process-name.cpp \
 	test/player-base/test-player-class.cpp \
 	test/player-status/test-player-speed.cpp \

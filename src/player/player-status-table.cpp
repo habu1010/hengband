@@ -26,7 +26,7 @@ const concptr stat_names_reduced[A_MAX] = {
  * @brief 基本必要経験値テーブル /
  * Base experience levels, may be adjusted up for race and/or class
  */
-const int32_t player_exp[PY_MAX_LEVEL] = { 10, 25, 45, 70, 100, 140, 200, 280, 380, /*10*/
+static constexpr int32_t player_exp[PY_MAX_LEVEL] = { 10, 25, 45, 70, 100, 140, 200, 280, 380, /*10*/
     500, 650, 850, 1100, 1400, 1800, 2300, 2900, 3600, 4400, /*20*/
     5400, 6800, 8400, 10200, 12500, 17500, 25000, 35000L, 50000L, 75000L, /*30*/
     100000L, 150000L, 200000L, 275000L, 350000L, 450000L, 550000L, 700000L, 850000L, 1000000L, /*40*/
@@ -36,12 +36,38 @@ const int32_t player_exp[PY_MAX_LEVEL] = { 10, 25, 45, 70, 100, 140, 200, 280, 3
 /*!
  * @brief 基本必要強化値テーブル(アンドロイド専用)
  */
-const int32_t player_exp_a[PY_MAX_LEVEL] = { 20, 50, 100, 170, 280, 430, 650, 950, 1400, /*10*/
+static constexpr int32_t player_exp_a[PY_MAX_LEVEL] = { 20, 50, 100, 170, 280, 430, 650, 950, 1400, /*10*/
     1850, 2300, 2900, 3600, 4400, 5400, 6800, 8400, 10400, 12500, /*20*/
     17500, 25000, 35000, 50000L, 75000L, 100000L, 150000L, 200000L, 275000L, 350000L, /*30*/
     450000L, 550000L, 650000L, 800000L, 950000L, 1100000L, 1250000L, 1400000L, 1550000L, 1700000L, /*40*/
     1900000L, 2100000L, 2300000L, 2550000L, 2800000L, 3050000L, 3300000L, 3700000L, 4100000L, 4500000L, /*50*/
     5000000L };
+
+/*!
+ * @brief 次のレベルに上がるのに必要な経験値に 100 を掛けた値を返す
+ * @param level 今のレベル (1 以上 PY_MAX_LEVEL 未満)
+ * @param expfact 経験値の補正 (%)
+ * @param is_android アンドロイドか (強化値の表を使う)
+ * @return 必要な経験値の 100 倍
+ * @details 補正の 100 で割る前の値なので、割った端数まで扱う計算に使う
+ */
+int32_t calc_next_level_exp_x100(int level, int expfact, bool is_android)
+{
+    const auto &table = is_android ? player_exp_a : player_exp;
+    return table[level - 1] * expfact;
+}
+
+/*!
+ * @brief 次のレベルに上がるのに必要な経験値を返す
+ * @param level 今のレベル (1 以上 PY_MAX_LEVEL 未満)
+ * @param expfact 経験値の補正 (%)
+ * @param is_android アンドロイドか (強化値の表を使う)
+ * @return 必要な経験値
+ */
+int32_t calc_next_level_exp(int level, int expfact, bool is_android)
+{
+    return calc_next_level_exp_x100(level, expfact, is_android) / 100;
+}
 
 /*!
  * 知力/賢さによるレベル毎の習得可能魔法数テーブル
