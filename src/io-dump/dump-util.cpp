@@ -1,7 +1,10 @@
 #include "io-dump/dump-util.h"
+#include "core/show-file.h"
 #include "floor/geometry.h"
 #include "game-option/keymap-directory-getter.h"
 #include "game-option/special-options.h"
+#include "io/temp-file.h"
+#include "system/player-type-definition.h"
 #include "system/terrain/terrain-definition.h"
 #include "term/screen-processor.h"
 #include "term/term-color-types.h"
@@ -189,6 +192,41 @@ bool open_temporary_file(FILE **fff, char *file_name)
     msg_print(_("一時ファイル {} を作成できませんでした。", "Failed to create temporary file {}."), file_name);
     msg_erase();
     return false;
+}
+
+/*!
+ * @brief 一時ファイルに書いた内容を表示する
+ * @param player_ptr プレイヤーへの参照ポインタ
+ * @param file 内容を書いた一時ファイル
+ * @param title 表示の題名
+ * @details 一時ファイルを作れなかったか、書き込みに失敗したか、表示できなかったときは、メッセージを出す
+ */
+void show_temp_file(PlayerType *player_ptr, TempFile &file, std::string_view title)
+{
+    file.close();
+    const auto error_message = [&]() -> tl::optional<std::string> {
+        if (const auto &creation_error = file.get_error_message(); creation_error) {
+            return creation_error;
+        }
+
+        const auto path_str = file.get_path().string();
+        if (file.fail()) {
+            return fmt::format(_("一時ファイルの書き込みに失敗しました: {}", "Failed to write contents of the temporary file: {}"), path_str);
+        }
+
+        // FileDisplayer は「#」の後をタグとして読むので、「#」を含むパス (一時フォルダの名前による) は渡さない。
+        // 渡すと「#」の前の別のファイルを開いてしまうことがある
+        if ((path_str.find('#') != std::string::npos) || !FileDisplayer(player_ptr->name).try_display(true, path_str, 0, 0, title)) {
+            return fmt::format(_("一時ファイルを表示できませんでした: {}", "Failed to display the temporary file: {}"), path_str);
+        }
+
+        return tl::nullopt;
+    }();
+
+    if (error_message) {
+        msg_print(*error_message);
+        msg_erase();
+    }
 }
 
 /*!

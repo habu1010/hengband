@@ -1,10 +1,7 @@
 #include "io/temp-file.h"
 #include "locale/language-switcher.h"
-#include "system/angband-exceptions.h"
-#include <cstdio>
 #include <cstdlib>
 #include <fmt/format.h>
-#include <fstream>
 #include <system_error>
 #ifdef _WIN32
 #define NOMINMAX
@@ -33,6 +30,14 @@ TempFile::TempFile()
     }
 
     this->path = temp_file_path;
+
+    // 書いた一時ファイルは narrow のパスで読む (FileDisplayer など) ので、内部の文字コードにできないパスは使わない
+    try {
+        (void)this->path.string();
+    } catch (const std::system_error &) {
+        this->error_message = _("一時ファイルのパスを内部の文字コードにできません", "Failed to convert the temporary file path to the internal encoding");
+        return;
+    }
 #else
     auto temp_file_path = (temp_dir / "tempfile_XXXXXX").string();
     const auto fd = mkstemp(&temp_file_path[0]);
@@ -43,18 +48,23 @@ TempFile::TempFile()
     }
 
     fchmod(fd, S_IRUSR | S_IWUSR);
-    close(fd);
+    ::close(fd); // メンバー関数の std::ofstream::close() ではなく、ファイル記述子を閉じる
     this->path = temp_file_path;
 #endif
+
+    this->open(this->path);
+    if (!this->is_open()) {
+        constexpr auto fmt = _("一時ファイルを開けませんでした: {}", "Failed to open the temporary file: {}");
+        this->error_message = fmt::format(fmt, this->path.string());
+    }
 }
 
-TempFile::TempFile(const std::filesystem::path &path)
-    : path(path)
-{
-}
-
+/*!
+ * @details Windows では開いたままのファイルを消せないので、先に閉じる
+ */
 TempFile::~TempFile()
 {
+    this->close();
     if (!this->path.empty()) {
         std::error_code ec;
         std::filesystem::remove(this->path, ec);
@@ -69,49 +79,4 @@ const std::filesystem::path &TempFile::get_path() const
 const tl::optional<std::string> &TempFile::get_error_message() const
 {
     return this->error_message;
-}
-
-/*!
- * @details 内部の文字コードでエンコードされた文字列しか書き込まないはずなので、再び読み込む時は何もしない.
- */
-std::vector<std::string> TempFile::read_all()
-{
-    constexpr auto fmt = _("一時ファイルの読み込みに失敗しました: {}", "Failed to read contents of the temporary file: {}");
-    std::ifstream ifs(this->path);
-    if (!ifs) {
-        this->error_message = fmt::format(fmt, this->path.string());
-        return {};
-    }
-
-    std::vector<std::string> lines;
-    std::string line;
-    while (std::getline(ifs, line)) {
-        lines.push_back(line);
-    }
-
-    if (ifs.bad() || (ifs.fail() && !ifs.eof())) {
-        this->error_message = fmt::format(fmt, this->path.string());
-        return {};
-    }
-
-    return lines;
-}
-
-void TempFile::write_lines(const std::vector<std::string> &lines)
-{
-    constexpr auto fmt = _("一時ファイルの書き込みに失敗しました: {}", "Failed to write contents of the temporary file: {}");
-    std::ofstream ofs(this->path, std::ios::app);
-    if (!ofs) {
-        this->error_message = fmt::format(fmt, this->path.string());
-        return;
-    }
-
-    for (const auto &line : lines) {
-        ofs << line << '\n';
-    }
-
-    if (ofs.fail()) {
-        this->error_message = fmt::format(fmt, this->path.string());
-        return;
-    }
 }

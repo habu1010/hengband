@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/angband.h"
+#include <iosfwd>
 
 class PlayerType;
-void dump_aux_player_status(PlayerType *player_ptr, FILE *fff);
+void dump_aux_player_status(PlayerType *player_ptr, std::ostream &fff);

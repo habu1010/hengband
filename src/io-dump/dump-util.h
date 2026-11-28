@@ -4,11 +4,14 @@
 #include "system/terrain/terrain-definition.h"
 #include "view/display-symbol.h"
 #include <string>
+#include <string_view>
 #include <vector>
 
 constexpr auto FILE_NAME_SIZE = 1024;
 
 class DisplaySymbol;
+class PlayerType;
+class TempFile;
 class DisplaySymbolsClipboard {
 public:
     DisplaySymbolsClipboard(const DisplaySymbolsClipboard &) = delete;
@@ -36,6 +39,7 @@ bool visual_mode_command(char ch, bool *visual_list_ptr, int height, int width,
     TERM_COLOR *cur_attr_ptr, char *cur_char_ptr, bool *need_redraw);
 
 bool open_temporary_file(FILE **fff, char *file_name);
+void show_temp_file(PlayerType *player_ptr, TempFile &file, std::string_view title);
 void browser_cursor(char ch, int *column, IDX *grp_cur, int grp_cnt, IDX *list_cur, int list_cnt);
 void display_group_list(int wid, int per_page, const std::vector<short> &grp_idx, const std::vector<std::string> &group_text, int grp_cur, int grp_top);
 void display_visual_list(int col, int row, int height, int width, TERM_COLOR attr_top, byte char_left);

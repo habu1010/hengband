@@ -50,7 +50,9 @@
 #include "world/world.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <numeric>
+#include <ostream>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -58,9 +60,9 @@
 /*!
  * @brief プレイヤーのペット情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_pet(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_pet(PlayerType *player_ptr, std::ostream &fff)
 {
     const auto &floor = *player_ptr->current_floor_ptr;
     auto pet = false;
@@ -119,9 +121,9 @@ static void dump_aux_pet(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief クエスト情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_quest(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_quest(PlayerType *player_ptr, std::ostream &fff)
 {
     fmt::println(fff, _("\n\n  [クエスト情報]", "\n\n  [Quest Information]"));
     const auto &quests = QuestList::get_instance();
@@ -136,9 +138,9 @@ static void dump_aux_quest(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 死の直前メッセージ並びに遺言をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_last_message(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_last_message(PlayerType *player_ptr, std::ostream &fff)
 {
     if (!player_ptr->is_dead) {
         return;
@@ -176,9 +178,9 @@ static void dump_aux_last_message(PlayerType *player_ptr, FILE *fff)
 
 /*!
  * @brief 帰還場所情報をファイルにダンプする
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_recall(FILE *fff)
+static void dump_aux_recall(std::ostream &fff)
 {
     fmt::println(fff, _("\n  [帰還場所 (訪問済み)]\n", "\n  [Recall Depth (Visited)]\n"));
     for (const auto &known_dungeon : DungeonService::build_known_dungeons(DungeonMessageFormat::DUMP, true)) {
@@ -192,9 +194,9 @@ static void dump_aux_recall(FILE *fff)
 
 /*!
  * @brief オプション情報をファイルにダンプする
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_options(FILE *fff)
+static void dump_aux_options(std::ostream &fff)
 {
     fmt::println(fff, _("\n  [オプション設定]", "\n  [Option Settings]"));
     if (preserve_mode) {
@@ -258,10 +260,10 @@ static void dump_aux_options(FILE *fff)
 /*!
  * @brief 闘技場の情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  * @details 旧バージョン (v1.5.0.1より前)では何回戦で敗北したか記録していないので、便宜的に1回戦で敗北したことにする.
  */
-static void dump_aux_arena(FILE *fff)
+static void dump_aux_arena(std::ostream &fff)
 {
     if (lite_town || vanilla_town) {
         return;
@@ -301,9 +303,9 @@ static void dump_aux_arena(FILE *fff)
 
 /*!
  * @brief 撃破モンスターの情報をファイルにダンプする
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_monsters(FILE *fff)
+static void dump_aux_monsters(std::ostream &fff)
 {
     fmt::println(fff, _("\n  [倒したモンスター]\n", "\n  [Defeated Monsters]\n"));
     std::vector<MonraceId> monrace_ids;
@@ -376,9 +378,9 @@ static void dump_aux_monsters(FILE *fff)
 /*!
  * @brief 元種族情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_race_history(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_race_history(PlayerType *player_ptr, std::ostream &fff)
 {
     if (!player_ptr->old_race1 && !player_ptr->old_race2) {
         return;
@@ -409,9 +411,9 @@ static void dump_aux_race_history(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 元魔法領域情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_realm_history(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_realm_history(PlayerType *player_ptr, std::ostream &fff)
 {
     if (player_ptr->old_realm == 0) {
         return;
@@ -431,9 +433,9 @@ static void dump_aux_realm_history(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 徳の情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_virtues(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_virtues(PlayerType *player_ptr, std::ostream &fff)
 {
     fmt::println(fff, _("\n\n  [自分に関する情報]\n", "\n\n  [HP-rate & Max stat & Virtues]\n"));
 
@@ -469,9 +471,9 @@ static void dump_aux_virtues(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 突然変異の情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_mutations(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_mutations(PlayerType *player_ptr, std::ostream &fff)
 {
     if (player_ptr->muta.any()) {
         fmt::println(fff, _("\n\n  [突然変異]\n", "\n\n  [Mutations]\n"));
@@ -482,9 +484,9 @@ static void dump_aux_mutations(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 所持品の情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_equipment_inventory(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_equipment_inventory(PlayerType *player_ptr, std::ostream &fff)
 {
     if (player_ptr->equip_cnt) {
         fmt::println(fff, _("  [キャラクタの装備]\n", "  [Character Equipment]\n"));
@@ -517,9 +519,9 @@ static void dump_aux_equipment_inventory(PlayerType *player_ptr, FILE *fff)
 
 /*!
  * @brief 我が家と博物館のオブジェクト情報をファイルにダンプする
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_aux_home_museum(PlayerType *player_ptr, FILE *fff)
+static void dump_aux_home_museum(PlayerType *player_ptr, std::ostream &fff)
 {
     const auto &towns = TownList::get_instance();
     const auto &home = towns.get_home();
@@ -560,10 +562,9 @@ static void dump_aux_home_museum(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief ダンプ出力のメインルーチン
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
- * @return エラーコード
+ * @param fff 出力先のストリーム
  */
-void make_character_dump(PlayerType *player_ptr, FILE *fff)
+void make_character_dump(PlayerType *player_ptr, std::ostream &fff)
 {
     TermCenteredOffsetSetter tos(MAIN_TERM_MIN_COLS, tl::nullopt);
 
@@ -583,7 +584,7 @@ void make_character_dump(PlayerType *player_ptr, FILE *fff)
     dump_aux_class_special(player_ptr, fff);
     dump_aux_mutations(player_ptr, fff);
     dump_aux_pet(player_ptr, fff);
-    fputs("\n\n", fff);
+    fff << "\n\n";
     dump_aux_equipment_inventory(player_ptr, fff);
     dump_aux_home_museum(player_ptr, fff);
 

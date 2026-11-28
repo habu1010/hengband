@@ -26,6 +26,7 @@
 #include "view/display-messages.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <fstream>
 #ifdef SAVEFILE_USE_UID
 #include "main-unix/unix-user-ids.h"
 #endif
@@ -52,7 +53,6 @@ std::filesystem::path savefile_base;
  * Hack -- Dump a character description file
  * @param player_ptr プレイヤーへの参照ポインタ
  * @param name 出力ファイル名
- * @return エラーコード
  * @details
  * Allow the "full" flag to dump additional info,
  * and trigger its usage from various places in the code.
@@ -66,38 +66,25 @@ void file_character(PlayerType *player_ptr, std::string_view filename)
         std::stringstream ss;
         ss << _("現存するファイル ", "Replace existing file ") << path_str << _(" に上書きしますか? ", "? ");
         (void)fd_close(fd);
-        if (input_check_strict(player_ptr, ss.str(), UserCheck::NO_HISTORY)) {
-            fd = -1;
-        } else {
+        if (!input_check_strict(player_ptr, ss.str(), UserCheck::NO_HISTORY)) {
             return;
         }
     }
 
-    FILE *fff = nullptr;
-    if (fd < 0) {
-        fff = angband_fopen(path, FileOpenMode::WRITE);
+    // 開けなかったときもストリームは失敗の状態になるので、最後の fail() でまとめて判定する
+    std::ofstream ofs(path_parse(path));
+    if (ofs.is_open()) {
+        screen_save();
+        make_character_dump(player_ptr, ofs);
+        screen_load();
+        ofs.close();
     }
 
-    constexpr auto error_msg = _("キャラクタ情報のファイルへの書き出しに失敗しました！", "Character dump failed!");
-    if (!fff) {
-        msg_print(error_msg);
-        msg_erase();
-        return;
+    if (ofs.fail()) {
+        msg_print(_("キャラクタ情報のファイルへの書き出しに失敗しました！", "Character dump failed!"));
+    } else {
+        msg_print(_("キャラクタ情報のファイルへの書き出しに成功しました。", "Character dump successful."));
     }
-
-    screen_save();
-    make_character_dump(player_ptr, fff);
-    screen_load();
-
-    if (ferror(fff)) {
-        angband_fclose(fff);
-        msg_print(error_msg);
-        msg_erase();
-        return;
-    }
-
-    angband_fclose(fff);
-    msg_print(_("キャラクタ情報のファイルへの書き出しに成功しました。", "Character dump successful."));
     msg_erase();
 }
 

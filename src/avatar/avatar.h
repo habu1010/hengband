@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/angband.h"
+#include <iosfwd>
 #include <map>
 #include <string>
 
@@ -35,4 +35,4 @@ void initialize_virtues(PlayerType *player_ptr);
 void chg_virtue(PlayerType *player_ptr, Virtue virtue, int amount);
 void set_virtue(PlayerType *player_ptr, Virtue virtue, int amount);
 std::string describe_virtue(PlayerType *player_ptr, int v_nr);
-void dump_virtues(PlayerType *player_ptr, FILE *out_file);
+void dump_virtues(PlayerType *player_ptr, std::ostream &out_file);

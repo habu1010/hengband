@@ -6,7 +6,6 @@
 
 #include "knowledge/knowledge-items.h"
 #include "core/asking-player.h"
-#include "core/show-file.h"
 #include "core/window-redrawer.h"
 #include "flavor/flavor-describer.h"
 #include "flavor/object-flavor-types.h"
@@ -38,6 +37,7 @@
 #include "world/world.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -50,11 +50,6 @@
 void do_cmd_knowledge_artifacts(PlayerType *player_ptr, ArtifactKnowledgeMode mode)
 {
     TempFile temp_file;
-    if (const auto &error_message = temp_file.get_error_message(); error_message) {
-        msg_print(*error_message);
-        return;
-    }
-
     const auto &records = ArtifactRecords::get_instance();
     std::vector<FixedArtifactId> fa_ids;
     std::string title;
@@ -75,7 +70,6 @@ void do_cmd_knowledge_artifacts(PlayerType *player_ptr, ArtifactKnowledgeMode mo
     std::stable_sort(fa_ids.begin(), fa_ids.end(), [&artifacts](auto x, auto y) {
         return artifacts.order(x, y);
     });
-    std::vector<std::string> lines;
     for (const auto fa_id : fa_ids) {
         const auto &artifact = artifacts.get_artifact(fa_id);
         constexpr auto template_basename = _("     {}", "     The {}");
@@ -83,16 +77,10 @@ void do_cmd_knowledge_artifacts(PlayerType *player_ptr, ArtifactKnowledgeMode mo
         item.fa_id = fa_id;
         item.set_identification_flag(IdentificationFlag::STORE);
         const auto item_name = describe_flavor(player_ptr, item, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        lines.push_back(fmt::format(template_basename, item_name));
+        fmt::println(temp_file, template_basename, item_name);
     }
 
-    temp_file.write_lines(lines);
-    if (const auto &error_message = temp_file.get_error_message(); error_message) {
-        msg_print(*error_message);
-        return;
-    }
-
-    FileDisplayer(player_ptr->name).display(true, temp_file.get_path().string(), 0, 0, title);
+    show_temp_file(player_ptr, temp_file, title);
 }
 
 /*

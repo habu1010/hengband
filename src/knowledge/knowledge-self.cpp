@@ -11,6 +11,7 @@
 #include "definitions-reader/wilderness-reader.h"
 #include "flavor/flavor-describer.h"
 #include "io-dump/dump-util.h"
+#include "io/temp-file.h"
 #include "locale/multibyte-char.h"
 #include "player-info/alignment.h"
 #include "player-info/class-info.h"
@@ -29,6 +30,7 @@
 #include "util/int-char-converter.h"
 #include "util/string-processor.h"
 #include "world/world.h"
+#include <fmt/ostream.h>
 #include <string>
 
 /*
@@ -36,18 +38,11 @@
  */
 void do_cmd_knowledge_virtues(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
-        return;
-    }
-
+    TempFile fff;
     std::string alg = PlayerAlignment(player_ptr).get_alignment_description();
     fmt::println(fff, _("現在の属性 : {}\n", "Your alignment : {}\n"), alg);
     dump_virtues(player_ptr, fff);
-    angband_fclose(fff);
-    FileDisplayer(player_ptr->name).display(true, file_name, 0, 0, _("八つの徳", "Virtues"));
-    fd_kill(file_name);
+    show_temp_file(player_ptr, fff, _("八つの徳", "Virtues"));
 }
 
 static void dump_explanation(std::string_view explanation, FILE *fff)

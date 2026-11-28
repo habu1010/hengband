@@ -29,12 +29,10 @@
 #include "system/system-variables.h"
 #include "term/gameterm.h"
 #include "term/screen-processor.h"
-#include "util/angband-files.h"
 #include "view/display-messages.h"
 #include "world/world.h"
 #include <algorithm>
 #include <fmt/format.h>
-#include <fstream>
 #include <span>
 #include <sstream>
 #include <string>
@@ -87,45 +85,6 @@ static bool post_score_to_score_server(PlayerType *player_ptr, const std::string
             return false;
         }
     }
-}
-
-/*!
- * @brief キャラクタダンプを引数で指定した出力ストリームに書き込む
- * @param player_ptr プレイヤーへの参照ポインタ
- * @param stream 書き込む出力ストリーム
- * @return エラーコード
- */
-static errr make_dump(PlayerType *player_ptr, std::ostream &stream)
-{
-    FILE *fff;
-    GAME_TEXT file_name[1024];
-
-    /* Open a new file */
-    fff = angband_fopen_temp(file_name, 1024);
-    if (!fff) {
-#ifdef JP
-        msg_print("一時ファイル {} を作成できませんでした。", file_name);
-#else
-        msg_print("Failed to create temporary file {}.", file_name);
-#endif
-        msg_erase();
-        return 1;
-    }
-
-    /* 一旦一時ファイルを作る。通常のダンプ出力と共通化するため。 */
-    make_character_dump(player_ptr, fff);
-    angband_fclose(fff);
-
-    // 一時ファイルを削除する前に閉じるためブロックにする
-    {
-        std::ifstream ifs(file_name);
-        stream << ifs.rdbuf();
-    }
-
-    fd_kill(file_name);
-
-    /* Success */
-    return 0;
 }
 
 /*!
@@ -255,7 +214,7 @@ bool report_score(PlayerType *player_ptr)
              << fmt::format("killer: {}\n", player_ptr->died_from)
              << "-----charcter dump-----\n";
 
-    make_dump(player_ptr, score_ss);
+    make_character_dump(player_ptr, score_ss);
     if (!screen_dump.empty()) {
         score_ss << "-----screen shot-----\n"
                  << screen_dump;

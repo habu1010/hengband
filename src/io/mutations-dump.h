@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/angband.h"
+#include <iosfwd>
 
 class PlayerType;
-void dump_mutations(PlayerType *player_ptr, FILE *out_file);
+void dump_mutations(PlayerType *player_ptr, std::ostream &out_file);

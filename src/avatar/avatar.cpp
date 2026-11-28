@@ -22,6 +22,8 @@
 #include "util/enum-converter.h"
 #include "util/probability-table.h"
 #include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <ostream>
 
 /*!
  * 徳の名称 / The names of the virtues
@@ -559,14 +561,10 @@ std::string describe_virtue(PlayerType *player_ptr, int v_nr)
 
 /*!
  * @brief 徳のダンプ表示を行う
- * @param out_file ファイルポインタ
+ * @param out_file 出力先のストリーム
  */
-void dump_virtues(PlayerType *player_ptr, FILE *out_file)
+void dump_virtues(PlayerType *player_ptr, std::ostream &out_file)
 {
-    if (!out_file) {
-        return;
-    }
-
     for (int v_nr = 0; v_nr < 8; v_nr++) {
         fmt::println(out_file, "{}", describe_virtue(player_ptr, v_nr));
     }

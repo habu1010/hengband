@@ -8,17 +8,15 @@
 #include "mutation/mutation-flag-types.h"
 #include "player/player-status-flags.h"
 #include "system/player-type-definition.h"
+#include <fmt/ostream.h>
+#include <ostream>
 
 /*!
- * @brief ファイルポインタを通じて突然変異の一覧を出力する
- * @param out_file 出力先ファイルポインタ
+ * @brief 出力先のストリームに突然変異の一覧を出力する
+ * @param out_file 出力先のストリーム
  */
-void dump_mutations(PlayerType *player_ptr, FILE *out_file)
+void dump_mutations(PlayerType *player_ptr, std::ostream &out_file)
 {
-    if (!out_file) {
-        return;
-    }
-
     if (player_ptr->muta.any() || has_good_luck(player_ptr)) {
         if (player_ptr->muta.has(PlayerMutationType::SPIT_ACID)) {
             fmt::println(out_file, _(" あなたは酸を吹きかけることができる。(ダメージ レベルX1)", " You can spit acid (dam lvl)."));

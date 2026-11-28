@@ -13,16 +13,18 @@
 #include "system/baseitem/baseitem-list.h"
 #include <algorithm>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <iterator>
+#include <ostream>
 #include <string>
 #include <vector>
 
 /*!
  * @brief 魔力喰いを持つクラスの情報をダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_magic_eater(PlayerType *player_ptr, FILE *fff)
+static void dump_magic_eater(PlayerType *player_ptr, std::ostream &fff)
 {
     auto magic_eater_data = PlayerClass(player_ptr).get_specific_data<MagicEaterDataList>();
     if (!magic_eater_data) {
@@ -60,22 +62,22 @@ static void dump_magic_eater(PlayerType *player_ptr, FILE *fff)
         }
 
         if (desc_list.size() <= 0) {
-            fputs(_("  (なし)\n", "  (none)\n"), fff);
+            fff << _("  (なし)\n", "  (none)\n");
             continue;
         }
 
         uint i;
         for (i = 0; i < desc_list.size(); i++) {
-            fputs(desc_list[i].data(), fff);
+            fff << desc_list[i];
             if (i % 3 < 2) {
-                fputs("    ", fff);
+                fff << "    ";
             } else {
-                fputs("\n", fff);
+                fff << "\n";
             }
         }
 
         if (i % 3 > 0) {
-            fputs("\n", fff);
+            fff << "\n";
         }
     }
 }
@@ -83,9 +85,9 @@ static void dump_magic_eater(PlayerType *player_ptr, FILE *fff)
 /*!
  * @brief 鍛冶師のエッセンス情報をダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-static void dump_smith(PlayerType *player_ptr, FILE *fff)
+static void dump_smith(PlayerType *player_ptr, std::ostream &fff)
 {
     fmt::println(fff, _("\n\n  [手に入れたエッセンス]\n", "\n\n  [Get Essence]\n"));
     fmt::print(fff, _("エッセンス   個数     エッセンス   個数     エッセンス   個数", "Essence      Num      Essence      Num      Essence      Num "));
@@ -108,15 +110,15 @@ static void dump_smith(PlayerType *player_ptr, FILE *fff)
         }
     }
 
-    fputs("\n", fff);
+    fff << "\n";
 }
 
 /*!
  * @brief プレイヤーの職業能力情報をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-void dump_aux_class_special(PlayerType *player_ptr, FILE *fff)
+void dump_aux_class_special(PlayerType *player_ptr, std::ostream &fff)
 {
     switch (player_ptr->pclass) {
     case PlayerClassType::MAGIC_EATER: {

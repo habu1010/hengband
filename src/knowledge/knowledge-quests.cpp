@@ -6,11 +6,11 @@
 
 #include "knowledge/knowledge-quests.h"
 #include "artifact/fixed-art-types.h"
-#include "core/show-file.h"
 #include "dungeon/quest.h"
 #include "flavor/flavor-describer.h"
 #include "flavor/object-flavor-types.h"
 #include "io-dump/dump-util.h"
+#include "io/temp-file.h"
 #include "locale/english.h"
 #include "system/artifact/artifact-definition.h"
 #include "system/dungeon/quest-definition.h"
@@ -20,12 +20,13 @@
 #include "system/monrace/monrace-definition.h"
 #include "system/player-type-definition.h"
 #include "term/screen-processor.h"
-#include "util/angband-files.h"
 #include "util/buffer-shaper.h"
 #include "util/enum-converter.h"
 #include "world/world.h"
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <numeric>
+#include <ostream>
 
 /*!
  * @brief Check on the status of an active quest
@@ -41,9 +42,10 @@ void do_cmd_checkquest(PlayerType *player_ptr)
 /*!
  * @brief Print all active quests
  * @param player_ptr プレイヤーへの参照ポインタ
+ * @param fff 出力先のストリーム
  * @todo PlayerTypeではなくQUEST_IDXを引数にすべきかもしれない
  */
-static void do_cmd_knowledge_quests_current(PlayerType *player_ptr, FILE *fff)
+static void do_cmd_knowledge_quests_current(PlayerType *player_ptr, std::ostream &fff)
 {
     const auto &quests = QuestList::get_instance();
     std::string rand_tmp_str;
@@ -122,7 +124,7 @@ static void do_cmd_knowledge_quests_current(PlayerType *player_ptr, FILE *fff)
 
             fmt::println(fff, _("  {} (危険度:{}階相当){}", "  {} (Danger level: {}){}"), quest.name, (int)quest.level, note);
             if (quest.status == QuestStatusType::COMPLETED) {
-                fputs(_("    クエスト達成 - まだ報酬を受けとってない。\n", "    Quest Completed - Unrewarded\n"), fff);
+                fff << _("    クエスト達成 - まだ報酬を受けとってない。\n", "    Quest Completed - Unrewarded\n");
                 continue;
             }
 
@@ -143,7 +145,7 @@ static void do_cmd_knowledge_quests_current(PlayerType *player_ptr, FILE *fff)
     }
 
     if (!rand_tmp_str.empty()) {
-        fputs(rand_tmp_str.data(), fff);
+        fff << rand_tmp_str;
     }
 
     if (!total) {
@@ -151,7 +153,7 @@ static void do_cmd_knowledge_quests_current(PlayerType *player_ptr, FILE *fff)
     }
 }
 
-static bool do_cmd_knowledge_quests_aux(PlayerType *, FILE *fff, QuestId q_idx)
+static bool do_cmd_knowledge_quests_aux(PlayerType *, std::ostream &fff, QuestId q_idx)
 {
     const auto &quests = QuestList::get_instance();
     const auto &quest = quests.get_quest(q_idx);
@@ -164,7 +166,7 @@ static bool do_cmd_knowledge_quests_aux(PlayerType *, FILE *fff, QuestId q_idx)
     }
 
     const auto playtime_str = fmt::format("{:02}:{:02}:{:02}", quest.comptime / (60 * 60), (quest.comptime / 60) % 60, quest.comptime % 60);
-    auto fputs_name_remain = [fff](const auto &name) {
+    auto fputs_name_remain = [&fff](const auto &name) {
         for (auto i = 1U; i < name.size(); ++i) {
             fmt::println(fff, "  {}", name[i]);
         }
@@ -197,10 +199,10 @@ static bool do_cmd_knowledge_quests_aux(PlayerType *, FILE *fff, QuestId q_idx)
 /*
  * Print all finished quests
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff セーブファイル (展開済？)
+ * @param fff 出力先のストリーム
  * @param quest_ids 受注したことのあるクエスト群
  */
-void do_cmd_knowledge_quests_completed(PlayerType *player_ptr, FILE *fff, const std::vector<QuestId> &quest_ids)
+void do_cmd_knowledge_quests_completed(PlayerType *player_ptr, std::ostream &fff, const std::vector<QuestId> &quest_ids)
 {
     fmt::println(fff, _("《達成したクエスト》", "< Completed Quest >"));
     int16_t total = 0;
@@ -220,10 +222,10 @@ void do_cmd_knowledge_quests_completed(PlayerType *player_ptr, FILE *fff, const 
 /*
  * Print all failed quests
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff セーブファイル (展開済？)
+ * @param fff 出力先のストリーム
  * @param quest_ids 受注したことのあるクエスト群
  */
-void do_cmd_knowledge_quests_failed(PlayerType *player_ptr, FILE *fff, const std::vector<QuestId> &quest_ids)
+void do_cmd_knowledge_quests_failed(PlayerType *player_ptr, std::ostream &fff, const std::vector<QuestId> &quest_ids)
 {
     fmt::println(fff, _("《失敗したクエスト》", "< Failed Quest >"));
     int16_t total = 0;
@@ -240,10 +242,11 @@ void do_cmd_knowledge_quests_failed(PlayerType *player_ptr, FILE *fff, const std
     }
 }
 
-/*
- * Print all random quests
+/*!
+ * @brief Print all random quests
+ * @param fff 出力先のストリーム
  */
-static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
+static void do_cmd_knowledge_quests_wiz_random(std::ostream &fff)
 {
     fmt::println(fff, _("《残りのランダムクエスト》", "< Remaining Random Quest >"));
     const auto &quests = QuestList::get_instance();
@@ -271,25 +274,18 @@ static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
  */
 void do_cmd_knowledge_quests(PlayerType *player_ptr)
 {
-    FILE *fff = nullptr;
-    GAME_TEXT file_name[FILE_NAME_SIZE];
-    if (!open_temporary_file(&fff, file_name)) {
-        return;
-    }
-
+    TempFile fff;
     const auto &quests = QuestList::get_instance();
     const auto quest_ids = quests.get_sorted_quest_ids();
     do_cmd_knowledge_quests_current(player_ptr, fff);
-    fputc('\n', fff);
+    fff << '\n';
     do_cmd_knowledge_quests_completed(player_ptr, fff, quest_ids);
-    fputc('\n', fff);
+    fff << '\n';
     do_cmd_knowledge_quests_failed(player_ptr, fff, quest_ids);
     if (AngbandWorld::get_instance().wizard) {
-        fputc('\n', fff);
+        fff << '\n';
         do_cmd_knowledge_quests_wiz_random(fff);
     }
 
-    angband_fclose(fff);
-    FileDisplayer(player_ptr->name).display(true, file_name, 0, 0, _("クエスト達成状況", "Quest status"));
-    fd_kill(file_name);
+    show_temp_file(player_ptr, fff, _("クエスト達成状況", "Quest status"));
 }

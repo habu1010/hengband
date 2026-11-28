@@ -597,7 +597,8 @@ static std::unique_ptr<TempFile> make_ini_reading_copy(std::wstring_view wide)
     }
 
     auto copy = std::make_unique<TempFile>();
-    if (copy->get_error_message() || !write_utf16_ini_file(copy->get_path(), wide)) {
+    copy->close(); // 中身は write_utf16_ini_file() で書くので、TempFile のストリームは使わない (開けなかったことも問わない)
+    if (copy->get_path().empty() || !write_utf16_ini_file(copy->get_path(), wide)) {
         return nullptr;
     }
 

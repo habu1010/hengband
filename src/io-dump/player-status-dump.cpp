@@ -1,11 +1,13 @@
 #include "io-dump/player-status-dump.h"
 #include "term/z-term.h"
 #include "view/display-player.h"
+#include <fmt/ostream.h>
+#include <ostream>
 
 /*!
  * @brief 画面番号を指定してダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  * @param display_player 画面表示へのコールバック
  * @param mode 表示モード
  * @param start_y ダンプの開始行数
@@ -13,7 +15,7 @@
  * @param change_color バッファへ詰める文字の変更有無
  * @details モンスター名の長さによっては固定長だとはみ出す可能性があるので、適切に終了行数を調整する.
  */
-static void dump_player_status_with_screen_num(PlayerType *player_ptr, FILE *fff,
+static void dump_player_status_with_screen_num(PlayerType *player_ptr, std::ostream &fff,
     const int mode, const TERM_LEN start_y, const TERM_LEN tmp_end_y, const bool change_color)
 {
     auto num_lines = display_player(player_ptr, mode);
@@ -41,9 +43,9 @@ static void dump_player_status_with_screen_num(PlayerType *player_ptr, FILE *fff
 /*!
  * @brief プレイヤーのステータス表示をファイルにダンプする
  * @param player_ptr プレイヤーへの参照ポインタ
- * @param fff ファイルポインタ
+ * @param fff 出力先のストリーム
  */
-void dump_aux_player_status(PlayerType *player_ptr, FILE *fff)
+void dump_aux_player_status(PlayerType *player_ptr, std::ostream &fff)
 {
     dump_player_status_with_screen_num(player_ptr, fff, 0, 1, 22, false);
     dump_player_status_with_screen_num(player_ptr, fff, 1, 10, 17, false);
