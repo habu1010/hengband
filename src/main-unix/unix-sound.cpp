@@ -7,7 +7,7 @@
  * @note 設計の都合上1~QueueLimit個のゾンビプロセスを残してしまう｡
  */
 #include "main-unix/unix-sound.h"
-#include "main-unix/unix-cfg-reader.h"
+#include "main/cfg-reader.h"
 #include "main/sound-definitions-table.h"
 #include "main/sound-of-music.h"
 #include "term/z-term.h"
@@ -18,7 +18,6 @@
 #include <filesystem>
 #include <queue>
 #include <ranges>
-#include <simpleini/SimpleIni.h>
 #include <spawn.h>
 #include <sys/wait.h>
 #include <tl/optional.hpp>

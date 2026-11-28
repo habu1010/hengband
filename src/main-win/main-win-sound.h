@@ -1,6 +1,6 @@
 #pragma once
 
-#include "main-win/main-win-cfg-reader.h"
+#include "main/cfg-reader.h"
 #include <array>
 #include <filesystem>
 #include <tl/optional.hpp>

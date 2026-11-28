@@ -6,10 +6,10 @@
 #define NOMINMAX
 
 #include "main-win/main-win-sound.h"
-#include "main-win/main-win-cfg-reader.h"
 #include "main-win/main-win-define.h"
 #include "main-win/main-win-utils.h"
 #include "main-win/wav-reader.h"
+#include "main/cfg-reader.h"
 #include "main/sound-definitions-table.h"
 #include "util/angband-files.h"
 #include "util/enum-converter.h"

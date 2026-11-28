@@ -27,7 +27,7 @@
  */
 
 #include "main-unix/unix-music.h"
-#include "main-unix/unix-cfg-reader.h"
+#include "main/cfg-reader.h"
 #include "main/music-definitions-table.h"
 #include "main/scene-table.h"
 #include "main/sound-of-music.h"
@@ -47,7 +47,6 @@
 #include <fmt/format.h>
 #include <limits>
 #include <ranges>
-#include <simpleini/SimpleIni.h>
 #include <spawn.h>
 #include <string>
 #include <sys/types.h>

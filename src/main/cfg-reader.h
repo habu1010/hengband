@@ -1,3 +1,9 @@
+/*!
+ * @file cfg-reader.h
+ * @brief BGM・効果音の設定ファイル (.cfg) の読み込み
+ * @details 設定の値の取り出しは Unix 系と Windows で方法が違うので、read_sections() のうち値を取り出す関数を受け取らない版を環境ごとに定義する
+ */
+
 #pragma once
 
 #include "system/angband.h"
@@ -19,9 +25,9 @@ using cfg_map = std::unordered_map<cfg_key, cfg_values>;
  * @details
  * "term_xtra()"の第1引数(action-type)、第2引数(action-val)をデータの格納キーとする。
  * action-typeはaction_typeメンバで指定する。
- * key_name_funcにより、action-valと.cfg内の読取対象キーの対応を取る。
- * key_name_funcの引数にaction-valが渡され、対応する読取対象キーを返す。
- * key_name_func引数のaction-valは0から1,2,3...と順に呼ばれ、key_name_funcがnullptrを返すまで続ける。
+ * key_atにより、action-valと.cfg内の読取対象キーの対応を取る。
+ * key_atの引数にaction-valが渡され、対応する読取対象キーを返す。
+ * key_at引数のaction-valは0から1,2,3...と順に呼ばれ、key_atがtl::nulloptを返すまで続ける。
  */
 struct cfg_section {
 
@@ -50,10 +56,14 @@ protected:
     cfg_map map{};
 };
 
+//! .cfg のセクション名とキー名から値を取り出す関数。値が無ければ空の文字列を返す
+using CfgValueGetter = std::function<std::string(const std::string &section, const std::string &key)>;
+
 class CfgReader {
 public:
     CfgReader(const std::filesystem::path &dir, std::initializer_list<concptr> files);
     CfgData read_sections(std::initializer_list<cfg_section> sections) const;
+    CfgData read_sections(std::initializer_list<cfg_section> sections, const CfgValueGetter &get_value) const;
     const std::filesystem::path &get_cfg_path() const
     {
         return cfg_path;

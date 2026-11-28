@@ -1,5 +1,6 @@
 #include "io/tokenizer.h"
 #include "locale/multibyte-char.h"
+#include <algorithm>
 
 /*!
  * @brief 各種データテキストをトークン単位に分解する
@@ -41,5 +42,31 @@ std::vector<std::string> tokenize(std::string_view buf, size_t num)
     }
 
     tokens.emplace_back(remaining);
+    return tokens;
+}
+
+/*!
+ * @brief 文字列を空白で区切ってトークンに分ける
+ * @param str 文字列
+ * @param num 最大トークン数。これより後ろのトークンは捨てる
+ * @return トークンの配列 (str の一部を指す)
+ * @details 連続した空白は 1 つの区切りとみなし、空のトークンは返さない。空白は ASCII の空白文字だけで、多バイト文字のバイトは区切りにならない。
+ */
+std::vector<std::string_view> tokenize_whitespace(std::string_view str, size_t num)
+{
+    constexpr std::string_view whitespaces = " \t\n\v\f\r";
+    std::vector<std::string_view> tokens;
+    while (tokens.size() < num) {
+        const auto start = str.find_first_not_of(whitespaces);
+        if (start == std::string_view::npos) {
+            break;
+        }
+
+        str.remove_prefix(start);
+        const auto length = std::min(str.find_first_of(whitespaces), str.length());
+        tokens.push_back(str.substr(0, length));
+        str.remove_prefix(length);
+    }
+
     return tokens;
 }

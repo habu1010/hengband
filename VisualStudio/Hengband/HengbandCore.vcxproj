@@ -389,11 +389,11 @@
     <ClCompile Include="..\..\src\main-win\main-win-music.cpp" />
     <ClCompile Include="..\..\src\main-win\main-win-sound.cpp" />
     <ClCompile Include="..\..\src\main-win\main-win-term.cpp" />
-    <ClCompile Include="..\..\src\main-win\main-win-tokenizer.cpp" />
     <ClCompile Include="..\..\src\main-win\main-win-utils.cpp" />
     <ClCompile Include="..\..\src\main-win\stack-trace-win.cpp" />
     <ClCompile Include="..\..\src\main-win\wav-reader.cpp" />
     <ClCompile Include="..\..\src\main\angband-initializer.cpp" />
+    <ClCompile Include="..\..\src\main\cfg-reader.cpp" />
     <ClCompile Include="..\..\src\main\game-data-initializer.cpp" />
     <ClCompile Include="..\..\src\main\info-initializer.cpp" />
     <ClCompile Include="..\..\src\main\music-definitions-table.cpp" />
@@ -1321,7 +1321,6 @@
     <ClInclude Include="..\..\src\main-win\commandline-win.h" />
     <ClInclude Include="..\..\src\main-win\graphics-win.h" />
     <ClInclude Include="..\..\src\main-win\main-win-bg.h" />
-    <ClInclude Include="..\..\src\main-win\main-win-cfg-reader.h" />
     <ClInclude Include="..\..\src\main-win\main-win-define.h" />
     <ClInclude Include="..\..\src\main-win\main-win-exception.h" />
     <ClInclude Include="..\..\src\main-win\main-win-mci.h" />
@@ -1330,10 +1329,10 @@
     <ClInclude Include="..\..\src\main-win\main-win-music.h" />
     <ClInclude Include="..\..\src\main-win\main-win-sound.h" />
     <ClInclude Include="..\..\src\main-win\main-win-term.h" />
-    <ClInclude Include="..\..\src\main-win\main-win-tokenizer.h" />
     <ClInclude Include="..\..\src\main-win\main-win-utils.h" />
     <ClInclude Include="..\..\src\main-win\wav-reader.h" />
     <ClInclude Include="..\..\src\main\angband-initializer.h" />
+    <ClInclude Include="..\..\src\main\cfg-reader.h" />
     <ClInclude Include="..\..\src\main\game-data-initializer.h" />
     <ClInclude Include="..\..\src\main\info-initializer.h" />
     <ClInclude Include="..\..\src\main\music-definitions-table.h" />

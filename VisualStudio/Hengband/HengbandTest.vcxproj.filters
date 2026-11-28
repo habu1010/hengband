@@ -58,6 +58,9 @@
     <Filter Include="lore">
       <UniqueIdentifier>{8ca43536-f921-5018-9314-5ef95d1231f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{74de122d-b988-57b6-b73f-44f6c457da10}</UniqueIdentifier>
+    </Filter>
     <Filter Include="market">
       <UniqueIdentifier>{c39c00e0-2243-5bfa-a98a-0989f0a30293}</UniqueIdentifier>
     </Filter>
@@ -342,6 +345,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\test\lore\test-monster-lore-snapshot.cpp">
       <Filter>lore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\main\test-cfg-reader.cpp">
+      <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\market\test-building-craft-fix.cpp">
       <Filter>market</Filter>

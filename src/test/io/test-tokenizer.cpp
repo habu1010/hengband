@@ -1,5 +1,6 @@
 #include "io/tokenizer.h"
 #include "system/h-basic.h"
+#include "test/string-helpers.h"
 
 #include <doctest/doctest.h>
 
@@ -42,4 +43,47 @@ TEST_CASE("tokenize preserves delimiters after incomplete multibyte characters")
         REQUIRE(tokens.size() == 1);
         CHECK(tokens[0] == prefix);
     }
+}
+
+namespace {
+constexpr std::string_view IDEOGRAPHIC_SPACE = "\xe3\x80\x80"; //!< 全角スペース (U+3000)
+constexpr std::string_view HIRAGANA_A = "\xe3\x81\x82"; //!< あ
+}
+
+TEST_CASE("tokenize_whitespace splits on runs of ASCII whitespace")
+{
+    const auto tokens = tokenize_whitespace(" \tone  two\r\nthree\v\f", 16);
+
+    REQUIRE(tokens.size() == 3);
+    CHECK(tokens[0] == "one");
+    CHECK(tokens[1] == "two");
+    CHECK(tokens[2] == "three");
+}
+
+TEST_CASE("tokenize_whitespace returns no tokens for blank input")
+{
+    CHECK(tokenize_whitespace("", 16).empty());
+    CHECK(tokenize_whitespace(" \t\r\n", 16).empty());
+}
+
+TEST_CASE("tokenize_whitespace drops tokens beyond the limit")
+{
+    const auto tokens = tokenize_whitespace("a b c", 2);
+
+    REQUIRE(tokens.size() == 2);
+    CHECK(tokens[0] == "a");
+    CHECK(tokens[1] == "b");
+    CHECK(tokenize_whitespace("a b", 0).empty());
+}
+
+TEST_CASE("tokenize_whitespace keeps multibyte characters intact")
+{
+    // U+3000 (全角スペース) は区切りにしない
+    const auto first = test::cat(IDEOGRAPHIC_SPACE, "a");
+    const auto input = test::cat(first, " ", HIRAGANA_A);
+    const auto tokens = tokenize_whitespace(input, 16);
+
+    REQUIRE(tokens.size() == 2);
+    CHECK(tokens[0] == first);
+    CHECK(tokens[1] == HIRAGANA_A);
 }

@@ -4,12 +4,11 @@
  */
 
 #include "main-win/main-win-music.h"
-#include "main-win/main-win-cfg-reader.h"
 #include "main-win/main-win-define.h"
 #include "main-win/main-win-mci.h"
 #include "main-win/main-win-mmsystem.h"
-#include "main-win/main-win-tokenizer.h"
 #include "main-win/main-win-utils.h"
+#include "main/cfg-reader.h"
 #include "main/music-definitions-table.h"
 #include "main/scene-table.h"
 #include "main/sound-of-music.h"

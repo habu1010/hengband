@@ -454,6 +454,7 @@ libhengband_a_SOURCES = \
 	main-x11.cpp main-gcu.cpp \
 	\
 	main/angband-initializer.cpp main/angband-initializer.h \
+	main/cfg-reader.cpp main/cfg-reader.h \
 	main/game-data-initializer.cpp main/game-data-initializer.h \
 	main/info-initializer.cpp main/info-initializer.h \
 	main/music-definitions-table.cpp main/music-definitions-table.h \
@@ -467,7 +468,7 @@ libhengband_a_SOURCES = \
 	main-unix/unix-user-ids.cpp main-unix/unix-user-ids.h \
 	main-unix/unix-music.cpp main-unix/unix-music.h \
 	main-unix/unix-sound.cpp main-unix/unix-sound.h \
-	main-unix/unix-cfg-reader.cpp main-unix/unix-cfg-reader.h \
+	main-unix/unix-cfg-reader.cpp \
 	main-unix/x11-gamma-builder.cpp main-unix/x11-gamma-builder.h \
 	main-unix/x11-helper.cpp main-unix/x11-helper.h \
 	main-unix/x11-type-string.cpp main-unix/x11-type-string.h \
@@ -1182,7 +1183,7 @@ EXTRA_libhengband_a_SOURCES = \
 	main-win/commandline-win.cpp main-win/commandline-win.h \
 	main-win/graphics-win.cpp main-win/graphics-win.h \
 	main-win/main-win-bg.cpp main-win/main-win-bg.h \
-	main-win/main-win-cfg-reader.cpp main-win/main-win-cfg-reader.h \
+	main-win/main-win-cfg-reader.cpp \
 	main-win/main-win-define.h \
 	main-win/main-win-exception.cpp main-win/main-win-exception.h \
 	main-win/main-win-mci.cpp main-win/main-win-mci.h \
@@ -1191,7 +1192,6 @@ EXTRA_libhengband_a_SOURCES = \
 	main-win/main-win-music.cpp main-win/main-win-music.h \
 	main-win/main-win-sound.cpp main-win/main-win-sound.h \
 	main-win/main-win-term.cpp main-win/main-win-term.h \
-	main-win/main-win-tokenizer.cpp main-win/main-win-tokenizer.h \
 	main-win/main-win-utils.cpp main-win/main-win-utils.h \
 	main-win/stack-trace-win.cpp \
 	main-win/wav-reader.cpp main-win/wav-reader.h \
@@ -1297,6 +1297,7 @@ hengband_test_SOURCES = \
 	test/locale/test-japanese.cpp \
 	test/locale/test-multibyte-char.cpp \
 	test/lore/test-monster-lore-snapshot.cpp \
+	test/main/test-cfg-reader.cpp \
 	test/market/test-building-recharger.cpp \
 	test/market/test-building-craft-fix.cpp \
 	test/mind/test-mind-priest.cpp \
